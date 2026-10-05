@@ -1,0 +1,63 @@
+<view class="page-wrap" style="{{themeStyle}}">
+  <view class="today-sticky">
+    <view class="topbar">
+      <view class="left"></view>
+      <view class="theme-btn" bindtap="openTheme"><view class="theme-ic"></view></view>
+    </view>
+    <view class="date-header">
+      <view>
+        <view class="th-title">{{title}}</view>
+        <view class="th-sub">{{sub}}</view>
+      </view>
+      <view wx:if="{{!isToday}}" class="back-today" bindtap="goToday">回到今日</view>
+    </view>
+    <scroll-view class="strip" scroll-x enable-flex>
+      <view wx:for="{{dates}}" wx:key="ds" class="strip-day {{item.active?'active':''}}" data-ds="{{item.ds}}" bindtap="selectDate">
+        <text class="w">{{item.w}}</text>
+        <text class="d">{{item.day}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="content">
+    <view class="sec-title">
+      <text class="st-left">今日安排 <text class="count">{{timed.length}}</text></text>
+      <view class="st-add" bindtap="openNew" data-type="event">＋</view>
+    </view>
+    <view wx:if="{{timed.length===0}}" class="empty-hint">这一天还没有安排</view>
+    <view wx:for="{{timed}}" wx:key="id" class="event-card {{item.status===1?'done':''}}" data-id="{{item.id}}" bindtap="openEdit">
+      <view class="ev-check {{item.status===1?'on':''}}" catchtap="toggleDone" data-id="{{item.id}}"><view class="check-ic"></view></view>
+      <view class="event-info">
+        <view class="event-title">{{item.title}}</view>
+        <view class="event-meta">
+          <view wx:if="{{item.remind>=0}}" class="bell-ic"></view>
+          <text wx:if="{{item.repeatDays&&item.repeatDays.length}}" class="rp-badge">↻</text>
+          <text>{{item.start}}<text wx:if="{{item.end}}"> - {{item.end}}</text></text>
+          <text wx:if="{{item.place}}"> · {{item.place}}</text>
+        </view>
+        <view wx:if="{{item.note}}" class="card-note">{{item.note}}</view>
+      </view>
+      <view class="event-tag" style="background:{{item.catBg}};color:{{item.catFg}}">{{item.cat}}</view>
+    </view>
+
+    <view class="sec-title" style="margin-top:24rpx">
+      <text class="st-left">待办事项 <text class="count">{{todos.length}}</text></text>
+      <view class="st-add" bindtap="openNew" data-type="todo">＋</view>
+    </view>
+    <view wx:if="{{todos.length===0}}" class="empty-hint">没有待办，享受轻松时刻</view>
+    <view wx:for="{{todos}}" wx:key="id" class="todo-item {{item.status===1?'done':''}}" data-id="{{item.id}}" bindtap="openEdit">
+      <view class="todo-check {{item.status===1?'on':''}}" catchtap="toggleDone" data-id="{{item.id}}"><view class="check-ic"></view></view>
+      <view class="todo-body">
+        <view class="todo-text">{{item.title}}</view>
+        <view wx:if="{{item.note}}" class="card-note">{{item.note}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="fab" bindtap="openVoice"><view class="mic-ic"></view></view>
+
+  <edit-sheet visible="{{editVisible}}" mode="{{editMode}}" taskType="{{editTaskType}}" defaultDate="{{editDefaultDate}}" task="{{editTask}}" categories="{{categories}}"
+    bind:save="onEditSave" bind:delete="onEditDelete" bind:close="onEditClose" bind:newcat="onNewCat" />
+  <voice-sheet visible="{{voiceVisible}}" categories="{{categories}}" bind:add="onVoiceAdd" bind:close="onVoiceClose" bind:newcat="onNewCat" />
+  <theme-sheet visible="{{themeVisible}}" current="{{themeKey}}" bind:change="onThemeChange" bind:close="onThemeClose" />
+</view>

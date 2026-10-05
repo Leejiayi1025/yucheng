@@ -1,0 +1,11 @@
+.theme-list { display: flex; flex-direction: column; gap: 14rpx; }
+.theme-row {
+  display: flex; align-items: center; gap: 20rpx;
+  padding: 22rpx 24rpx; border-radius: var(--radius);
+  background: var(--solid); border: 1rpx solid var(--line);
+}
+.theme-row.on { border-color: var(--primary); background: var(--primary-soft); }
+.theme-sw { display: flex; gap: 8rpx; }
+.sw-dot { width: 36rpx; height: 36rpx; border-radius: 10rpx; }
+.theme-name { flex: 1; font-size: 28rpx; color: var(--text); }
+.theme-check { color: var(--primary); font-weight: 700; font-size: 32rpx; }

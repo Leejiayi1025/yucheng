@@ -1,0 +1,31 @@
+# 依赖
+node_modules/
+前端/app/node_modules/
+
+# 环境变量（重要！不要上传）
+.env
+后端/.env
+后端/.env.local
+
+# 构建产物
+前端/dist/
+前端/h5/
+
+# 日志
+*.log
+npm-debug.log*
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 临时文件
+*.tmp
+*.bak
+*.backup

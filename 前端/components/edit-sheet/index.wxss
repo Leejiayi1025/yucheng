@@ -1,0 +1,37 @@
+/* 复用 .sheet-mask/.sheet-card/.edit-* 全局类；此处补充本组件专有样式 */
+.picker-trigger { padding-right: 56rpx; }
+.picker-trigger text { color: var(--text); }
+.remind-ctl { display: flex; align-items: center; gap: 16rpx; }
+.remind-state { font-size: 26rpx; color: var(--text2); }
+.remind-pick { flex: 1; margin-left: 8rpx; }
+
+/* 自定义开关 */
+.sw {
+  width: 84rpx; height: 48rpx; border-radius: 24rpx;
+  background: var(--line); position: relative; transition: background .2s;
+  flex-shrink: 0;
+}
+.sw.on { background: var(--primary); }
+.sw .knob {
+  position: absolute; top: 4rpx; left: 4rpx;
+  width: 40rpx; height: 40rpx; border-radius: 50%;
+  background: #fff; transition: transform .2s; box-shadow: 0 2rpx 6rpx rgba(0,0,0,.2);
+}
+.sw.on .knob { transform: translateX(36rpx); }
+
+/* 重复星期药丸 */
+.repeat-pills { display: flex; gap: 12rpx; }
+.rp-pill {
+  flex: 1; text-align: center; padding: 14rpx 0;
+  border-radius: 16rpx; background: var(--solid);
+  border: 1rpx solid var(--line); font-size: 26rpx; color: var(--text2);
+}
+.rp-pill.on { background: var(--primary-soft); color: var(--primary); border-color: var(--primary); font-weight: 600; }
+.repeat-sum { font-size: 24rpx; color: var(--text2); margin-top: 12rpx; }
+
+.del-ic {
+  width: 34rpx; height: 34rpx;
+  background-color: var(--danger);
+  -webkit-mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='black' d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/></svg>") no-repeat center / 34rpx 34rpx;
+  mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='black' d='M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z'/></svg>") no-repeat center / 34rpx 34rpx;
+}

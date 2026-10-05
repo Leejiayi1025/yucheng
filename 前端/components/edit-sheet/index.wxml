@@ -1,0 +1,88 @@
+<view wx:if="{{visible}}">
+  <view class="sheet-mask" bindtap="onClose"></view>
+  <view class="sheet-card">
+    <view class="edit-title">{{mode==='edit' ? '编辑任务' : (hasTime ? '新建安排' : '新建待办')}}</view>
+
+    <view class="edit-field">
+      <label>标题</label>
+      <input value="{{title}}" maxlength="15" placeholder="要做什么？" bindinput="onTitle" />
+    </view>
+
+    <view class="f-row2">
+      <view class="edit-field">
+        <label>日期</label>
+        <picker mode="date" value="{{date}}" bindchange="onDate">
+          <view class="rm-sel picker-trigger"><text>{{dateLabel}}</text><view class="rm-chev"></view></view>
+        </picker>
+      </view>
+      <view class="edit-field">
+        <label>地点</label>
+        <input value="{{place}}" maxlength="15" placeholder="可选" bindinput="onPlace" />
+      </view>
+    </view>
+
+    <view class="edit-field">
+      <label>具体时间</label>
+      <view class="sw {{hasTime?'on':''}}" bindtap="toggleTime"><view class="knob"></view></view>
+    </view>
+
+    <view wx:if="{{hasTime}}" class="f-row2">
+      <view class="edit-field">
+        <label>开始时间</label>
+        <picker mode="time" value="{{start}}" bindchange="onStart">
+          <view class="rm-sel picker-trigger"><text>{{start || '选择时间'}}</text><view class="rm-chev"></view></view>
+        </picker>
+      </view>
+      <view class="edit-field">
+        <label>结束时间</label>
+        <picker mode="time" value="{{end}}" bindchange="onEnd">
+          <view class="rm-sel picker-trigger"><text>{{end || '选择时间'}}</text><view class="rm-chev"></view></view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="edit-field">
+      <label>分类</label>
+      <rm-select options="{{catOptions}}" value="{{cat}}" placeholder="选择分类" bind:change="onCat" bind:custom="onNewCat" />
+    </view>
+
+    <view class="edit-field">
+      <label>提醒</label>
+      <view class="remind-ctl">
+        <view class="sw {{remindOn?'on':''}}" bindtap="toggleRemind"><view class="knob"></view></view>
+        <text class="remind-state">{{remindOn ? '提醒' : '不提醒'}}</text>
+        <view wx:if="{{remindOn}}" class="remind-pick">
+          <rm-select options="{{remindOptions}}" value="{{remindMin}}" placeholder="提醒时间" bind:change="onRemind" />
+        </view>
+      </view>
+    </view>
+
+    <view class="edit-field">
+      <label>重复</label>
+      <view class="repeat-pills">
+        <view wx:for="{{dows}}" wx:key="*this"
+              class="rp-pill {{repeatDays.indexOf(index)>=0?'on':''}}"
+              data-d="{{index}}" bindtap="toggleRepeat">{{item}}</view>
+      </view>
+      <view class="repeat-sum">{{repeatText}}</view>
+    </view>
+
+    <view class="edit-field">
+      <label>备注</label>
+      <textarea value="{{note}}" maxlength="100" placeholder="补充说明、清单、注意事项…" bindinput="onNote" />
+    </view>
+
+    <view wx:if="{{mode==='edit'}}" class="edit-field">
+      <label>顺延到</label>
+      <rm-select options="{{postponeOptions}}" value="{{postponeValue}}" placeholder="选择日期…" bind:change="onPostpone" />
+    </view>
+
+    <view class="edit-actions">
+      <block wx:if="{{mode==='edit'}}">
+        <button class="e-del" bindtap="onDelete"><view class="del-ic"></view></button>
+        <button class="e-save" bindtap="onSave">保存</button>
+      </block>
+      <button wx:else class="e-save" bindtap="onSave">保存</button>
+    </view>
+  </view>
+</view>

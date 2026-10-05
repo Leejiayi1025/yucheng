@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>语程 · 管理后台</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+    background: #f5f1ec;
+    color: #2d3a33;
+    min-height: 100vh;
+  }
+  .admin-container { max-width: 1280px; margin: 0 auto; padding: 32px 24px; }
+
+  /* 顶部 */
+  .admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+  }
+  .admin-header h1 { font-size: 22px; font-weight: 700; }
+  .admin-header .sub { font-size: 13px; color: #8a9b8f; margin-top: 4px; }
+
+  /* 登录页 */
+  .login-box {
+    max-width: 380px;
+    margin: 140px auto;
+    background: #fff;
+    border-radius: 20px;
+    padding: 40px 36px;
+    box-shadow: 0 8px 32px rgba(107, 142, 123, 0.12);
+  }
+  .login-box .logo {
+    width: 48px; height: 48px;
+    background: #6b8e7b;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 22px; font-weight: 700;
+    margin: 0 auto 16px;
+  }
+  .login-box h2 { font-size: 18px; margin-bottom: 24px; text-align: center; font-weight: 600; }
+  .login-box input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid #e8e4de;
+    border-radius: 12px;
+    font-size: 14px;
+    margin-bottom: 12px;
+    outline: none;
+    transition: all 0.2s;
+    background: #faf8f5;
+  }
+  .login-box input:focus { border-color: #6b8e7b; background: #fff; }
+  .login-box button {
+    width: 100%;
+    padding: 12px;
+    background: #6b8e7b;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s;
+  }
+  .login-box button:hover { background: #5a7d6a; }
+  .login-error { color: #e74c3c; font-size: 13px; text-align: center; margin-top: 12px; }
+
+  /* 统计卡片 */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    transition: transform 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); }
+  .stat-card .label { font-size: 12px; color: #999; margin-bottom: 8px; font-weight: 500; }
+  .stat-card .value { font-size: 28px; font-weight: 700; color: #2d3a33; line-height: 1.2; }
+  .stat-card .sub-text { font-size: 12px; color: #6b8e7b; margin-top: 6px; }
+  .stat-card.primary { background: linear-gradient(135deg, #6b8e7b, #8aae9b); color: #fff; }
+  .stat-card.primary .label { color: rgba(255,255,255,0.8); }
+  .stat-card.primary .value { color: #fff; }
+  .stat-card.primary .sub-text { color: rgba(255,255,255,0.7); }
+
+  /* 图表区 */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .section {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #2d3a33;
+  }
+  .chart-wrap { position: relative; height: 260px; }
+
+  /* 表格 */
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 10px 14px; font-size: 12px; color: #999; border-bottom: 1px solid #f0ede8; font-weight: 500; }
+  td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid #f8f6f2; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #faf8f5; }
+
+  /* 标签 */
+  .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .tag-admin { background: #f0e6d3; color: #b8860b; }
+  .tag-user { background: #e8f0e8; color: #6b8e7b; }
+  .tag-active { background: #e8f5e9; color: #4caf50; }
+  .tag-inactive { background: #f5f5f5; color: #999; }
+
+  /* 头像 */
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #6b8e7b;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+
+  /* 退出按钮 */
+  .logout-btn {
+    padding: 8px 16px;
+    background: transparent;
+    border: 1.5px solid #e0dcd5;
+    border-radius: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    color: #666;
+    transition: all 0.2s;
+  }
+  .logout-btn:hover { border-color: #e74c3c; color: #e74c3c; }
+
+  .empty { text-align: center; color: #bbb; padding: 40px; font-size: 13px; }
+
+  /* tab切换 */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .tab {
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: #888;
+    transition: all 0.2s;
+  }
+  .tab.active { background: #6b8e7b; color: #fff; }
+  .tab:hover:not(.active) { background: #f0ede8; }
+</style>
+</head>
+<body>
+
+<div class="admin-container" id="app"></div>
+
+<script>
+const API = '/api';
+let token = localStorage.getItem('admin_token') || '';
+let charts = {};
+
+// 事件名 → 中文描述映射
+const eventDescriptions = {
+  'login': '用户登录成功',
+  'register': '新用户注册成功',
+  'logout': '用户退出登录',
+  'page_view': '切换页面（今日/日历/我的）',
+  'voice_mic_click': '点击麦克风开始语音输入',
+  'voice_recording_start': '开始录音',
+  'voice_recording_end': '结束录音',
+  'voice_parse_success': '语音解析成功',
+  'voice_parse_fail': '语音解析失败',
+  'task_add': '添加日程成功',
+  'task_edit': '编辑日程',
+  'task_delete': '删除日程',
+  'theme_change': '切换主题皮肤',
+  'theme_preview': '预览主题',
+  'profile_edit': '修改个人信息',
+  'avatar_upload': '上传头像',
+  'password_change': '修改密码',
+  'email_change': '更换绑定邮箱',
+  'phone_bind': '绑定手机号',
+  'account_delete': '注销账号',
+  'app_launch': '打开APP',
+  'test_event': '测试事件'
+};
+
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: 'Bearer ' + token } : {}),
+      ...(opts.headers || {})
+    }
+  });
+  const data = await res.json();
+  if (res.status === 401) { token = ''; localStorage.removeItem('admin_token'); render(); throw new Error('未登录'); }
+  if (!res.ok) throw new Error(data.error || '请求失败');
+  return data;
+}
+
+async function login(account, password) {
+  const res = await fetch(API + '/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ account, password })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || '登录失败');
+  token = data.token;
+  localStorage.setItem('admin_token', token);
+  return data;
+}
+
+function renderLogin(error = '') {
+  document.getElementById('app').innerHTML = `
+    <div class="login-box">
+      <div class="logo">语</div>
+      <h2>语程管理后台</h2>
+      <input type="text" id="account" placeholder="管理员账号" />
+      <input type="password" id="password" placeholder="密码" />
+      <button onclick="doLogin()">登录</button>
+      ${error ? `<div class="login-error">${error}</div>` : ''}
+    </div>
+  `;
+  document.getElementById('password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+}
+
+async function doLogin() {
+  const account = document.getElementById('account').value;
+  const password = document.getElementById('password').value;
+  try {
+    await login(account, password);
+    render();
+  } catch (e) {
+    renderLogin(e.message);
+  }
+}
+
+function logout() {
+  token = '';
+  localStorage.removeItem('admin_token');
+  render();
+}
+
+function renderDashboard(stats) {
+  document.getElementById('app').innerHTML = `
+    <div class="admin-header">
+      <div>
+        <h1>语程 · 管理后台</h1>
+        <div class="sub">数据概览 · 实时更新 · ${new Date().toLocaleDateString('zh-CN')}</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">退出登录</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="label">总用户数</div>
+        <div class="value">${stats.users}</div>
+        <div class="sub-text">今日新增 +${stats.today_new_users}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">总日程数</div>
+        <div class="value">${stats.tasks}</div>
+        <div class="sub-text">用户创建的全部日程</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">语音添加次数</div>
+        <div class="value">${stats.voice_adds}</div>
+        <div class="sub-text">核心功能使用情况</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">总事件数</div>
+        <div class="value">${stats.total_events}</div>
+        <div class="sub-text">埋点累计</div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="section">
+        <div class="section-title">近7天活跃趋势</div>
+        <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+      </div>
+      <div class="section">
+        <div class="section-title">热门操作分布</div>
+        <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="section" style="margin-bottom: 24px;">
+      <div class="section-title">用户列表</div>
+      <div id="userList"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">热门操作明细</div>
+      ${stats.top_events.length ? `
+        <table>
+          <thead><tr><th>事件名</th><th>说明</th><th>次数</th><th>占比</th></tr></thead>
+          <tbody>
+            ${stats.top_events.map(e => `
+              <tr>
+                <td><code style="font-size:12px;color:#6b8e7b">${e.event_name}</code></td>
+                <td>${eventDescriptions[e.event_name] || '自定义事件'}</td>
+                <td>${e.cnt}</td>
+                <td>${(e.cnt / stats.total_events * 100).toFixed(1)}%</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      ` : '<div class="empty">暂无数据</div>'}
+    </div>
+  `;
+
+  // 渲染趋势图
+  setTimeout(() => renderCharts(stats), 100);
+}
+
+function renderCharts(stats) {
+  // 折线图
+  const trendCtx = document.getElementById('trendChart');
+  if (trendCtx) {
+    if (charts.trend) charts.trend.destroy();
+    charts.trend = new Chart(trendCtx, {
+      type: 'line',
+      data: {
+        labels: stats.daily_events.map(d => d.date.slice(5)),
+        datasets: [{
+          label: '事件数',
+          data: stats.daily_events.map(d => d.cnt),
+          borderColor: '#6b8e7b',
+          backgroundColor: 'rgba(107, 142, 123, 0.1)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#6b8e7b'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#f0ede8' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // 饼图
+  const pieCtx = document.getElementById('pieChart');
+  if (pieCtx && stats.top_events.length) {
+    if (charts.pie) charts.pie.destroy();
+    charts.pie = new Chart(pieCtx, {
+      type: 'doughnut',
+      data: {
+        labels: stats.top_events.slice(0, 6).map(e => e.event_name),
+        datasets: [{
+          data: stats.top_events.slice(0, 6).map(e => e.cnt),
+          backgroundColor: ['#6b8e7b', '#b8860b', '#8aae9b', '#d4a574', '#a8c5b8', '#e0d5c1']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, font: { size: 11 } } }
+        }
+      }
+    });
+  }
+}
+
+async function loadUsers() {
+  try {
+    const users = await api('/admin/users');
+    const html = users.map(u => `
+      <tr>
+        <td>
+          <span class="avatar">${(u.nickname || u.email || '?')[0]}</span>
+          ${u.nickname || u.email || '未命名'}
+        </td>
+        <td>${u.email || u.phone || '-'}</td>
+        <td><span class="tag ${u.role === 'admin' ? 'tag-admin' : 'tag-user'}">${u.role === 'admin' ? '管理员' : '普通用户'}</span></td>
+        <td>${new Date(u.created_at).toLocaleDateString('zh-CN')}</td>
+        <td>${u.task_count || 0} 条日程</td>
+      </tr>
+    `).join('');
+    document.getElementById('userList').innerHTML = `
+      <table>
+        <thead><tr><th>用户</th><th>账号</th><th>角色</th><th>注册时间</th><th>日程数</th></tr></thead>
+        <tbody>${html}</tbody>
+      </table>
+    `;
+  } catch {
+    document.getElementById('userList').innerHTML = '<div class="empty">用户数据加载失败</div>';
+  }
+}
+
+async function render() {
+  if (!token) { renderLogin(); return; }
+  try {
+    const stats = await api('/admin/stats');
+    renderDashboard(stats);
+    loadUsers();
+  } catch (e) {
+    renderLogin('登录已过期，请重新登录');
+  }
+}
+
+render();
+</script>
+
+</body>
+</html>

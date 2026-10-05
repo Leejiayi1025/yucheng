@@ -1,0 +1,27 @@
+{
+  "pages": [
+    "pages/today/today",
+    "pages/calendar/calendar",
+    "pages/mine/mine",
+    "pages/login/login"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#E8E0D8",
+    "navigationBarTitleText": "语程",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#E8E0D8"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#8E8E93",
+    "selectedColor": "#6B8E7B",
+    "backgroundColor": "#F5F1EC",
+    "list": [
+      { "pagePath": "pages/today/today", "text": "今日" },
+      { "pagePath": "pages/calendar/calendar", "text": "日历" },
+      { "pagePath": "pages/mine/mine", "text": "我的" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
