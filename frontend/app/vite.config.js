@@ -5,8 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   build: {
-    outDir: '../dist',
-    // 某些环境下 emptyOutDir 会因文件删除被拦截而构建失败，改为直接覆盖
-    emptyOutDir: false
+    outDir: 'dist',
+    emptyOutDir: true
   }
 });
