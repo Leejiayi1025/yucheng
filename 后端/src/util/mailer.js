@@ -124,7 +124,7 @@ async function sendCodeMail(email, code, ttlMin = 5) {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + MAIL_API_KEY
         },
-        body: JSON.stringify({ from: MAIL_FROM, to: email, subject, text, html }),
+        body: JSON.stringify({ from: MAIL_FROM, to: [email], subject, text, html }),
         signal: ctrl.signal
       });
       if (!resp.ok) {
