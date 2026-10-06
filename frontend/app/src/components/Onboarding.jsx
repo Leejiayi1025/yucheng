@@ -194,6 +194,7 @@ const PAGES = [
 
 export default function Onboarding({ onEnter }) {
   const [i, setI] = useState(0);
+  const [dragX, setDragX] = useState(0);
   const trackRef = useRef(null);
 
   const last = i === PAGES.length - 1;
@@ -209,19 +210,36 @@ export default function Onboarding({ onEnter }) {
     return () => document.removeEventListener('keydown', onKey);
   }, [next, prev]);
 
-  const swipe = useRef({ x: 0, y: 0, active: false });
+  const swipe = useRef({ startX: 0, startY: 0, active: false, width: 0 });
+
   const onDown = (e) => {
-    swipe.current = { x: e.clientX, y: e.clientY, active: true };
+    swipe.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      active: true,
+      width: trackRef.current?.offsetWidth || window.innerWidth
+    };
   };
+
+  const onMove = (e) => {
+    if (!swipe.current.active) return;
+    const dx = e.clientX - swipe.current.startX;
+    const dy = e.clientY - swipe.current.startY;
+    // 垂直滑动不触发
+    if (Math.abs(dx) > Math.abs(dy)) {
+      e.preventDefault();
+      setDragX(dx);
+    }
+  };
+
   const onUp = (e) => {
     if (!swipe.current.active) return;
-    const dx = e.clientX - swipe.current.x;
-    const dy = e.clientY - swipe.current.y;
     swipe.current.active = false;
-    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
-      if (dx < 0) next();
-      else prev();
-    }
+    const dx = e.clientX - swipe.current.startX;
+    setDragX(0);
+    const threshold = swipe.current.width * 0.2; // 滑动超过20%就翻页
+    if (dx < -threshold) next();
+    else if (dx > threshold) prev();
   };
 
   return (
@@ -233,9 +251,14 @@ export default function Onboarding({ onEnter }) {
       <div
         className="ob-track"
         ref={trackRef}
-        style={{ transform: 'translateX(' + -i * 100 + '%)' }}
+        style={{
+          transform: 'translateX(calc(' + -i * 100 + '% + ' + dragX + 'px))',
+          transition: dragX ? 'none' : 'transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)'
+        }}
         onPointerDown={onDown}
+        onPointerMove={onMove}
         onPointerUp={onUp}
+        onPointerLeave={onUp}
       >
         {PAGES.map((p, idx) => (
           <section className="ob-page" key={p.key}>

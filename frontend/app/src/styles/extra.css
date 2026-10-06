@@ -3468,3 +3468,14 @@
 iframe[src*="netlify"] {
   display: none !important;
 }
+
+/* 引导页丝滑滑动优化 */
+.ob-track {
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+.ob-track:active {
+  cursor: grabbing;
+}
