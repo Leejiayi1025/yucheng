@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import Login from './pages/Login';
 import Today from './pages/Today';
-import Calendar from './pages/Calendar';
-import Mine from './pages/Mine';
 import NotifBanner from './components/NotifBanner';
 import Onboarding from './components/Onboarding';
 import { useApp } from './store';
+
+// 懒加载其他页面，首屏只加载首页
+const Calendar = lazy(() => import('./pages/Calendar'));
+const Mine = lazy(() => import('./pages/Mine'));
 
 export default function App() {
   const { user, toastData, closeToast } = useApp();
@@ -66,8 +68,10 @@ export default function App() {
   return (
     <div className="app">
       {page === 'today' && <Today page={page} onPage={setPage} />}
-      {page === 'calendar' && <Calendar page={page} onPage={setPage} />}
-      {page === 'mine' && <Mine page={page} onPage={setPage} />}
+      <Suspense fallback={<div style={{padding: 20, textAlign: 'center', color: '#999'}}>加载中...</div>}>
+        {page === 'calendar' && <Calendar page={page} onPage={setPage} />}
+        {page === 'mine' && <Mine page={page} onPage={setPage} />}
+      </Suspense>
       <NotifBanner />
       {toastNode}
     </div>
