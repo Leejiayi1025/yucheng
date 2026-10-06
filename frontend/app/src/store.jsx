@@ -32,7 +32,7 @@ function toCatPair(name, color) {
 }
 
 export function AppProvider({ children }) {
-  const [theme, setThemeState] = useState('black-gold');
+  const [theme, setThemeState] = useState('ios-minimal');
   const [soundOn, setSoundOnState] = useState(() => {
     try {
       return localStorage.getItem('yucheng_sound') !== 'off';
@@ -327,7 +327,7 @@ export function AppProvider({ children }) {
     setTasks([]);
     setCats({ ...CAT });
     setProfileState(defaultProfile);
-    setThemeState('black-gold');
+    setThemeState('ios-minimal');
   }, []);
 
   const value = useMemo(
