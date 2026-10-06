@@ -127,10 +127,10 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/categories', catRoutes);
 app.use('/api/voice', voiceRoutes);
 
-// 前端页面托管：优先 Vite 构建产物 前端/dist（真正的前端工程），
+// 前端页面托管：优先 Vite 构建产物 frontend/dist（真正的前端工程），
 // 其次才是旧的单文件 h5（仅作参考，已不推荐使用）
-const dist = path.join(__dirname, '..', '..', '前端', 'dist');
-const h5 = path.join(__dirname, '..', '..', '前端', 'h5');
+const dist = path.join(__dirname, '..', '..', 'frontend', 'dist');
+const h5 = path.join(__dirname, '..', '..', 'frontend', 'h5');
 if (fs.existsSync(dist)) {
   app.use(express.static(dist));
   // SPA 兜底：非 /api 的请求都回 index.html
@@ -139,10 +139,10 @@ if (fs.existsSync(dist)) {
     if (req.path.startsWith('/api')) return next();
     res.sendFile(path.join(dist, 'index.html'));
   });
-  console.log('前端构建产物已托管(前端/dist)');
+  console.log('前端构建产物已托管(frontend/dist)');
 } else if (fs.existsSync(h5)) {
   app.use(express.static(h5));
-  console.log('H5 单文件已托管(前端/h5)');
+  console.log('H5 单文件已托管(frontend/h5)');
 }
 
 const PORT = process.env.PORT || 4000;

@@ -259,7 +259,7 @@ router.put('/theme', authMiddleware, async (req, res) => {
 /* ---------- 更新个人信息（昵称/签名/头像） ---------- */
 router.put('/profile', authMiddleware, async (req, res) => {
   try {
-    const { nickname, sign, avatar } = req.body || {};
+    const { nickname, sign, avatar, theme } = req.body || {};
     const updates = [];
     const params = [];
 
