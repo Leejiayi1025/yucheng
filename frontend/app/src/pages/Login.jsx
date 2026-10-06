@@ -85,6 +85,7 @@ export default function Login() {
   const [remember, setRemember] = useState(() => {
     return localStorage.getItem('yucheng_remember') === '1';
   });
+  const [showAgreement, setShowAgreement] = useState(null); // null | 'user' | 'privacy'
 
   useEffect(() => {
     if (remember) {
@@ -395,9 +396,58 @@ export default function Login() {
         </div>
         <div className="auth-note">
           注册即代表同意{' '}
-          <b onClick={() => toast('《用户协议》')}>《用户协议》</b> 与{' '}
-          <b onClick={() => toast('《隐私政策》')}>《隐私政策》</b>
+          <b onClick={() => setShowAgreement('user')}>《用户协议》</b> 与{' '}
+          <b onClick={() => setShowAgreement('privacy')}>《隐私政策》</b>
         </div>
+
+        {/* 用户协议弹窗 */}
+        {showAgreement && (
+          <div
+            className="cropper-overlay"
+            onClick={() => setShowAgreement(null)}
+            style={{ zIndex: 1000 }}
+          >
+            <div
+              className="cropper-box"
+              onClick={(e) => e.stopPropagation()}
+              style={{ maxHeight: '80vh', overflowY: 'auto' }}
+            >
+              <div className="cropper-title">
+                {showAgreement === 'user' ? '用户协议' : '隐私政策'}
+              </div>
+              <div style={{ padding: '0 24px', fontSize: 14, lineHeight: 1.8, color: '#666', textAlign: 'left' }}>
+                {showAgreement === 'user' ? (
+                  <>
+                    <p><strong>一、服务说明</strong></p>
+                    <p>语程是一款语音智能日程管理工具，帮助用户通过语音快速记录和管理日程安排。</p>
+                    <p><strong>二、用户责任</strong></p>
+                    <p>1. 用户应妥善保管自己的账号密码，因个人原因造成的信息泄露由用户自行承担。</p>
+                    <p>2. 用户不得利用本服务从事违法活动。</p>
+                    <p><strong>三、服务变更</strong></p>
+                    <p>我们保留随时修改或终止服务的权利，修改后将在应用内通知用户。</p>
+                  </>
+                ) : (
+                  <>
+                    <p><strong>一、信息收集</strong></p>
+                    <p>我们仅收集您主动提供的邮箱、昵称、头像和日程信息，用于提供服务。</p>
+                    <p><strong>二、信息使用</strong></p>
+                    <p>您的个人信息仅用于：</p>
+                    <p>1. 提供日程管理服务</p>
+                    <p>2. 发送验证码和重要通知</p>
+                    <p>3. 改进产品体验</p>
+                    <p><strong>三、信息保护</strong></p>
+                    <p>我们采用行业标准的安全措施保护您的个人信息，不会向第三方泄露您的个人数据。</p>
+                  </>
+                )}
+              </div>
+              <div className="cropper-btns">
+                <button className="cropper-ok" onClick={() => setShowAgreement(null)}>
+                  我知道了
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

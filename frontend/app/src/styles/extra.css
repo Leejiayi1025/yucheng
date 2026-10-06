@@ -3479,3 +3479,21 @@ iframe[src*="netlify"] {
 .ob-track:active {
   cursor: grabbing;
 }
+
+/* 优化返回按钮：去掉背景，纯图标，更高级 */
+.auth-back {
+  background: transparent !important;
+  border: none !important;
+  width: 40px !important;
+  height: 40px !important;
+  margin-top: 16px !important;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.auth-back:hover {
+  opacity: 1;
+}
+.auth-back svg {
+  width: 22px !important;
+  height: 22px !important;
+}

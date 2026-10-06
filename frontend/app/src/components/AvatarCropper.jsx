@@ -84,19 +84,85 @@ export default function AvatarCropper({ file, onCancel, onConfirm }) {
 
     const img = new Image();
     img.onload = () => {
-      // 计算实际绘制位置
+      // 裁剪框显示尺寸 300x300
+      const displaySize = 300;
+      // canvas 尺寸 200x200
+      const ratio = S / displaySize;
+
+      // 图片在屏幕上的实际显示尺寸
       const displayW = naturalW * scale;
       const displayH = naturalH * scale;
-      // 裁剪框中心是 150, 150（显示尺寸300x300）
-      // 图片左上角在裁剪框中的位置是 offsetX, offsetY
-      // 转换成canvas坐标（200x200，缩放比200/300）
-      const ratio = S / 300;
-      const dx = offsetX * ratio;
-      const dy = offsetY * ratio;
-      const dw = displayW * ratio;
-      const dh = displayH * ratio;
 
-      ctx.drawImage(img, dx, dy, dw, dh);
+      // 裁剪框中心在 (displaySize/2, displaySize/2) = (150, 150)
+      // 图片中心的位置 = (offsetX + displayW/2, offsetY + displayH/2)
+      // 我们要让图片中心对齐裁剪框中心？不对，是用户拖动的位置
+
+      // 正确的计算：
+      // 图片左上角在裁剪框坐标系中的位置是 (offsetX, offsetY)
+      // 裁剪框左上角是 (0, 0)
+      // 我们要把裁剪框里的内容画到canvas上
+
+      // 先把canvas平移到裁剪框中心
+      ctx.translate(S / 2, S / 2);
+      // 缩放
+      ctx.scale(ratio, ratio);
+      // 平移：图片中心应该在裁剪框中心吗？
+      // 不对，图片的位置是 offsetX, offsetY（左上角）
+      // 图片中心是 offsetX + displayW/2, offsetY + displayH/2
+      // 我们要把图片中心对齐到裁剪框中心 (150, 150)？
+      // 不对，用户拖动的就是图片的位置，所以直接用offsetX和offsetY
+
+      // 重新算：
+      // 我们要画的是：裁剪框里看到的内容
+      // 裁剪框是 300x300，左上角在 (0,0)
+      // 图片的位置是：左上角在 (offsetX, offsetY)，大小是 displayW x displayH
+
+      // 所以，drawImage的参数是：
+      // 源图：img
+      // 源图x：(150 - offsetX) / scale ？不对，应该是从源图的哪个位置开始画
+      // 不对，我搞混了。
+
+      // 正确的做法：
+      // 1. 先把图片画在canvas上，位置和大小和屏幕上看到的一样
+      // 2. 然后裁剪出中心的正方形
+
+      // 重新来：
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, S, S);
+
+      // 计算缩放比例：屏幕上的300px对应canvas的200px
+      const s = S / displaySize;
+
+      // 图片在屏幕上的位置：
+      // 左上角：(offsetX, offsetY)
+      // 大小：(displayW, displayH)
+      // 裁剪框中心：(150, 150)
+
+      // 我们要把图片画在canvas上，使得：
+      // 屏幕上裁剪框里看到的内容，就是canvas上的内容
+
+      // 所以：
+      // 1. 先把canvas的原点移到裁剪框中心
+      ctx.translate(S / 2, S / 2);
+      // 2. 缩放
+      ctx.scale(s, s);
+      // 3. 把图片画上去：图片中心应该在哪里？
+      // 屏幕上，图片中心 = offsetX + displayW/2, offsetY + displayH/2
+      // 屏幕上，裁剪框中心 = 150, 150
+      // 所以，相对于裁剪框中心，图片中心的偏移是：
+      // (offsetX + displayW/2 - 150, offsetY + displayH/2 - 150)
+      const imgCenterX = offsetX + displayW / 2 - displaySize / 2;
+      const imgCenterY = offsetY + displayH / 2 - displaySize / 2;
+
+      // 画图片，图片中心对齐到这个位置
+      ctx.drawImage(
+        img,
+        imgCenterX - displayW / 2,
+        imgCenterY - displayH / 2,
+        displayW,
+        displayH
+      );
+
       onConfirm(cv.toDataURL('image/jpeg', 0.85));
     };
     img.src = imgUrl;
@@ -131,17 +197,7 @@ export default function AvatarCropper({ file, onCancel, onConfirm }) {
           )}
           <div className="cropper-mask" />
         </div>
-        <div className="cropper-hint">拖动调整位置 · 双指捏合或滚轮缩放</div>
-        <div className="cropper-slider">
-          <input
-            type="range"
-            min="0.5"
-            max="3"
-            step="0.01"
-            value={scale}
-            onChange={(e) => setScale(parseFloat(e.target.value))}
-          />
-        </div>
+        <div className="cropper-hint">拖动调整位置 · 双指捏合缩放</div>
         <div className="cropper-btns">
           <button className="cropper-cancel" onClick={onCancel}>
             取消
