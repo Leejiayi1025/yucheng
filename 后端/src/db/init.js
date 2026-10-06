@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS users (
   phone VARCHAR(20) DEFAULT NULL,
   password_hash VARCHAR(100) NOT NULL,
   nickname VARCHAR(40) DEFAULT NULL,
-  avatar_url VARCHAR(255) DEFAULT NULL,
+  sign VARCHAR(200) DEFAULT NULL,
+  avatar VARCHAR(255) DEFAULT NULL,
   theme VARCHAR(20) DEFAULT 'sage',
   role VARCHAR(20) DEFAULT 'user',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -68,6 +69,21 @@ async function run() {
   await conn.query(`CREATE DATABASE IF NOT EXISTS \`${DB}\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci`);
   await conn.query(`USE \`${DB}\``);
   await conn.query(SCHEMA);
+
+  // 自动补字段（如果表已存在但缺字段）
+  const alterStatements = [
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS sign VARCHAR(200) DEFAULT NULL`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar VARCHAR(255) DEFAULT NULL`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(100) DEFAULT NULL`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'user'`
+  ];
+  for (const sql of alterStatements) {
+    try {
+      await conn.query(sql);
+    } catch (e) {
+      // 字段已存在就忽略错误
+    }
+  }
 
   // ---- 种子数据 ----
   const phone = '13800138000';
