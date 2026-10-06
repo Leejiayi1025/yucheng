@@ -3463,3 +3463,8 @@
   width: 20px;
   border-radius: 4px;
 }
+
+/* 隐藏 Netlify 右下角水印 */
+iframe[src*="netlify"] {
+  display: none !important;
+}
