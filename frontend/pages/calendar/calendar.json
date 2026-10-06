@@ -1,6 +1,0 @@
-{
-  "navigationBarTitleText": "日历",
-  "usingComponents": {
-    "edit-sheet": "../../components/edit-sheet/index"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "navigationBarTitleText": "今日",
-  "usingComponents": {
-    "edit-sheet": "../../components/edit-sheet/index",
-    "voice-sheet": "../../components/voice-sheet/index",
-    "theme-sheet": "../../components/theme-sheet/index"
-  }
-}
