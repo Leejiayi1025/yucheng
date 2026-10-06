@@ -15,12 +15,16 @@ const DB = process.env.DB_NAME || 'yuecheng';
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS users (
   id BIGINT NOT NULL AUTO_INCREMENT,
-  phone VARCHAR(20) NOT NULL,
+  email VARCHAR(100) DEFAULT NULL,
+  phone VARCHAR(20) DEFAULT NULL,
   password_hash VARCHAR(100) NOT NULL,
   nickname VARCHAR(40) DEFAULT NULL,
+  avatar_url VARCHAR(255) DEFAULT NULL,
   theme VARCHAR(20) DEFAULT 'sage',
+  role VARCHAR(20) DEFAULT 'user',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
+  UNIQUE KEY uk_email (email),
   UNIQUE KEY uk_phone (phone)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
