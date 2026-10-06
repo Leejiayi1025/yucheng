@@ -5,10 +5,9 @@
 //  · 生产（后端托管前端，同源）→ 用相对路径 /api，天然无跨域
 //  · 本地 Vite 开发（5173 等）→ 指向本机 4000
 const DEV_PORTS = ['5173', '5174', '4173', '3000'];
-const IS_DEV =
-  /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) &&
-  DEV_PORTS.includes(location.port);
-const API_BASE = IS_DEV ? 'http://localhost:4000/api' : (import.meta.env.VITE_API_URL || '') + '/api';
+const IS_LOCAL =
+  /^(localhost|127\.0\.0\.1|\[::1\]|192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.)$/.test(location.hostname);
+const API_BASE = IS_LOCAL ? `http://${location.hostname}:4000/api` : (import.meta.env.VITE_API_URL || '') + '/api';
 
 const TOKEN_KEY = 'yucheng_token';
 

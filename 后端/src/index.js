@@ -127,9 +127,9 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/categories', catRoutes);
 app.use('/api/voice', voiceRoutes);
 
-// 前端页面托管：优先 Vite 构建产物 frontend/dist（真正的前端工程），
+// 前端页面托管：优先 Vite 构建产物 frontend/app/dist（真正的前端工程），
 // 其次才是旧的单文件 h5（仅作参考，已不推荐使用）
-const dist = path.join(__dirname, '..', '..', 'frontend', 'dist');
+const dist = path.join(__dirname, '..', '..', 'frontend', 'app', 'dist');
 const h5 = path.join(__dirname, '..', '..', 'frontend', 'h5');
 if (fs.existsSync(dist)) {
   app.use(express.static(dist));

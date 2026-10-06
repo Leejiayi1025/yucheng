@@ -5,9 +5,9 @@ import { track } from '../lib/track';
 
 /* 主题清单：默认从后端themes表拉，拉不到时用本地兜底 */
 const DEFAULT_THEMES = [
-  { key: 'auto', name: '跟随系统', group: 'auto' },
-  { key: 'sage', name: '奶油鼠尾草', group: 'classic' },
+  { key: 'black-gold', name: '黑白金高级', group: 'classic' },
   { key: 'ios-minimal', name: 'iOS黑白极简', group: 'classic' },
+  { key: 'sage', name: '奶油鼠尾草', group: 'classic' },
   { key: 'bento', name: 'iOS 原生风', group: 'classic' },
   { key: 'mono', name: '线框工程风', group: 'classic' },
   { key: 'luxe', name: '暗黑奢华黑金', group: 'dark' },
@@ -23,6 +23,16 @@ const DEFAULT_THEMES = [
 
 /* 每个主题的 mini 预览配色和特征参数 */
 const PREVIEWS = {
+  'black-gold': {
+    bg: '#000000', card: '#141414', text: '#ffffff', sub: '#999999', primary: '#f0c040',
+    cardRadius: 14, cardBorder: '1px solid rgba(240,192,64,0.3)', cardBorderW: 1, cardShadow: '0 8px 24px rgba(240,192,64,0.25)',
+    checkRadius: '50%', font: 'normal'
+  },
+  ios: {
+    bg: '#000000', card: '#1c1c1e', text: '#ffffff', sub: '#98989e', primary: '#0a84ff',
+    cardRadius: 14, cardBorder: '1px solid rgba(255,255,255,0.06)', cardBorderW: 1, cardShadow: '0 4px 16px rgba(0,0,0,0.5)',
+    checkRadius: '50%', font: 'normal'
+  },
   auto: {
     bg: 'linear-gradient(180deg,#f5f1ec 0%,#f5f1ec 55%,#0f172a 55%,#0f172a 100%)',
     card: '#fff', text: '#2d3a33', sub: '#8a9a92', primary: '#6b8e7b',

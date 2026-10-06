@@ -359,14 +359,7 @@ export default function EditSheet({ task, type = 'event', defaultDate, onClose, 
           onPick={(v) => {
             setForm((f) => {
               const next = { ...f, start: v };
-              if (v && !f.end) {
-                const [h, m] = v.split(':').map(Number);
-                const tot = h * 60 + m + 60;
-                next.end =
-                  String(Math.floor(tot / 60) % 24).padStart(2, '0') +
-                  ':' +
-                  String(tot % 60).padStart(2, '0');
-              }
+              // 选开始时间绝对不自动加end，用户要自己手动选结束时间
               if (!v) next.remind = -1;
               return next;
             });

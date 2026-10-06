@@ -10,6 +10,7 @@ import {
 import * as api from './lib/api';
 import { ymd, addDays } from './lib/date';
 import { CAT, autoColor } from './lib/cats';
+import { playPageFlip } from './lib/sound';
 
 const Ctx = createContext(null);
 export function useApp() {
@@ -31,7 +32,14 @@ function toCatPair(name, color) {
 }
 
 export function AppProvider({ children }) {
-  const [theme, setThemeState] = useState('sage');
+  const [theme, setThemeState] = useState('black-gold');
+  const [soundOn, setSoundOnState] = useState(() => {
+    try {
+      return localStorage.getItem('yucheng_sound') !== 'off';
+    } catch {
+      return true;
+    }
+  });
   const [user, setUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem(USER_KEY) || 'null');
@@ -40,8 +48,16 @@ export function AppProvider({ children }) {
     }
   });
 
-  /* 切换主题：更新state + 同步到后端 */
+  const setSoundOn = useCallback((v) => {
+    setSoundOnState(v);
+    try {
+      localStorage.setItem('yucheng_sound', v ? 'on' : 'off');
+    } catch {}
+  }, []);
+
+  /* 切换主题：更新state + 同步到后端 + 播放翻书声 */
   const setTheme = useCallback(async (t) => {
+    playPageFlip(); // 翻书声
     setThemeState(t);
     if (user) {
       try {
@@ -68,9 +84,9 @@ export function AppProvider({ children }) {
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
 
     const apply = () => {
-      // 没登录时强制用系统默认风格（sage），登录后才跟随用户选择
+      // 没登录时默认用黑白金高级主题，黑白金搭配有立体感
       const real = !user
-        ? 'sage'
+        ? 'black-gold'
         : theme === 'auto'
           ? (mq.matches ? 'midnight' : 'sage')
           : theme;
@@ -311,7 +327,7 @@ export function AppProvider({ children }) {
     setTasks([]);
     setCats({ ...CAT });
     setProfileState(defaultProfile);
-    setThemeState('sage');
+    setThemeState('black-gold');
   }, []);
 
   const value = useMemo(
@@ -333,9 +349,13 @@ export function AppProvider({ children }) {
       addCategory,
       deleteCategory,
       logout,
+      soundOn,
+      setSoundOn,
       toast,
       closeToast,
-      toastData
+      toastData,
+      soundOn,
+      setSoundOn
     }),
     [
       theme,
@@ -355,7 +375,9 @@ export function AppProvider({ children }) {
       logout,
       toast,
       closeToast,
-      toastData
+      toastData,
+      soundOn,
+      setSoundOn
     ]
   );
 

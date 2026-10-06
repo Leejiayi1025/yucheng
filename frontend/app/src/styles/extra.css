@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    原型样式之外、按需求新增的少量 UI（放在 app.css 之后，避免重新抽取时被覆盖）
    ============================================================ */
 
@@ -3044,8 +3044,9 @@
   text-align: center;
   line-height: 1.5;
   max-width: 500px;
-  width: 100%;
+  width: 90%;
   min-height: 80px;
+  max-height: 40vh;
   z-index: 1;
   animation: textFadeIn 0.3s ease;
   border: none;
@@ -3053,6 +3054,11 @@
   background: transparent;
   resize: none;
   font-family: inherit;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  overflow-y: auto;
+  padding: 10px;
+  margin: 0 auto;
 }
 @keyframes textFadeIn {
   from { opacity: 0.5; }
@@ -3497,3 +3503,486 @@ iframe[src*="netlify"] {
   width: 22px !important;
   height: 22px !important;
 }
+
+/* ============================================================
+   引导页全面升级：立体、丝滑、高级感
+   ============================================================ */
+
+/* 引导页整体加一点渐变背景，更有层次 */
+.ob {
+  background: linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 95%, var(--primary) 5%) 100%) !important;
+}
+
+/* 标题更有重量感 */
+.ob-title {
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.ob-title-strong {
+  font-size: 28px !important;
+}
+
+/* 第一页Logo：更强的立体感和浮动动画 */
+.ob-hero {
+  width: 140px !important;
+  height: 160px !important;
+  animation: obLogoFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.2)) drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+
+@keyframes obLogoFloat {
+  0%, 100% {
+    transform: translateY(0px) rotateX(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotateX(5deg);
+  }
+}
+
+/* 光晕更柔和更有层次 */
+.ob-glow {
+  width: 320px !important;
+  height: 320px !important;
+  background: radial-gradient(circle, var(--primary) 0%, transparent 70%) !important;
+  opacity: 0.12 !important;
+  filter: blur(30px);
+  animation: obGlowPulse 4s ease-in-out infinite;
+}
+
+@keyframes obGlowPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.12;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.18;
+  }
+}
+
+/* 滑动过渡更丝滑，带视差 */
+.ob-track {
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1) !important;
+}
+
+/* 所有演示卡片都加立体感 */
+.ob-demo > div {
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.5s ease;
+}
+
+/* 底部按钮：悬浮感更强 */
+.ob-next {
+  background: var(--primary) !important;
+  border-radius: 28px !important;
+  padding: 16px 36px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--primary) 40%, transparent), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+  transition: all 0.2s ease;
+}
+
+.ob-next:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 30%, transparent) !important;
+}
+
+.ob-next.finish {
+  background: var(--primary) !important;
+}
+
+/* 页码指示器更精致 */
+.ob-dot {
+  width: 6px !important;
+  height: 6px !important;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ob-dot.on {
+  width: 28px !important;
+  border-radius: 3px !important;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 40%, transparent);
+}
+
+/* 引导页所有元素入场动画 */
+.ob-page {
+  animation: obPageIn 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@keyframes obPageIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============================================================
+   引导页最后一页：主题切换动画，和真实APP一模一样
+   ============================================================ */
+.ob-theme-demo {
+  max-width: 100% !important;
+  align-items: flex-end !important;
+}
+
+.ob-theme-sheet {
+  width: 100%;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  padding: 16px 0 24px;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.ob-theme-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px 16px;
+  font-size: 15px;
+}
+
+.ob-theme-track {
+  display: flex;
+  gap: 16px;
+  padding: 0 25%;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ob-theme-phone {
+  flex: 0 0 50%;
+  aspect-ratio: 9/16;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  opacity: 0.5;
+  transform: scale(0.85);
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.ob-theme-phone.active {
+  opacity: 1;
+  transform: scale(1);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.15);
+}
+
+/* 主题面板也加悬浮感 */
+.ob-theme-sheet {
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8) !important;
+  animation: obSheetUp 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@keyframes obSheetUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 黑白金主题：所有主按钮3D立体感+动画 */
+[data-theme='black-gold'] .primary-btn,
+[data-theme='black-gold'] .es-save-btn,
+[data-theme='black-gold'] .cta-btn,
+[data-theme='black-gold'] button[class*='primary'],
+[data-theme='black-gold'] .vs-add,
+[data-theme='black-gold'] .bottom-btn,
+[data-theme='black-gold'] .fab,
+[data-theme='black-gold'] button[style*='background'] {
+  background: linear-gradient(180deg, #ffd760 0%, #f0c040 50%, #d4a020 100%) !important;
+  color: #000 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 0 #b88620, 0 6px 16px rgba(240, 192, 64, 0.4) !important;
+  border: none !important;
+  transform: translateY(0);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  will-change: transform, box-shadow;
+}
+
+[data-theme='black-gold'] .primary-btn:active,
+[data-theme='black-gold'] .es-save-btn:active,
+[data-theme='black-gold'] .cta-btn:active,
+[data-theme='black-gold'] button[class*='primary']:active,
+[data-theme='black-gold'] .vs-add:active,
+[data-theme='black-gold'] .bottom-btn:active,
+[data-theme='black-gold'] .fab:active,
+[data-theme='black-gold'] button[style*='background']:active {
+  transform: translateY(3px) !important;
+  box-shadow: 0 1px 0 #b88620, 0 2px 8px rgba(240, 192, 64, 0.4) !important;
+}
+
+/* 黑白金主题：卡片立体+悬浮动画 */
+[data-theme='black-gold'] .card,
+[data-theme='black-gold'] .task-card,
+[data-theme='black-gold'] .event-card {
+  background: linear-gradient(145deg, #1a1a1a 0%, #111111 100%) !important;
+  border: 1px solid rgba(240, 192, 64, 0.2) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 215, 96, 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme='black-gold'] .card:active,
+[data-theme='black-gold'] .task-card:active,
+[data-theme='black-gold'] .event-card:active {
+  transform: scale(0.98) !important;
+  box-shadow: 0 4px 12px rgba(240, 192, 64, 0.15), inset 0 1px 0 rgba(255, 215, 96, 0.05) !important;
+}
+
+/* 黑白金主题：标签、图标金色发光 */
+[data-theme='black-gold'] .tabbar-active,
+[data-theme='black-gold'] .primary-text,
+[data-theme='black-gold'] .gold-icon {
+  color: #f0c040 !important;
+  text-shadow: 0 0 12px rgba(240, 192, 64, 0.4);
+}
+
+/* 环境提示弹窗：系统风格 */
+.vs-env-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+.vs-env-dialog {
+  width: 85%;
+  max-width: 320px;
+  background: var(--card);
+  border-radius: 20px;
+  padding: 28px 24px 20px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vs-env-icon {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.vs-env-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.vs-env-desc {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.vs-env-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: var(--primary);
+  color: #000;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  /* 统一立体效果 */
+  box-shadow: 
+    inset 0 1px 0 rgba(255,255,255,0.3),
+    0 4px 0 rgba(0,0,0,0.2),
+    0 6px 12px rgba(0,0,0,0.15);
+  transition: all 0.1s ease;
+  /* 文字居中 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+}
+
+/* 黑白金主题下弹窗按钮文字加粗更明显 */
+[data-theme='black-gold'] .vs-env-btn {
+  color: #000;
+  font-weight: 700;
+}
+
+/* 黑白金主题下日历头部年月日文字金色高亮 */
+[data-theme='black-gold'] .mn-title,
+[data-theme='black-gold'] .cal-year,
+[data-theme='black-gold'] .cal-month,
+[data-theme='black-gold'] .cal-day,
+[data-theme='black-gold'] .cal-header-text {
+  color: #f0c040 !important;
+  font-weight: 700;
+}
+
+/* 黑白金主题下日历视图切换按钮：未选金色文字，选中金色底黑字 */
+[data-theme='black-gold'] .cal-tabs button {
+  color: #f0c040 !important;
+  font-weight: 700;
+  background: transparent;
+}
+
+[data-theme='black-gold'] .cal-tabs button.active {
+  background: #f0c040 !important;
+  color: #000 !important;
+  box-shadow: 
+    inset 0 1px 0 rgba(255,255,255,0.3),
+    0 3px 0 #b88620,
+    0 4px 8px rgba(240, 192, 64, 0.4);
+}
+
+/* 底部导航栏按钮立体效果 */
+.tabbar-item {
+  box-shadow: 
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    0 2px 0 rgba(0,0,0,0.2);
+  border-radius: 12px;
+  transition: all 0.1s ease;
+}
+
+.tabbar-item:active {
+  transform: translateY(2px);
+  box-shadow: 
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 1px 0 rgba(0,0,0,0.2);
+}
+
+.vs-env-btn:active {
+  transform: translateY(3px);
+  box-shadow: 
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    0 1px 0 rgba(0,0,0,0.2),
+    0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 所有主题的主按钮统一立体效果 + 文字居中 */
+button, .primary-btn, .vs-submit, .vs-immersive-btn.done, .vs-mic, .vs-empty-icon {
+  box-shadow: 
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    0 3px 0 rgba(0,0,0,0.15),
+    0 4px 8px rgba(0,0,0,0.1);
+  transition: all 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+}
+
+button:active, .primary-btn:active, .vs-submit:active, .vs-immersive-btn.done:active, .vs-mic:active, .vs-empty-icon:active {
+  transform: translateY(2px);
+  box-shadow: 
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    0 1px 0 rgba(0,0,0,0.15),
+    0 2px 4px rgba(0,0,0,0.1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* 闹钟大弹窗 */
+.alarm-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+.alarm-dialog {
+  background: var(--card);
+  border-radius: 24px;
+  padding: 40px 32px;
+  width: 80%;
+  max-width: 320px;
+  text-align: center;
+  color: var(--text);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  backdrop-filter: blur(20px);
+  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.alarm-ok {
+  width: 100%;
+  padding: 14px;
+  border-radius: 16px;
+  border: none;
+  background: var(--primary);
+  color: #000;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 16px var(--primary-soft);
+}
+.alarm-ok:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 8px var(--primary-soft);
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes popIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+
+.alarm-later {
+  flex: 1;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.alarm-later:active {
+  transform: translateY(2px);
+}
+.alarm-ok {
+  flex: 1;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--primary);
+  color: #000;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px var(--primary-soft);
+  white-space: nowrap;
+}
+.alarm-ok:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 6px var(--primary-soft);
+}
+

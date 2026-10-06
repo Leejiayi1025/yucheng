@@ -10,7 +10,7 @@ import { bindEmail, changePassword, sendCode, deleteAccount, bindPhone } from '.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function Mine({ page, onPage }) {
-  const { user, tasks, logout, toast, profile, setUser, deleteTask } = useApp();
+  const { user, tasks, logout, toast, profile, setUser, deleteTask, soundOn, setSoundOn } = useApp();
   const [sheet, setSheet] = useState(null);
 
   // 展开的section
@@ -55,6 +55,7 @@ export default function Mine({ page, onPage }) {
   const items = [
     { key: 'profile', icon: 'user', label: '修改个人信息', stroke: true },
     { key: 'theme', icon: 'palette', label: '外观主题', stroke: false },
+    { key: 'sound', icon: 'sound', label: '按键音效', stroke: true },
     { key: 'remind', icon: 'bell', label: '提醒中心', stroke: true },
     { key: 'account', icon: 'shield', label: '账号与安全', stroke: true }
   ];
@@ -89,14 +90,42 @@ export default function Mine({ page, onPage }) {
 
         <div className="mine-group">
           {items.map((it) => (
-            <div key={it.key} className="mine-item" onClick={() => setSheet(it.key)}>
+            <div key={it.key} className="mine-item" onClick={() => {
+              if (it.key === 'sound') {
+                setSoundOn(!soundOn);
+                return;
+              }
+              setSheet(it.key);
+            }}>
               <div className="mi-icon">
                 <Icon name={it.icon} size={20} stroke={it.stroke} />
               </div>
               <div className="mi-text">{it.label}</div>
-              <div className="mi-arrow">
-                <Icon name="arrow" size={16} stroke />
-              </div>
+              {it.key === 'sound' ? (
+                <div style={{
+                  width: 44,
+                  height: 24,
+                  borderRadius: 12,
+                  background: soundOn ? 'var(--primary)' : '#444',
+                  position: 'relative',
+                  transition: 'all 0.2s'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: 2,
+                    left: soundOn ? 22 : 2,
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    background: '#fff',
+                    transition: 'all 0.2s'
+                  }} />
+                </div>
+              ) : (
+                <div className="mi-arrow">
+                  <Icon name="arrow" size={16} stroke />
+                </div>
+              )}
             </div>
           ))}
         </div>

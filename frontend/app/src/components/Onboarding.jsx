@@ -2,17 +2,45 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Icon from './Icon';
 import { catColor } from '../lib/cats';
 
-/** 第 1 页：Brand Hero —— 时钟 Logo + 光晕 */
+/** 第 1 页：Brand Hero —— 智能手表 Logo + 光晕 */
 function BrandHero() {
   return (
     <div className="ob-demo ob-brand">
       <div className="ob-glow" />
       <div className="ob-hero">
-        <svg viewBox="0 0 64 64" className="ob-hero-clock">
-          <rect x="3.5" y="3.5" width="57" height="57" rx="16" fill="var(--card)" stroke="var(--line)" />
-          <circle cx="32" cy="32" r="18" fill="none" stroke="var(--primary)" strokeWidth="2.5" />
-          <path d="M32 32 L32 21" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" />
-          <path d="M32 32 L40 36" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" />
+        <svg viewBox="0 0 120 150" className="ob-hero-clock">
+          {/* 上面的表带 */}
+          <rect x="46" y="0" width="28" height="20" rx="4" fill="#2D3748" />
+          {/* 下面的表带 */}
+          <rect x="46" y="130" width="28" height="20" rx="4" fill="#2D3748" />
+          {/* 手表主体（方形圆角，白色背景） */}
+          <rect x="20" y="20" width="80" height="110" rx="24" fill="white" stroke="#E2E8F0" strokeWidth="1" />
+          {/* 右边的表冠按钮 */}
+          <rect x="100" y="60" width="6" height="14" rx="2" fill="#2D3748" />
+          {/* 圆形表盘 */}
+          <circle cx="60" cy="75" r="34" fill="white" stroke="#2D3748" strokeWidth="2.5" />
+          {/* 12个刻度 */}
+          {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
+            <line
+              key={deg}
+              x1="60"
+              y1="45"
+              x2="60"
+              y2="50"
+              stroke="#2D3748"
+              strokeWidth="2"
+              strokeLinecap="round"
+              transform={`rotate(${deg} 60 75)`}
+            />
+          ))}
+          {/* 时针（短粗） */}
+          <path d="M60 75 L60 56" stroke="#2D3748" strokeWidth="3.5" strokeLinecap="round" />
+          {/* 分针（长一点） */}
+          <path d="M60 75 L76 82" stroke="#2D3748" strokeWidth="3.5" strokeLinecap="round" />
+          {/* 红色秒针 */}
+          <path d="M60 75 L54 96" stroke="#E53E3E" strokeWidth="2" strokeLinecap="round" />
+          {/* 中心点 */}
+          <circle cx="60" cy="75" r="3" fill="#2D3748" />
         </svg>
       </div>
       <div className="ob-hero-ripple" />
@@ -131,24 +159,112 @@ function PlanDemo() {
   );
 }
 
-/** 第 5 页：主题色盘 */
+/** 第 5 页：主题切换演示 - 迷你手机预览 */
 function ThemeDemo() {
-  const dots = ['#6B8E7B', '#F2A0B4', '#5AA564', '#D4AF37', '#38BDF8', '#8B7EC8'];
+  const themes = [
+    { bg: '#000000', card: '#141414', primary: '#f0c040', text: '#fff', name: '黑白金高级' },
+    { bg: '#f5f5f7', card: '#fff', primary: '#000', text: '#000', name: 'iOS黑白极简' },
+    { bg: '#f5f1ec', card: '#fff', primary: '#6b8e7b', text: '#2d3a33', name: '鼠尾草' },
+    { bg: '#0c0a09', card: '#1c1917', primary: '#d4af37', text: '#e8e0c8', name: '暗黑奢华金' },
+    { bg: '#ffebee', card: '#fff', primary: '#ff8a80', text: '#c62828', name: '蜜桃粉' }
+  ];
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActive(prev => (prev + 1) % themes.length);
+    }, 1500);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <div className="ob-demo">
-      <div className="ob-ringset">
-        {dots.map((c, i) => (
-          <span
-            key={c}
-            className="ob-cdot"
-            style={{ background: c }}
+    <div className="ob-demo" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+      {/* 迷你手机模型 */}
+      <div style={{
+        width: 120,
+        height: 200,
+        borderRadius: 20,
+        background: '#1a1a1a',
+        padding: 4,
+        boxShadow: '0 12px 32px rgba(0,0,0,0.2)',
+        transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)'
+      }}>
+        {/* 手机屏幕 */}
+        <div style={{
+          width: '100%',
+          height: '100%',
+          borderRadius: 16,
+          background: themes[active].bg,
+          padding: '10px 8px',
+          overflow: 'hidden',
+          position: 'relative',
+          transition: 'all 0.5s ease'
+        }}>
+          {/* 状态栏 */}
+          <div style={{ fontSize: '7px', color: themes[active].text, opacity: 0.6, marginBottom: '8px', textAlign: 'center' }}>9:41</div>
+          {/* 今日标题 */}
+          <div style={{ fontSize: '11px', fontWeight: 700, color: themes[active].text, marginBottom: '8px' }}>今日</div>
+          {/* 任务卡片 */}
+          <div style={{
+            background: themes[active].card,
+            borderRadius: 6,
+            padding: '6px',
+            marginBottom: '6px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: themes[active].primary }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ height: '3px', borderRadius: '2px', background: themes[active].text, opacity: 0.7, marginBottom: '2px' }} />
+              <div style={{ height: '2px', borderRadius: '1px', background: themes[active].text, opacity: 0.3, width: '70%' }} />
+            </div>
+          </div>
+          {/* 任务卡片2 */}
+          <div style={{
+            background: themes[active].card,
+            borderRadius: 6,
+            padding: '6px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: themes[active].primary }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ height: '3px', borderRadius: '2px', background: themes[active].text, opacity: 0.7, marginBottom: '2px' }} />
+              <div style={{ height: '2px', borderRadius: '1px', background: themes[active].text, opacity: 0.3, width: '70%' }} />
+            </div>
+          </div>
+          {/* FAB按钮 */}
+          <div style={{
+            position: 'absolute',
+            right: '8px',
+            bottom: '12px',
+            width: '16px',
+            height: '16px',
+            borderRadius: '50%',
+            background: themes[active].primary
+          }} />
+        </div>
+      </div>
+      {/* 主题名称 */}
+      <div style={{ fontWeight: 600, color: 'var(--primary)', fontSize: 14 }}>
+        {themes[active].name}
+      </div>
+      {/* 小圆点指示器 */}
+      <div style={{ display: 'flex', gap: '6px' }}>
+        {themes.map((t, i) => (
+          <div 
+            key={i} 
+            style={{ 
+              width: i === active ? '16px' : '6px',
+              height: '6px',
+              borderRadius: '3px',
+              background: i === active ? 'var(--primary)' : '#ddd',
+              transition: 'all 0.3s ease'
+            }} 
           />
         ))}
-      </div>
-      <div className="ob-themebar">
-        <span className="ob-tb" />
-        <span className="ob-tb mid" />
-        <span className="ob-tb sm" />
       </div>
     </div>
   );
@@ -157,37 +273,37 @@ function ThemeDemo() {
 const PAGES = [
   {
     key: 'brand',
-    title: '把想做的事',
-    title2: '变成今天的日程',
-    desc: '语程帮你把一天安排得清清楚楚',
+    title: '语程',
+    title2: '',
+    desc: '语音智能日程管理',
     demo: <BrandHero />
   },
   {
     key: 'voice',
     title: '说一句话',
-    title2: '自动拆成任务',
-    desc: '不用打字。一次说完整天的安排，自动识别时间、地点，识别结果还能随手改',
+    title2: '自动成日程',
+    desc: '',
     demo: <VoiceEditDemo />
   },
   {
     key: 'edit',
     title: '点一点',
-    title2: '管理你的安排',
-    desc: '点卡片改详情，打勾标记完成，左滑删除不需要的事',
+    title2: '轻松管理',
+    desc: '',
     demo: <EditDemo />
   },
   {
     key: 'plan',
-    title: '安排和待办',
-    title2: '一眼看清',
-    desc: '每条任务带分类色标，今天有什么、还差什么，一目了然',
+    title: '今日安排',
+    title2: '一目了然',
+    desc: '',
     demo: <PlanDemo />
   },
   {
     key: 'theme',
-    title: '13 套外观',
-    title2: '随手换一个',
-    desc: '手账、黏土、马卡龙、暗黑奢华…总有一款合你心情',
+    title: '14套主题',
+    title2: '随心切换',
+    desc: '总有一款适合你',
     demo: <ThemeDemo />
   }
 ];

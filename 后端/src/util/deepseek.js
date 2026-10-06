@@ -63,7 +63,7 @@ function systemPrompt(baseDate, weekday, nowHM, nowHour) {
     '          **不要把地点写进 title**（地点单独放 place）',
     '  date  : string，YYYY-MM-DD；没提日期用基准日期',
     '  start : string，HH:MM 24 小时制；没提具体时间给空串 ""',
-    '  end   : string，HH:MM；只说了开始/时长就推算；没时间给 ""',
+    '  end   : string，HH:MM；用户明确说了结束时间或时长才推算；没说结束时间就给空串 ""，绝对不要自动加1小时',
     '  place : string，地点；没提给 ""',
     '  cat   : string，只能是：' + CATS.join('、') + '；判断不了给「其他」',
     '  remind: number，提前提醒分钟数；没提给 -1',
@@ -84,7 +84,7 @@ function systemPrompt(baseDate, weekday, nowHM, nowHour) {
     '    例如现在是 9 点，用户说「十点」→ 10:00。',
     '- 说了「凌晨/早上/上午」按原小时；说了「中午」→12；说了「下午/傍晚/晚上/夜里」若小于 12 则加 12。',
     '- 中文数字也要识别（「三点半」→ 03:30 或按上面规则 15:30；「八点半」→ 08:30）。',
-    '- 「4点到7点」→ start/end；「2小时」「半小时」→ 用来推算 end；只说了开始时间 → end = start + 1 小时。',
+    '- 「4点到7点」→ start/end；「2小时」「半小时」→ 用来推算 end；**用户只说了开始时间、没说结束时间也没说时长 → end 必须留空给 ""，绝对不要自动加1小时！**',
     '',
     '【日期换算】今天/明天/后天/大后天/下周X/周X/星期X/X月X日/X号 → YYYY-MM-DD',
     '',
@@ -124,7 +124,7 @@ function systemPrompt(baseDate, weekday, nowHM, nowHour) {
           title: '学习PM理论知识',
           date: dAdd(0),
           start: '15:00',
-          end: '16:00',
+          end: '',
           place: '图书馆',
           cat: '学习',
           remind: -1,
@@ -136,7 +136,7 @@ function systemPrompt(baseDate, weekday, nowHM, nowHour) {
           title: '跟朋友吃饭',
           date: dAdd(0),
           start: '20:00',
-          end: '21:00',
+          end: '',
           place: '',
           cat: '社交',
           remind: -1,
@@ -239,7 +239,7 @@ function systemPrompt(baseDate, weekday, nowHM, nowHour) {
         title: '跟客户吃饭',
         date: dAdd(0),
         start: '12:00',
-        end: '13:00',
+        end: '',
         place: '',
         cat: '社交',
         remind: 60,
@@ -254,7 +254,7 @@ function systemPrompt(baseDate, weekday, nowHM, nowHour) {
         title: '去医院体检',
         date: dAdd(1),
         start: '10:00',
-        end: '11:00',
+        end: '',
         place: '医院',
         cat: '健康',
         remind: -1,
@@ -266,7 +266,7 @@ function systemPrompt(baseDate, weekday, nowHM, nowHour) {
         title: '跟导师开会讨论毕设选题',
         date: nextDow(3),
         start: '15:00',
-        end: '16:00',
+        end: '',
         place: '',
         cat: '学习',
         remind: -1,
@@ -325,6 +325,7 @@ function actionPrompt(baseDate, weekday, nowHM, count) {
     '【硬性要求】',
     '· changes 里的 id **必须来自上面那份清单**，绝对不许编造、不许用序号假想。',
     '· patch 是**部分更新**：只写用户明确要改的字段，没提到的字段不要放进去。',
+    '· ⚠️ **修改任务时间时，用户只说了改开始时间（比如"把XX改到下午四点"），patch里绝对不要出现end字段！不要自动补结束时间！原来的end是什么就是什么，没说改end就不要动！**',
     '· patch 可用字段：title / date / start / end / place / cat / remind / repeatDays / note',
     '  （格式见下方 create 字段定义；start 给 "" 表示清掉时间点变成待办）',
     '· desc 是一句简短的中文说明，给用户确认用（如「改到明天下午四点」「标题改为买沐浴露」）。',
@@ -333,7 +334,7 @@ function actionPrompt(baseDate, weekday, nowHM, count) {
     '  title : 关键动作 + 关键对象的完整表达，不许简写；地点不写进 title',
     '  date  : YYYY-MM-DD；没提日期用今天',
     '  start : HH:MM；没提具体时间给 ""',
-    '  end   : HH:MM；只说了开始或时长就推算（默认开始 +1 小时）',
+    '  end   : HH:MM；用户明确说了结束时间或时长才推算；没说结束时间就给 ""，绝对不要自动加1小时',
     '  place : 地点；没提给 ""',
     '  cat   : 只能是 ' + CATS.join('、'),
     '  remind: 提前分钟数；没提给 -1；「准时提醒」给 0；说了「提醒我 / 提醒一下」但没说提前多久也给 0',
@@ -353,15 +354,15 @@ function actionPrompt(baseDate, weekday, nowHM, count) {
     '输入：明天下午三点跟导师开会',
     '输出：{"intent":"create","tasks":[{"title":"跟导师开会","date":"' +
       dAdd(1) +
-      '","start":"15:00","end":"16:00","place":"","cat":"学习","remind":-1,"repeatDays":null,"note":"","type":"event"}]}',
+      '","start":"15:00","end":"","place":"","cat":"学习","remind":-1,"repeatDays":null,"note":"","type":"event"}]}',
     '',
     '输入：把学习PM理论知识改到明天下午四点',
     '输出：{"intent":"update","changes":[{"id":1,"patch":{"date":"' +
       dAdd(1) +
-      '","start":"16:00","end":"17:00"},"desc":"改到明天下午四点"}]}',
+      '","start":"16:00"},"desc":"改到明天下午四点"}]}',
     '',
     '输入：健身推迟到晚上七点',
-    '输出：{"intent":"update","changes":[{"id":3,"patch":{"start":"19:00","end":"20:00"},"desc":"改到晚上七点"}]}',
+    '输出：{"intent":"update","changes":[{"id":3,"patch":{"start":"19:00"},"desc":"改到晚上七点"}]}',
     '',
     '输入：买洗发水改成买沐浴露',
     '输出：{"intent":"update","changes":[{"id":2,"patch":{"title":"买沐浴露"},"desc":"标题改为买沐浴露"}]}',
@@ -565,6 +566,11 @@ async function parseVoiceAction(text, baseDate, existing) {
     if (intent === 'create') {
       const arr = Array.isArray(got.tasks) ? got.tasks : [];
       const tasks = arr.map((x) => normalizeOne(x, bd, now));
+      // 硬保险：用户没在输入里提结束时间/时长，就直接删掉task里的end，防止模型乱补一小时
+      const hasEndWord = /到|结束|持续|小时|分钟|时长|点到/.test(src);
+      if (!hasEndWord) {
+        tasks.forEach(t => delete t.end);
+      }
       if (!tasks.length) continue;
       return { intent: 'create', tasks: sortTasks(mergeRepeats(dedupe(tasks))) };
     }
@@ -585,6 +591,12 @@ async function parseVoiceAction(text, baseDate, existing) {
         };
         if (intent === 'update') {
           item.patch = normalizePatch(c && c.patch);
+          // 硬保险：用户没明确说结束时间/时长，就直接删掉patch里的end，防止模型乱加
+          // 只匹配明确表示时长/结束的词，"改到下午四点"里的"到"不算
+          const hasEndWord = /结束|持续|小时|分钟|时长|几点到|到几点/.test(src);
+          if (!hasEndWord && item.patch.hasOwnProperty('end')) {
+            delete item.patch.end;
+          }
           if (!Object.keys(item.patch).length) return null;
         }
         return item;

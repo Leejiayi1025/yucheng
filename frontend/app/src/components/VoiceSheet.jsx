@@ -40,10 +40,55 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
   const [err, setErr] = useState('');
   /* 正在编辑哪一条（复用统一的编辑弹层） */
   const [editingUid, setEditingUid] = useState(null);
+  /* 环境检测：不支持语音的环境（局域网HTTP/微信webview）点击麦克风时弹出提示 */
+  const [envTip, setEnvTip] = useState('');
+  const [showEnvDialog, setShowEnvDialog] = useState(false);
   const seqRef = useRef(0);
   const timer = useRef(null);
   const debounce = useRef(null);
   const taRef = useRef(null);
+  const touchStartY = useRef(0);
+  const [touchY, setTouchY] = useState(0);
+
+  // 下滑关闭手势
+  const onTouchStart = (e) => {
+    touchStartY.current = e.touches[0].clientY;
+    setTouchY(0);
+  };
+  const onTouchMove = (e) => {
+    const deltaY = e.touches[0].clientY - touchStartY.current;
+    if (deltaY > 0) {
+      setTouchY(deltaY);
+    }
+  };
+  const onTouchEnd = () => {
+    if (touchY > 100) {
+      onClose();
+    }
+    setTouchY(0);
+  };
+
+  /* 检测当前环境是否允许使用语音功能 */
+  useEffect(() => {
+    const isHTTPS = window.location.protocol === 'https:';
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const ua = navigator.userAgent.toLowerCase();
+    const isWeChat = /micromessenger|wechat|qq|alipay|dingtalk|feishu|lark/i.test(ua);
+
+    // 不支持语音的场景：HTTP局域网访问 或者 微信/QQ等webview环境
+    if ((!isHTTPS && !isLocalhost) || isWeChat) {
+      setEnvTip('当前为内测阶段，语音识别功能仅支持浏览器环境使用。您可以手动输入任务，系统会自动识别时间和内容。');
+    }
+  }, []);
+
+  /* 点击麦克风按钮时先检测环境 */
+  const handleMicClick = () => {
+    if (envTip) {
+      setShowEnvDialog(true);
+      return;
+    }
+    onMic(true);
+  };
 
   useEffect(
     () => () => {
@@ -226,7 +271,7 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
   const events = tasks.filter((t) => !!t.start);
   const todos = tasks.filter((t) => !t.start);
 
-  const submit = () =>
+  const submit = () => {
     onAddAll(
       tasks.map((t) => ({
         title: t.title.trim() || '新任务',
@@ -241,6 +286,7 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
         type: t.start ? 'event' : 'todo'
       }))
     );
+  };
 
   /* ---------- 修改 / 删除已有任务 ---------- */
   const taskLine = (t) => {
@@ -330,7 +376,16 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
           </div>
         </div>
       ) : (
-      <div className="vs-card">
+      <div 
+        className="vs-card"
+        style={{
+          transform: touchY > 0 ? `translateY(${touchY}px)` : 'none',
+          transition: touchY === 0 ? 'transform 0.2s ease' : 'none'
+        }}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         <div className="vs-grab" />
 
         {/* 标题栏 */}
@@ -387,7 +442,7 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
             </>
           ) : (
             <div className="vs-empty">
-              <button className="vs-empty-icon" onClick={() => onMic(true)} aria-label="开始录音">
+              <button className="vs-empty-icon" onClick={handleMicClick} aria-label="开始录音">
                 <Icon name="mic" size={36} />
               </button>
               <div className="vs-empty-title">说出你的安排</div>
@@ -441,7 +496,7 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
           {stage === 'ready' && (
             <button
               className="vs-mic-small"
-              onClick={onMic}
+              onClick={handleMicClick}
               aria-label="语音修改"
               title="语音修改"
             >
@@ -469,6 +524,44 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
               setEditingUid(null);
             }}
           />
+        </div>
+      )}
+
+      {/* 环境提示弹窗：系统风格 */}
+      {showEnvDialog && (
+        <div className="vs-env-overlay" onClick={() => setShowEnvDialog(false)}>
+          <div className="vs-env-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="vs-env-icon">
+              <Icon name="mic" size={28} />
+            </div>
+            <div className="vs-env-title">语音输入暂不可用</div>
+            <div className="vs-env-desc">当前为内测阶段，语音识别仅支持浏览器环境。您可以手动输入任务，或复制链接到浏览器使用语音。</div>
+            <button className="vs-env-btn" onClick={() => {
+              // 兼容HTTP环境的复制方法
+              const textArea = document.createElement('textarea');
+              textArea.value = window.location.href;
+              document.body.appendChild(textArea);
+              textArea.select();
+              try {
+                document.execCommand('copy');
+                const btn = document.querySelector('.vs-env-btn');
+                if (btn) {
+                  btn.textContent = '链接已复制，请打开浏览器粘贴';
+                  btn.style.background = '#2ecc71';
+                  btn.style.color = '#fff';
+                  btn.disabled = true;
+                  setTimeout(() => {
+                    setShowEnvDialog(false);
+                  }, 2000);
+                }
+              } catch (e) {
+                prompt('请手动复制链接：', window.location.href);
+              }
+              document.body.removeChild(textArea);
+            }}>
+              复制链接，去浏览器打开
+            </button>
+          </div>
         </div>
       )}
     </div>
