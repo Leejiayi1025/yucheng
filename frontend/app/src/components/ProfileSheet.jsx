@@ -56,6 +56,7 @@ export default function ProfileSheet({ onClose }) {
   const [draft, setDraft] = useState({ av: profile.av || 'user', img: profile.img || '', nick: profile.nick || '', sign: profile.sign || '' });
   const fileRef = useRef(null);
   const [croppingFile, setCroppingFile] = useState(null);
+  const [showAvatarMenu, setShowAvatarMenu] = useState(false);
 
   useEffect(() => {
     const onEsc = (e) => e.key === 'Escape' && onClose();
@@ -95,11 +96,15 @@ export default function ProfileSheet({ onClose }) {
 
         <div className="es-body">
           <div className="es-block es-pf-block">
-            <div className="mine-avatar">
+            <div
+              className="mine-avatar"
+              onClick={() => setShowAvatarMenu(true)}
+              style={{ cursor: 'pointer' }}
+            >
               <AvatarInner profile={draft} />
             </div>
-            <div className="pf-label">选择头像 · 或点第一个上传图片</div>
-            <div className="pf-avatars">
+            <div className="pf-label">点击头像更换</div>
+            <div className="pf-avatars" style={{ display: 'none' }}>
               <button
                 className="pf-av pf-upload"
                 onClick={() => fileRef.current && fileRef.current.click()}
@@ -176,6 +181,61 @@ export default function ProfileSheet({ onClose }) {
             setCroppingFile(null);
           }}
         />
+      )}
+
+      {/* 微信风格头像操作菜单 */}
+      {showAvatarMenu && (
+        <div
+          className="cropper-overlay"
+          onClick={() => setShowAvatarMenu(false)}
+          style={{ zIndex: 1000, background: 'rgba(0,0,0,0.5)' }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              background: '#f5f5f5',
+              borderRadius: '16px 16px 0 0',
+              padding: '8px 0 calc(20px + env(safe-area-inset-bottom))'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ textAlign: 'center', fontSize: 13, color: '#999', padding: '12px 0', borderBottom: '0.5px solid #e5e5e5' }}>
+              更换头像
+            </div>
+            <div
+              onClick={() => {
+                setShowAvatarMenu(false);
+                fileRef.current && fileRef.current.click();
+              }}
+              style={{
+                textAlign: 'center',
+                padding: '16px 0',
+                fontSize: 16,
+                color: '#007aff',
+                borderBottom: '0.5px solid #e5e5e5',
+                cursor: 'pointer'
+              }}
+            >
+              从相册选择
+            </div>
+            <div
+              onClick={() => setShowAvatarMenu(false)}
+              style={{
+                textAlign: 'center',
+                padding: '16px 0',
+                fontSize: 16,
+                color: '#007aff',
+                marginTop: '8px',
+                cursor: 'pointer'
+              }}
+            >
+              取消
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
