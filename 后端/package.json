@@ -5,7 +5,7 @@
   "description": "语程 后端 API (Node + Express + MySQL)",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node src/db/init.js && node src/index.js",
     "dev": "node --watch src/index.js",
     "initdb": "node src/db/init.js"
   },
