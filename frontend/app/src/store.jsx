@@ -84,9 +84,9 @@ export function AppProvider({ children }) {
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
 
     const apply = () => {
-      // 没登录时默认用黑白金高级主题，黑白金搭配有立体感
+      // 没登录时默认用iOS黑白极简风
       const real = !user
-        ? 'black-gold'
+        ? 'ios-minimal'
         : theme === 'auto'
           ? (mq.matches ? 'midnight' : 'sage')
           : theme;

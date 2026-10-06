@@ -3974,7 +3974,7 @@ button:active, .primary-btn:active, .vs-submit:active, .vs-immersive-btn.done:ac
   border-radius: 12px;
   border: none;
   background: var(--primary);
-  color: #000;
+  color: var(--on-primary);
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
