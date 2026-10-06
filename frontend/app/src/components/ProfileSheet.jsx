@@ -186,53 +186,101 @@ export default function ProfileSheet({ onClose }) {
       {/* 微信风格头像操作菜单 */}
       {showAvatarMenu && (
         <div
-          className="cropper-overlay"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'center'
+          }}
           onClick={() => setShowAvatarMenu(false)}
-          style={{ zIndex: 1000, background: 'rgba(0,0,0,0.5)' }}
         >
           <div
             style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              background: '#f5f5f5',
-              borderRadius: '16px 16px 0 0',
-              padding: '8px 0 calc(20px + env(safe-area-inset-bottom))'
+              width: '100%',
+              maxWidth: '500px',
+              padding: '0 8px calc(8px + env(safe-area-inset-bottom))',
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ textAlign: 'center', fontSize: 13, color: '#999', padding: '12px 0', borderBottom: '0.5px solid #e5e5e5' }}>
-              更换头像
-            </div>
+            {/* 上面一组选项 */}
             <div
-              onClick={() => {
-                setShowAvatarMenu(false);
-                fileRef.current && fileRef.current.click();
-              }}
               style={{
-                textAlign: 'center',
-                padding: '16px 0',
-                fontSize: 16,
-                color: '#007aff',
-                borderBottom: '0.5px solid #e5e5e5',
-                cursor: 'pointer'
+                background: '#fff',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                marginBottom: '8px'
               }}
             >
-              从相册选择
+              <div
+                style={{
+                  textAlign: 'center',
+                  fontSize: '13px',
+                  color: '#999',
+                  padding: '12px 0',
+                  borderBottom: '0.5px solid #e5e5e5'
+                }}
+              >
+                更换头像
+              </div>
+              <div
+                onClick={() => {
+                  setShowAvatarMenu(false);
+                  fileRef.current && fileRef.current.setAttribute('capture', 'environment');
+                  fileRef.current && fileRef.current.click();
+                }}
+                style={{
+                  textAlign: 'center',
+                  padding: '15px 0',
+                  fontSize: '17px',
+                  color: '#007aff',
+                  borderBottom: '0.5px solid #e5e5e5',
+                  cursor: 'pointer'
+                }}
+              >
+                拍照
+              </div>
+              <div
+                onClick={() => {
+                  setShowAvatarMenu(false);
+                  fileRef.current && fileRef.current.removeAttribute('capture');
+                  fileRef.current && fileRef.current.click();
+                }}
+                style={{
+                  textAlign: 'center',
+                  padding: '15px 0',
+                  fontSize: '17px',
+                  color: '#007aff',
+                  cursor: 'pointer'
+                }}
+              >
+                从相册选择
+              </div>
             </div>
+
+            {/* 取消按钮 */}
             <div
-              onClick={() => setShowAvatarMenu(false)}
               style={{
-                textAlign: 'center',
-                padding: '16px 0',
-                fontSize: 16,
-                color: '#007aff',
-                marginTop: '8px',
-                cursor: 'pointer'
+                background: '#fff',
+                borderRadius: '12px',
+                overflow: 'hidden'
               }}
             >
-              取消
+              <div
+                onClick={() => setShowAvatarMenu(false)}
+                style={{
+                  textAlign: 'center',
+                  padding: '15px 0',
+                  fontSize: '17px',
+                  color: '#007aff',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+              >
+                取消
+              </div>
             </div>
           </div>
         </div>
