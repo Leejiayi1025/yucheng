@@ -59,6 +59,43 @@ CREATE TABLE IF NOT EXISTS tasks (
   CONSTRAINT fk_task_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
   INDEX idx_user_date (user_id, date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS themes (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  theme_key VARCHAR(50) NOT NULL,
+  theme_name VARCHAR(50) NOT NULL,
+  group_name VARCHAR(50) DEFAULT NULL,
+  preview_bg VARCHAR(100) DEFAULT NULL,
+  preview_card VARCHAR(100) DEFAULT NULL,
+  preview_text VARCHAR(100) DEFAULT NULL,
+  preview_primary VARCHAR(100) DEFAULT NULL,
+  is_active TINYINT DEFAULT 1,
+  sort_order INT DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_theme_key (theme_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS user_themes (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  user_id BIGINT NOT NULL,
+  theme_name VARCHAR(50) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_user_theme (user_id, theme_name),
+  CONSTRAINT fk_utheme_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS events (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  user_id BIGINT DEFAULT NULL,
+  event_name VARCHAR(50) NOT NULL,
+  event_data JSON DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  INDEX idx_event_name (event_name),
+  INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 `;
 
 function pad(n) { return String(n).padStart(2, '0'); }
