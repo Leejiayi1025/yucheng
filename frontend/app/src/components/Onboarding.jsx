@@ -246,122 +246,94 @@ function PlanDemo() {
   );
 }
 
-/** 第 5 页：主题切换演示 - 迷你手机预览 */
+/** 第 5 页：主题切换演示 —— 多台立体手机横向滑动（coverflow）
+ *
+ * 原来是「单台手机 + 内联样式改颜色」，看不出「切换」这个动作。
+ * 改成多台手机并排、中间的立正、两侧的向内旋转并缩小后退，
+ * 每隔两秒整体平移一格 —— 就是翻主题时的那种感觉。
+ * 色值照抄 tokens.css，别再编不存在的主题名（上一版编过「蜜桃粉」）。
+ */
+const DEMO_THEMES = [
+  { name: 'iOS黑白极简', bg: '#f5f5f7', card: '#ffffff', text: '#000000', sub: '#8e8e93', accent: '#000000' },
+  { name: '暗黑奢华黑金', bg: '#0a0a0a', card: '#151412', text: '#f3eadb', sub: '#a08f6f', accent: '#d4af37' },
+  { name: '青花瓷', bg: '#f4f7fb', card: '#ffffff', text: '#17222f', sub: '#7b8a9c', accent: '#1e4d8c' },
+  { name: '手绘手账', bg: '#f7f0df', card: '#fdfaf1', text: '#4a4038', sub: '#a1937e', accent: '#5b9e5b' },
+  { name: '终端绿极客', bg: '#0a0f0a', card: '#1a2a1a', text: '#00ff41', sub: 'rgba(0,255,65,0.55)', accent: '#00ff41' },
+  { name: '琥珀暮色', bg: '#fff3e6', card: '#fffdfa', text: '#43291a', sub: '#a2866f', accent: '#c2410c' }
+];
+
+/** 手机屏幕里的迷你界面 */
+function MiniPhone({ t }) {
+  return (
+    <div className="ob-ph-body">
+      <div className="ob-ph-screen" style={{ background: t.bg }}>
+        <span className="ob-ph-notch" />
+        <div className="ob-ph-ui">
+          <div className="ob-ph-status" style={{ color: t.sub }}>9:41</div>
+          <div className="ob-ph-h" style={{ color: t.text }}>今日</div>
+          {[0, 1, 2].map((i) => (
+            <div className="ob-ph-card" key={i} style={{ background: t.card }}>
+              <span className="ob-ph-dot" style={{ background: i === 0 ? t.accent : t.sub }} />
+              <span className="ob-ph-lines">
+                <span className="ob-ph-l1" style={{ background: t.text }} />
+                <span className="ob-ph-l2" style={{ background: t.sub }} />
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="ob-ph-tabbar" style={{ background: t.card }}>
+          <span style={{ background: t.accent }} />
+          <span style={{ background: t.sub }} />
+          <span style={{ background: t.sub }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ThemeDemo() {
-  /* 取真实存在的主题，色值照抄 tokens.css 里对应的 --bg/--card/--primary/--text。
-     之前这里是编的：「黑白金高级」实际叫「黑白金奢华」，「蜜桃粉」根本不存在
-     （真实的是「蜜桃奶油风」），用户进来第一眼看到的主题名就是错的。 */
-  const themes = [
-    { bg: '#0a0a0a', card: '#151412', primary: '#d4af37', text: '#f3eadb', name: '暗黑奢华黑金' },
-    { bg: '#f5f5f7', card: '#ffffff', primary: '#000000', text: '#000000', name: 'iOS黑白极简' },
-    { bg: '#f5f1ec', card: '#ffffff', primary: '#6b8e7b', text: '#2d3a33', name: '奶油鼠尾草' },
-    { bg: '#fff0e8', card: '#fff8f3', primary: '#ff9a7a', text: '#5a3a2a', name: '蜜桃奶油风' },
-    { bg: '#0a0f0a', card: '#1a2a1a', primary: '#00ff41', text: '#00ff41', name: '终端绿极客' }
-  ];
+  const n = DEMO_THEMES.length;
   const [active, setActive] = useState(0);
   const reduced = usePrefersReducedMotion();
 
   useEffect(() => {
-    // 用户要求减弱动效时停在第一套，不要一直轮换
-    if (reduced) {
-      setActive(0);
-      return;
-    }
-    const timer = setInterval(() => {
-      setActive(prev => (prev + 1) % themes.length);
-    }, 1500);
+    // 用户要求减弱动效时停在第一台，不要一直滑动
+    if (reduced) return;
+    const timer = setInterval(() => setActive((p) => (p + 1) % n), 2200);
     return () => clearInterval(timer);
-  }, [reduced]);
+  }, [reduced, n]);
 
   return (
-    <div className="ob-demo" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
-      {/* 迷你手机模型 */}
-      <div style={{
-        width: 120,
-        height: 200,
-        borderRadius: 20,
-        background: '#1a1a1a',
-        padding: 4,
-        boxShadow: '0 12px 32px rgba(0,0,0,0.2)',
-        transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)'
-      }}>
-        {/* 手机屏幕 */}
-        <div style={{
-          width: '100%',
-          height: '100%',
-          borderRadius: 16,
-          background: themes[active].bg,
-          padding: '10px 8px',
-          overflow: 'hidden',
-          position: 'relative',
-          transition: 'all 0.5s ease'
-        }}>
-          {/* 状态栏 */}
-          <div style={{ fontSize: '7px', color: themes[active].text, opacity: 0.6, marginBottom: '8px', textAlign: 'center' }}>9:41</div>
-          {/* 今日标题 */}
-          <div style={{ fontSize: '11px', fontWeight: 700, color: themes[active].text, marginBottom: '8px' }}>今日</div>
-          {/* 任务卡片 */}
-          <div style={{
-            background: themes[active].card,
-            borderRadius: 6,
-            padding: '6px',
-            marginBottom: '6px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}>
-            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: themes[active].primary }} />
-            <div style={{ flex: 1 }}>
-              <div style={{ height: '3px', borderRadius: '2px', background: themes[active].text, opacity: 0.7, marginBottom: '2px' }} />
-              <div style={{ height: '2px', borderRadius: '1px', background: themes[active].text, opacity: 0.3, width: '70%' }} />
+    <div className="ob-demo">
+      <div className="ob-phones">
+        {DEMO_THEMES.map((t, i) => {
+          /* 取环绕后的最近距离：这样左右各能看到两台，
+             而且轮到最后一台时下一台绕回第一台，不会突然跳一下 */
+          let off = i - active;
+          if (off > n / 2) off -= n;
+          if (off < -n / 2) off += n;
+          const abs = Math.abs(off);
+          const step = Math.max(-2, Math.min(2, off));
+          const sign = step === 0 ? 0 : Math.sign(step);
+          return (
+            <div
+              className={'ob-ph' + (abs === 0 ? ' on' : '')}
+              key={t.name}
+              style={{
+                transform:
+                  'translateX(' + (step * 100 + sign * 7) + '%) ' +
+                  'rotateY(' + step * -30 + 'deg) ' +
+                  'scale(' + (abs === 0 ? 1 : abs === 1 ? 0.84 : 0.7) + ')',
+                zIndex: 100 - abs * 20,
+                opacity: abs > 2 ? 0 : 1
+              }}
+            >
+              <MiniPhone t={t} />
             </div>
-          </div>
-          {/* 任务卡片2 */}
-          <div style={{
-            background: themes[active].card,
-            borderRadius: 6,
-            padding: '6px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}>
-            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: themes[active].primary }} />
-            <div style={{ flex: 1 }}>
-              <div style={{ height: '3px', borderRadius: '2px', background: themes[active].text, opacity: 0.7, marginBottom: '2px' }} />
-              <div style={{ height: '2px', borderRadius: '1px', background: themes[active].text, opacity: 0.3, width: '70%' }} />
-            </div>
-          </div>
-          {/* FAB按钮 */}
-          <div style={{
-            position: 'absolute',
-            right: '8px',
-            bottom: '12px',
-            width: '16px',
-            height: '16px',
-            borderRadius: '50%',
-            background: themes[active].primary
-          }} />
-        </div>
+          );
+        })}
       </div>
-      {/* 主题名称 */}
-      <div style={{ fontWeight: 600, color: 'var(--primary)', fontSize: 14 }}>
-        {themes[active].name}
-      </div>
-      {/* 小圆点指示器 */}
-      <div style={{ display: 'flex', gap: '6px' }}>
-        {themes.map((t, i) => (
-          <div 
-            key={i} 
-            style={{ 
-              width: i === active ? '16px' : '6px',
-              height: '6px',
-              borderRadius: '3px',
-              background: i === active ? 'var(--primary)' : '#ddd',
-              transition: 'all 0.3s ease'
-            }} 
-          />
-        ))}
-      </div>
+      <div className="ob-ph-caption">{DEMO_THEMES[active].name}</div>
     </div>
   );
 }
