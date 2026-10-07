@@ -1,39 +1,9 @@
 import { useEffect, useState } from 'react';
 import { login, register, sendCode as apiSendCode } from '../lib/api';
+import WatchLogo from '../components/WatchLogo';
 import { useApp } from '../store';
 import { track } from '../lib/track';
 
-/* 原型的时钟 Logo（64×64 内联 SVG） */
-function ClockLogo() {
-  return (
-    <svg viewBox="0 0 64 64" aria-hidden="true">
-      <rect x="3.5" y="3.5" width="57" height="57" rx="13.5" fill="#FFFFFF" stroke="#22303F" strokeOpacity="0.1" />
-      <path d="M24.2 33V10.1c0-2.3.5-4.6 2.4-5.9 3.4-2.4 7.4-2.4 10.8 0 1.9 1.3 2.4 3.6 2.4 5.9V33Z" fill="#22303F" />
-      <path d="M24.2 31v22.9c0 2.3.5 4.6 2.4 5.9 3.4 2.4 7.4 2.4 10.8 0 1.9-1.3 2.4-3.6 2.4-5.9V31Z" fill="#22303F" />
-      <circle cx="32" cy="32" r="18.4" fill="#22303F" />
-      <rect x="49" y="28.6" width="3.6" height="6.8" rx="1.8" fill="#22303F" />
-      <circle cx="32" cy="32" r="15.2" fill="#FFFFFF" />
-      <g fill="#22303F">
-        <rect x="31.1" y="18.4" width="1.8" height="3.5" rx=".9" />
-        <rect x="31.1" y="18.4" width="1.8" height="3.5" rx=".9" transform="rotate(90 32 32)" />
-        <rect x="31.1" y="18.4" width="1.8" height="3.5" rx=".9" transform="rotate(180 32 32)" />
-        <rect x="31.1" y="18.4" width="1.8" height="3.5" rx=".9" transform="rotate(270 32 32)" />
-        <rect x="31.4" y="19.3" width="1.2" height="2.4" rx=".6" transform="rotate(30 32 32)" />
-        <rect x="31.4" y="19.3" width="1.2" height="2.4" rx=".6" transform="rotate(60 32 32)" />
-        <rect x="31.4" y="19.3" width="1.2" height="2.4" rx=".6" transform="rotate(120 32 32)" />
-        <rect x="31.4" y="19.3" width="1.2" height="2.4" rx=".6" transform="rotate(150 32 32)" />
-        <rect x="31.4" y="19.3" width="1.2" height="2.4" rx=".6" transform="rotate(210 32 32)" />
-        <rect x="31.4" y="19.3" width="1.2" height="2.4" rx=".6" transform="rotate(240 32 32)" />
-        <rect x="31.4" y="19.3" width="1.2" height="2.4" rx=".6" transform="rotate(300 32 32)" />
-        <rect x="31.4" y="19.3" width="1.2" height="2.4" rx=".6" transform="rotate(330 32 32)" />
-      </g>
-      <path d="M32 32 L25.1 28" stroke="#22303F" strokeWidth="2.8" strokeLinecap="round" fill="none" />
-      <path d="M32 32 L42.4 26" stroke="#22303F" strokeWidth="2.4" strokeLinecap="round" fill="none" />
-      <path d="M32 32 L25.6 43.4" stroke="#E2453C" strokeWidth="1.1" strokeLinecap="round" fill="none" />
-      <circle cx="32" cy="32" r="1.7" fill="#22303F" />
-    </svg>
-  );
-}
 
 const IconPhone = () => (
   <svg viewBox="0 0 24 24" fill="currentColor">
@@ -188,7 +158,7 @@ export default function Login() {
         </div>
         <div className="auth-brand has-back">
           <div className="auth-logo">
-            <ClockLogo />
+            <WatchLogo />
           </div>
           <div className="auth-name">找回密码</div>
           <div className="auth-slogan">输入注册邮箱，接收验证码重置密码</div>
@@ -291,7 +261,7 @@ export default function Login() {
         </div>
         <div className="auth-brand has-back">
           <div className="auth-logo">
-            <ClockLogo />
+            <WatchLogo />
           </div>
           <div className="auth-name">创建账号</div>
           <div className="auth-slogan">30 秒开始你的语音日程</div>
@@ -457,7 +427,7 @@ export default function Login() {
     <div className="content auth-content">
       <div className="auth-brand">
         <div className="auth-logo">
-          <ClockLogo />
+          <WatchLogo />
         </div>
         <div className="auth-name">语程</div>
         <div className="auth-slogan">一句话，让生活有条不紊</div>

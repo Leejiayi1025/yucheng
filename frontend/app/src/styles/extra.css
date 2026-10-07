@@ -914,8 +914,14 @@
   .ob-vcard,
   .ob-opcard,
   .ob-card,
-  .ob-cdot {
+  .ob-cdot,
+  .ob-slogan {
     opacity: 1 !important;
+  }
+  /* Slogan 的逐字是靠 clip-path 裁出来的，光把动画关掉它还是一片空白，
+     必须显式解除裁切 */
+  .ob-slogan-text {
+    clip-path: none !important;
   }
   .ob-track { transition: none !important; }
 }
@@ -3508,6 +3514,55 @@ iframe[src*="netlify"] {
   animation: obPageIn var(--mo-slow) var(--mo-ease-smooth);
 }
 
+/* 首屏 Slogan：渐入 + 逐字打出。
+   逐字用 clip-path 而不是动画 width —— width 每帧重排，clip-path 只影响绘制。
+   光标放在外层 .ob-slogan 上，不放在被裁的那层，否则它会跟着文字一起被裁掉、
+   只在打完时才出现。挂在 .is-on 上，翻回这一屏会重新播一遍。 */
+.ob-slogan {
+  display: inline-block;
+  margin-top: 14px;
+  /* 比上面那行功能描述（.ob-desc，14px 次级灰）更重、更深，
+     才读得出「这是一句标语」而不是第二行说明 */
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  /* 浓度用颜色控制而不是 opacity —— opacity 要留给渐入动画，
+     否则动画的终点会把它覆盖掉 */
+  color: color-mix(in srgb, var(--text) 82%, transparent);
+  white-space: nowrap;
+  opacity: 0;
+}
+.ob-slogan-text {
+  display: inline-block;
+  clip-path: inset(0 100% 0 0);
+}
+.ob-page.is-on .ob-slogan {
+  animation: obSloganFade var(--mo-normal) var(--mo-ease-sharp) 0.2s forwards;
+}
+.ob-page.is-on .ob-slogan-text {
+  /* 11 个字，steps 与之对齐才是「逐字」而不是匀速划过。
+     注意：animation 简写里只能有一个缓动函数 —— 这里 steps() 就是缓动，
+     再写一个 cubic-bezier 会让整条声明失效（浏览器直接丢弃，不报错）。 */
+  animation: obSloganType 1.45s steps(11) 0.2s forwards;
+}
+/* 光标：打完后再眨几下就收掉，避免一直闪 */
+.ob-page.is-on .ob-slogan::after {
+  content: '';
+  display: inline-block;
+  width: 1px;
+  height: 1em;
+  margin-left: 3px;
+  vertical-align: -0.13em;
+  background: var(--primary);
+  animation: obCaret 0.62s steps(1) 0.2s 5 forwards;
+}
+@keyframes obSloganFade { to { opacity: 1; } }
+@keyframes obSloganType { to { clip-path: inset(0 0 0 0); } }
+@keyframes obCaret {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
 @keyframes obPageIn {
   from {
     opacity: 0;
@@ -4171,5 +4226,84 @@ button:active, .primary-btn:active, .vs-submit:active, .vs-immersive-btn.done:ac
     inset 0 -5px 10px rgba(200, 110, 80, 0.28),
     0 14px 24px -12px rgba(239, 127, 92, 0.7),
     0 5px 10px -5px rgba(239, 127, 92, 0.4);
+}
+
+/* ============================================================
+   登录 / 注册页 · 立体化
+   ------------------------------------------------------------
+   原来是「纯色卡片 + 1px 描边 + 一层浅影」，和引导页现在的手表、
+   卡片不是一个质感。这里沿用同一套打光（左上受光、右下背光、落地影），
+   但登录页有自己的隐喻：
+     · 输入框是「凹下去的」—— 用 inset 顶部暗影做成就口
+     · 按钮是「凸起来的」—— 渐变 + 顶棱高光 + 底棱厚度 + 落地影
+   ============================================================ */
+
+/* Logo：换成与引导页共用的立体手表。
+   注意比例 —— 手表是 120×150（4:5），原来这里是 76×76 的正方形盒子，
+   直接套会把表压扁，所以盒子跟着改成 4:5。 */
+.auth-logo {
+  width: 84px;
+  height: 105px;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 12px 22px rgba(34, 48, 63, 0.16));
+}
+.auth-logo svg { width: 100%; height: 100%; display: block; }
+
+/* 输入框：凹槽，不是浮起的卡片 */
+.auth-field {
+  height: 54px;
+  border: none;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card) 93%, var(--text));
+  box-shadow:
+    inset 0 2px 5px color-mix(in srgb, var(--text) 12%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, #fff 75%, transparent);
+  backdrop-filter: none;
+}
+.auth-field:focus-within {
+  box-shadow:
+    inset 0 2px 5px color-mix(in srgb, var(--text) 10%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, #fff 75%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--primary) 24%, transparent);
+}
+
+/* 主按钮：凸起，按下时真的「陷」下去 */
+.auth-btn {
+  height: 54px;
+  border-radius: 16px;
+  color: var(--on-primary);
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--primary) 76%, #fff) 0%,
+    var(--primary) 52%,
+    color-mix(in srgb, var(--primary) 74%, #000) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.24),
+    0 10px 20px -8px color-mix(in srgb, var(--primary) 62%, transparent),
+    0 3px 6px -2px rgba(16, 26, 44, 0.2);
+  transition: transform var(--mo-fast) var(--mo-ease-sharp),
+              box-shadow var(--mo-fast) var(--mo-ease-sharp);
+}
+.auth-btn:active {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 3px rgba(0, 0, 0, 0.26),
+    0 4px 10px -6px color-mix(in srgb, var(--primary) 50%, transparent);
+}
+
+/* 返回圆钮：与其它圆形图标钮同一套体积 */
+.auth-back {
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--card) 74%, #fff) 0%,
+    var(--card) 52%,
+    color-mix(in srgb, var(--card) 88%, var(--text)) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 90%, transparent),
+    0 4px 10px -5px rgba(16, 26, 44, 0.3);
 }
 
