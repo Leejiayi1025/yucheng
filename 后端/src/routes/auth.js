@@ -4,17 +4,54 @@ const bcrypt = require('bcryptjs');
 const pool = require('../config/db');
 const { signToken, authMiddleware } = require('../middleware/auth');
 const { sendCodeMail, hasMailer, mailMode } = require('../util/mailer');
+const { rateLimit } = require('../middleware/rateLimit');
+const { CATS } = require('../config/constants');
 
-const DEFAULT_CATS = ['工作', '学习', '运动', '生活', '其他'];
+const DEFAULT_CATS = CATS;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CODE_TTL = 5 * 60 * 1000; // 验证码 5 分钟
 const RESEND_GAP = 60 * 1000; // 同一邮箱 60 秒内不可重复发
 
-/* 验证码存内存（单进程足够；重启后失效，用户重新获取即可） */
+/* 验证码存内存。
+   【已知限制】重启即失效（用户重新获取即可）；多实例部署时各实例各存一份，
+   若请求被负载均衡打到另一实例会提示「请先获取验证码」。当前单实例够用，
+   要彻底解决需落到 Redis 或数据库。 */
 const codes = new Map(); // email -> { code, at, exp }
+
+// 定时清扫过期验证码，否则 Map 会随注册过的邮箱数一直增长。
+// unref 让这个定时器不阻止进程退出。
+const codesSweeper = setInterval(() => {
+  const now = Date.now();
+  for (const [email, rec] of codes) if (rec.exp <= now) codes.delete(email);
+}, 5 * 60 * 1000);
+if (codesSweeper.unref) codesSweeper.unref();
 
 const newCode = () => String(Math.floor(100000 + Math.random() * 900000));
 const normEmail = (v) => String(v || '').trim().toLowerCase();
+
+/* ---------- 限流 ----------
+   发验证码、登录、注册都属于「被刷就有成本/风险」的接口：
+   - 发信走 Resend，被刷是直接花钱 + 毁域名信誉；
+   - 登录无限制可被爆破。
+   按 IP 计数（已设 trust proxy，拿到的是真实客户端 IP）。 */
+const sendCodeLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 10,
+  message: '验证码请求过于频繁，请稍后再试',
+  keyFn: (req) => req.ip
+});
+const loginLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 20,
+  message: '尝试过于频繁，请 10 分钟后再试',
+  keyFn: (req) => req.ip
+});
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  message: '注册过于频繁，请稍后再试',
+  keyFn: (req) => req.ip
+});
 
 /** 校验并消费验证码，通过返回 ''，否则返回错误文案 */
 function consumeCode(email, code) {
@@ -45,7 +82,7 @@ router.get('/mail-status', (req, res) => {
 });
 
 /* ---------- 发送验证码（邮箱） ---------- */
-router.post('/send-code', async (req, res) => {
+router.post('/send-code', sendCodeLimiter, async (req, res) => {
   try {
     const email = normEmail((req.body || {}).email);
     if (!EMAIL_RE.test(email)) return res.status(400).json({ error: '邮箱格式不正确' });
@@ -79,7 +116,7 @@ router.post('/send-code', async (req, res) => {
 });
 
 /* ---------- 注册（邮箱 + 验证码） ---------- */
-router.post('/register', async (req, res) => {
+router.post('/register', registerLimiter, async (req, res) => {
   try {
     const body = req.body || {};
     const email = normEmail(body.email);
@@ -134,7 +171,7 @@ router.post('/register', async (req, res) => {
 });
 
 /* ---------- 登录（邮箱或手机号都行） ---------- */
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   try {
     const body = req.body || {};
     const acc = String(body.account || body.email || body.phone || '').trim();

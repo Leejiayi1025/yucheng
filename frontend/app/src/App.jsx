@@ -11,8 +11,12 @@ import { playKeySound, playAlarmRing, stopAlarmRing } from './lib/sound';
 const Calendar = lazy(() => import('./pages/Calendar'));
 const Mine = lazy(() => import('./pages/Mine'));
 
+/* 错过多久就不再补提醒（分钟）。
+   太小会漏提醒；太大会在打开 App 时把今天所有已过去的任务一次性全响一遍。 */
+const CATCH_UP_MIN = 30;
+
 export default function App() {
-  const { user, toastData, closeToast, soundOn, tasks, toast } = useApp();
+  const { user, toastData, closeToast, soundOn, tasks } = useApp();
   const [page, setPage] = useState('today');
   const [alarm, setAlarm] = useState(null); // 闹钟弹窗 {title, start}
   const [entered, setEntered] = useState(() => {
@@ -24,6 +28,12 @@ export default function App() {
   });
   const notifiedRef = useRef(new Set()); // 已经提醒过的任务ID，避免重复弹
   const alarmTimeoutRef = useRef(null); // 存闹钟的setTimeout，方便停的时候清掉
+  /* 定时器里要读「最新」的任务。直接依赖 tasks 会让 interval 每次任务变动都重建，
+     频繁变动时定时器一直重置、反而永远不触发，所以放进 ref。 */
+  const tasksRef = useRef(tasks);
+  useEffect(() => {
+    tasksRef.current = tasks;
+  }, [tasks]);
 
   // 闹钟响铃：连续响2次，存定时器id方便停止
   const ringAlarm = () => {
@@ -42,6 +52,19 @@ export default function App() {
     }
   };
 
+  /* 页面在后台时补一条系统通知 —— 此时 App 内的大弹窗用户看不见。
+     前台不重复打扰。注意：H5 只能在页面存活时发通知，
+     关掉标签页/锁屏后不会响，这是浏览器限制，不是这里能解决的。 */
+  const notifySystem = (title, start) => {
+    try {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      if (document.visibilityState === 'visible') return;
+      new Notification('语程 · 任务提醒', { body: title + ' ' + start + ' 开始', tag: 'yc-alarm' });
+    } catch {
+      /* 部分浏览器（iOS Safari）不支持直接构造通知，忽略 */
+    }
+  };
+
   // 全局按钮点击音效
   useEffect(() => {
     if (!soundOn) return;
@@ -54,41 +77,48 @@ export default function App() {
     return () => document.removeEventListener('click', handler);
   }, [soundOn]);
 
-  // 闹钟提醒：登录后每10秒检查一次，到时间就弹通知+响铃
+  /* 通知权限必须在用户手势里申请，Safari 在挂载时直接调用会被拒。
+     所以挂在「首次点击」上补一次。 */
+  useEffect(() => {
+    if (!user || !('Notification' in window)) return;
+    if (Notification.permission !== 'default') return;
+    const ask = () => {
+      Notification.requestPermission().catch(() => {});
+    };
+    document.addEventListener('click', ask, { once: true });
+    return () => document.removeEventListener('click', ask);
+  }, [user]);
+
+  // 闹钟提醒：登录后每10秒检查一次，到时间就响铃+弹窗
   useEffect(() => {
     if (!user) return;
-    // 请求通知权限
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-    // 定时检查
     const timer = setInterval(() => {
       const now = new Date();
       const nowHM = now.getHours() * 60 + now.getMinutes();
       const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      tasks.forEach(t => {
+      tasksRef.current.forEach(t => {
         if (!t.start || t.date !== todayStr || t.remind < 0) return;
-        // 已完成的任务不提醒
-        if (t.done === 1 || t.done === true) return;
-        // 计算提醒时间 = start - remind分钟
+        // 已完成的任务不提醒（任务的状态字段是 status，不是 done）
+        if (t.status === 'done') return;
+        // 提醒时间 = start - remind分钟
         const [h, m] = t.start.split(':').map(Number);
-        const taskStartMin = h * 60 + m;
-        const remindAt = taskStartMin - t.remind;
-        // 现在到了提醒时间，而且还没提醒过
-        if (nowHM >= remindAt && !notifiedRef.current.has(t.id)) {
-          notifiedRef.current.add(t.id);
-          // 1. 响铃
-          ringAlarm();
-          // 2. 弹APP内部大弹窗
-          setAlarm({ id: t.id, title: t.title, start: t.start });
-        }
+        const remindAt = h * 60 + m - t.remind;
+        /* 只补「刚刚到点」的提醒。若不加这个上界，
+           每次打开 App 都会把今天所有已过去的任务一起响一遍。 */
+        const late = nowHM - remindAt;
+        if (late < 0 || late > CATCH_UP_MIN) return;
+        if (notifiedRef.current.has(t.id)) return;
+        notifiedRef.current.add(t.id);
+        ringAlarm();
+        notifySystem(t.title, t.start);
+        setAlarm({ id: t.id, title: t.title, start: t.start });
       });
     }, 10000); // 每10秒检查一次
     return () => {
       clearInterval(timer);
       stopAlarm();
     };
-  }, [user, tasks, toast]);
+  }, [user]);
 
   const toastNode = toastData && (
     <div className="toast show" key={toastData.key}>
@@ -166,11 +196,12 @@ export default function App() {
                   const alarmTitle = alarm.title;
                   const alarmStart = alarm.start;
                   setAlarm(null);
-                  // 5分钟后再提醒，弹之前先检查任务还在不在
+                  // 5分钟后再提醒，弹之前先检查任务还在不在、有没有被标记完成
                   setTimeout(() => {
-                    const stillExists = tasks.find(t => t.id === alarmId);
-                    if (stillExists && stillExists.done !== 1 && stillExists.done !== true) {
+                    const stillExists = tasksRef.current.find(t => t.id === alarmId);
+                    if (stillExists && stillExists.status !== 'done') {
                       ringAlarm();
+                      notifySystem(alarmTitle, alarmStart);
                       setAlarm({ id: alarmId, title: alarmTitle, start: alarmStart });
                     }
                   }, 5 * 60 * 1000);

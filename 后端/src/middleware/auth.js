@@ -7,6 +7,18 @@ function signToken(userId) {
   return jwt.sign({ uid: userId }, JWT_SECRET, { expiresIn: '30d' });
 }
 
+/** 从 Authorization 头解析出 uid；无 token 或校验失败返回 null（不抛错）。
+    用于埋点这类「有则记名、无则匿名」的可选鉴权场景。 */
+function readUserId(req) {
+  const header = (req.headers && req.headers.authorization) || '';
+  if (!header.startsWith('Bearer ')) return null;
+  try {
+    return jwt.verify(header.slice(7), JWT_SECRET).uid;
+  } catch (e) {
+    return null;
+  }
+}
+
 // Express 中间件：校验 Authorization: Bearer <token>
 function authMiddleware(req, res, next) {
   const header = req.headers.authorization || '';
@@ -37,4 +49,24 @@ function authMiddleware(req, res, next) {
     });
 }
 
-module.exports = { signToken, authMiddleware };
+/* 管理员专用：先过 authMiddleware 拿到 req.userId，再查 role。
+   抽出来是为了让「验签用哪个密钥」只有一个来源 —— 之前 admin 接口
+   各自复制了一份 jwt.verify，兜底密钥还和其它地方不一致。 */
+function adminMiddleware(req, res, next) {
+  authMiddleware(req, res, () => {
+    pool
+      .query('SELECT role FROM users WHERE id=?', [req.userId])
+      .then(([rows]) => {
+        if (!rows.length || rows[0].role !== 'admin') {
+          return res.status(403).json({ error: '需要管理员权限' });
+        }
+        next();
+      })
+      .catch((e) => {
+        console.error('[auth] 校验管理员失败:', e && e.message);
+        res.status(503).json({ error: '服务暂不可用，请稍后再试' });
+      });
+  });
+}
+
+module.exports = { signToken, authMiddleware, adminMiddleware, readUserId, JWT_SECRET };

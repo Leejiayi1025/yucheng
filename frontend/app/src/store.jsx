@@ -353,9 +353,7 @@ export function AppProvider({ children }) {
       setSoundOn,
       toast,
       closeToast,
-      toastData,
-      soundOn,
-      setSoundOn
+      toastData
     }),
     [
       theme,

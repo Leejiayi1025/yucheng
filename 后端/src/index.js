@@ -7,9 +7,44 @@ const taskRoutes = require('./routes/tasks');
 const catRoutes = require('./routes/categories');
 const voiceRoutes = require('./routes/voice');
 const pool = require('./config/db');
+const { adminMiddleware, readUserId } = require('./middleware/auth');
+const { rateLimit } = require('./middleware/rateLimit');
 
 const app = express();
-app.use(cors());
+
+/* Railway 等平台在应用前面有一层反向代理。
+   不设 trust proxy 的话 req.ip 永远是代理的 IP，限流会把所有用户算成同一个人。 */
+app.set('trust proxy', 1);
+
+/* CORS 白名单。生产前端在 Netlify，后端在 Railway，属于跨域，必须放行该来源；
+   本地开发放行 Vite 的几个端口。CORS_ORIGINS 可用逗号分隔追加/覆盖。
+   同源请求和 curl 不带 Origin，一律放行。 */
+const DEFAULT_ORIGINS = [
+  'https://yuchengaileen.netlify.app',
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:5174'
+];
+const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean)
+  .concat(DEFAULT_ORIGINS);
+
+app.use(
+  cors({
+    origin(origin, cb) {
+      if (!origin) return cb(null, true); // 同源 / 非浏览器请求
+      if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+      // 局域网用手机真机调试（http://192.168.x.x:4000）时也放行
+      if (/^https?:\/\/(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.)/.test(origin)) {
+        return cb(null, true);
+      }
+      cb(null, false); // 不回错误，只是不下发 CORS 头，由浏览器拦下
+    }
+  })
+);
 app.use(express.json({ limit: '10mb' }));
 
 // 健康检查
@@ -24,41 +59,29 @@ app.get('/admin', (req, res) => res.sendFile(adminPath));
 app.get('/admin.html', (req, res) => res.sendFile(adminPath));
 
 // 埋点接口：接收前端事件
-app.post('/api/track', async (req, res) => {
-  try {
-    const { event_name, event_data, page } = req.body || {};
-    if (!event_name) return res.json({ ok: true }); // 静默忽略
-    // 从token里拿user_id
-    const auth = req.headers.authorization || '';
-    let userId = null;
-    if (auth.startsWith('Bearer ')) {
-      try {
-        const jwt = require('jsonwebtoken');
-        const decoded = jwt.verify(auth.slice(7), process.env.JWT_SECRET || 'change_this_to_a_long_random_secret');
-        userId = decoded.uid;
-      } catch {}
+app.post(
+  '/api/track',
+  // 额度给得很宽松，正常使用不可能触发；只挡脚本刷表
+  rateLimit({ windowMs: 60 * 1000, max: 200, keyFn: (req) => req.ip }),
+  async (req, res) => {
+    try {
+      const { event_name, event_data, page } = req.body || {};
+      if (!event_name) return res.json({ ok: true }); // 静默忽略
+      const userId = readUserId(req); // 有 token 就记名，没有就匿名
+      await pool.query(
+        'INSERT INTO events (user_id, event_name, event_data, page) VALUES (?, ?, ?, ?)',
+        [userId, event_name, event_data ? JSON.stringify(event_data) : null, page || null]
+      );
+      res.json({ ok: true });
+    } catch (e) {
+      res.json({ ok: true }); // 埋点失败不影响用户
     }
-    await pool.query(
-      'INSERT INTO events (user_id, event_name, event_data, page) VALUES (?, ?, ?, ?)',
-      [userId, event_name, event_data ? JSON.stringify(event_data) : null, page || null]
-    );
-    res.json({ ok: true });
-  } catch (e) {
-    res.json({ ok: true }); // 埋点失败不影响用户
   }
-});
+);
 
 // 数据统计接口（管理员用）
-app.get('/api/admin/stats', async (req, res) => {
+app.get('/api/admin/stats', adminMiddleware, async (req, res) => {
   try {
-    // 校验管理员
-    const auth = req.headers.authorization || '';
-    if (!auth.startsWith('Bearer ')) return res.status(401).json({ error: '未登录' });
-    const jwt = require('jsonwebtoken');
-    const decoded = jwt.verify(auth.slice(7), process.env.JWT_SECRET || 'yucheng_secret');
-    const [users] = await pool.query('SELECT role FROM users WHERE id=?', [decoded.uid]);
-    if (!users.length || users[0].role !== 'admin') return res.status(403).json({ error: '需要管理员权限' });
-
     // 总用户数
     const [[userCount]] = await pool.query('SELECT COUNT(*) as cnt FROM users');
     // 总任务数
@@ -127,15 +150,8 @@ app.get('/api/admin/stats', async (req, res) => {
 });
 
 // 用户列表接口（管理员用）
-app.get('/api/admin/users', async (req, res) => {
+app.get('/api/admin/users', adminMiddleware, async (req, res) => {
   try {
-    const auth = req.headers.authorization || '';
-    if (!auth.startsWith('Bearer ')) return res.status(401).json({ error: '未登录' });
-    const jwt = require('jsonwebtoken');
-    const decoded = jwt.verify(auth.slice(7), process.env.JWT_SECRET || 'change_this_to_a_long_random_secret');
-    const [users] = await pool.query('SELECT role FROM users WHERE id=?', [decoded.uid]);
-    if (!users.length || users[0].role !== 'admin') return res.status(403).json({ error: '需要管理员权限' });
-
     const [list] = await pool.query(`
       SELECT u.id, u.nickname, u.email, u.phone, u.role, u.created_at,
         (SELECT COUNT(*) FROM tasks t WHERE t.user_id = u.id) as task_count

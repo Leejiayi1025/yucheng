@@ -4,8 +4,19 @@ const pool = require('../config/db');
 const { authMiddleware } = require('../middleware/auth');
 const { parseVoice, parseVoiceMulti } = require('../util/parse');
 const { parseTasksWithDeepSeek, parseVoiceAction, hasDeepSeek } = require('../util/deepseek');
+const { rateLimit } = require('../middleware/rateLimit');
 
 router.use(authMiddleware);
+
+/* 每次解析都会调 DeepSeek（按 token 计费），必须限制单人调用频率。
+   额度按「人」而不是按 IP —— 一个用户可能在多个网络下用，
+   但计费是按账号走的。正常语速下一分钟说不了几次。 */
+const parseLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 30,
+  message: '语音解析太频繁了，请稍等一会儿再试',
+  keyFn: (req) => req.userId
+});
 
 const p2 = (n) => String(n).padStart(2, '0');
 const ymd = (d) => d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
@@ -34,7 +45,7 @@ router.get('/engine', (req, res) => {
  *   { intent:'delete', changes:[{id,title,desc}] }
  * ASR 由前端浏览器原生完成，这里只收文字。
  */
-router.post('/parse', async (req, res) => {
+router.post('/parse', parseLimiter, async (req, res) => {
   const { text, baseDate } = req.body || {};
   if (!text || !String(text).trim()) {
     return res.status(400).json({ error: '缺少文本' });

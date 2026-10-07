@@ -8,11 +8,13 @@ require('dotenv').config();
 const BASE = (process.env.DEEPSEEK_API_URL || 'https://api.deepseek.com').replace(/\/+$/, '');
 const ENDPOINT = BASE + '/chat/completions';
 const API_KEY = process.env.DEEPSEEK_API_KEY || '';
-const MODEL = process.env.DEEPSEEK_MODEL || 'deepseek-flash';
+// DeepSeek 的模型名只有 deepseek-chat / deepseek-reasoner，
+// 之前的兜底值 'deepseek-flash' 并不存在，漏配环境变量时会直接 404。
+const MODEL = process.env.DEEPSEEK_MODEL || 'deepseek-chat';
 const TIMEOUT_MS = Number(process.env.DEEPSEEK_TIMEOUT_MS || 30000);
 
-// 分类必须与前端 CAT 保持一致
-const CATS = ['学习', '工作', '运动', '社交', '健康', '其他'];
+// 分类：与前端 CAT、注册时的默认分类同源，见 config/constants.js
+const { CATS } = require('../config/constants');
 
 function hasDeepSeek() {
   return Boolean(API_KEY);
