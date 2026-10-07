@@ -1,18 +1,18 @@
 // 邮件发送：注册验证码 / 绑定邮箱验证码
 //
-// 【两种方式，配了哪个用哪个，SMTP 优先】
+// 【两种方式，Resend(API) 优先，SMTP 回退】
 //
-// ① SMTP（推荐，免费）：QQ / 163 等个人邮箱即可，只需「授权码」，不用域名
+// ① HTTP API（主通道，线上用）：Resend / Brevo 等服务商
+//    MAIL_API_URL=https://api.resend.com/emails
+//    MAIL_API_KEY=xxx
+//    MAIL_FROM=语程 <no-reply@yourdomain.com>
+//
+// ② SMTP（回退 / 本地开发）：QQ / 163 等个人邮箱即可，只需「授权码」，不用域名
 //    MAIL_SMTP_HOST=smtp.qq.com      （163 则是 smtp.163.com）
 //    MAIL_SMTP_PORT=465              （465=SSL，587=STARTTLS）
 //    MAIL_SMTP_USER=你的邮箱@qq.com
 //    MAIL_SMTP_PASS=授权码            （不是登录密码！在邮箱设置里生成）
 //    MAIL_FROM=语程 <你的邮箱@qq.com>
-//
-// ② HTTP API（备选）：Resend / Brevo 等服务商
-//    MAIL_API_URL=https://api.resend.com/emails
-//    MAIL_API_KEY=xxx
-//    MAIL_FROM=语程 <no-reply@yourdomain.com>
 //
 // 【都没配时】不会静默失败：验证码打印到服务端日志，并由接口回传前端，
 //   保证在配好邮箱之前也能把注册流程跑通。
@@ -100,20 +100,7 @@ function buildMail(code, ttlMin) {
 async function sendCodeMail(email, code, ttlMin = 5) {
   const { subject, text, html } = buildMail(code, ttlMin);
 
-  /* ① SMTP（QQ / 163 邮箱等） */
-  const tp = getTransporter();
-  if (tp) {
-    try {
-      await tp.sendMail({ from: MAIL_FROM, to: email, subject, text, html });
-      return { sent: true, via: 'smtp' };
-    } catch (e) {
-      const msg = String((e && e.message) || e);
-      console.error('[mailer] SMTP 发送失败: ' + msg);
-      return { sent: false, error: msg };
-    }
-  }
-
-  /* ② HTTP API（Resend / Brevo 等） */
+  /* ① HTTP API（Resend / Brevo 等，主通道） */
   if (MAIL_API_URL) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
@@ -142,6 +129,19 @@ async function sendCodeMail(email, code, ttlMin = 5) {
     }
   }
 
+  /* ② SMTP（QQ / 163 邮箱等，回退通道：本地开发或 API 未配时用） */
+  const tp = getTransporter();
+  if (tp) {
+    try {
+      await tp.sendMail({ from: MAIL_FROM, to: email, subject, text, html });
+      return { sent: true, via: 'smtp' };
+    } catch (e) {
+      const msg = String((e && e.message) || e);
+      console.error('[mailer] SMTP 发送失败: ' + msg);
+      return { sent: false, error: msg };
+    }
+  }
+
   /* ③ 都没配 */
   console.log('[mailer] 未配置邮件服务，验证码（' + email + '）：' + code);
   return { sent: false, error: '未配置邮件服务' };
@@ -149,8 +149,8 @@ async function sendCodeMail(email, code, ttlMin = 5) {
 
 /** 供接口返回用：说明当前走的是哪种方式 */
 function mailMode() {
-  if (smtpReady()) return 'smtp';
   if (MAIL_API_URL) return 'api';
+  if (smtpReady()) return 'smtp';
   return 'none';
 }
 

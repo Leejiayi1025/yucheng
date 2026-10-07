@@ -8,10 +8,11 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
-    background: #f5f1ec;
-    color: #2d3a33;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Helvetica Neue", sans-serif;
+    background: #f5f5f7;
+    color: #000000;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
   .admin-container { max-width: 1280px; margin: 0 auto; padding: 32px 24px; }
 
@@ -22,54 +23,54 @@
     align-items: center;
     margin-bottom: 28px;
   }
-  .admin-header h1 { font-size: 22px; font-weight: 700; }
-  .admin-header .sub { font-size: 13px; color: #8a9b8f; margin-top: 4px; }
+  .admin-header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+  .admin-header .sub { font-size: 14px; color: #8e8e93; margin-top: 6px; }
 
   /* 登录页 */
   .login-box {
-    max-width: 380px;
+    max-width: 400px;
     margin: 140px auto;
-    background: #fff;
+    background: #ffffff;
     border-radius: 20px;
-    padding: 40px 36px;
-    box-shadow: 0 8px 32px rgba(107, 142, 123, 0.12);
+    padding: 48px 40px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
   }
   .login-box .logo {
-    width: 48px; height: 48px;
-    background: #6b8e7b;
-    border-radius: 14px;
+    width: 56px; height: 56px;
+    background: #000000;
+    border-radius: 16px;
     display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 22px; font-weight: 700;
-    margin: 0 auto 16px;
+    color: #fff; font-size: 24px; font-weight: 700;
+    margin: 0 auto 20px;
   }
-  .login-box h2 { font-size: 18px; margin-bottom: 24px; text-align: center; font-weight: 600; }
+  .login-box h2 { font-size: 20px; margin-bottom: 28px; text-align: center; font-weight: 600; letter-spacing: -0.3px; }
   .login-box input {
     width: 100%;
-    padding: 12px 16px;
-    border: 1.5px solid #e8e4de;
-    border-radius: 12px;
-    font-size: 14px;
-    margin-bottom: 12px;
-    outline: none;
-    transition: all 0.2s;
-    background: #faf8f5;
-  }
-  .login-box input:focus { border-color: #6b8e7b; background: #fff; }
-  .login-box button {
-    width: 100%;
-    padding: 12px;
-    background: #6b8e7b;
-    color: #fff;
+    padding: 14px 16px;
     border: none;
     border-radius: 12px;
     font-size: 15px;
+    margin-bottom: 12px;
+    outline: none;
+    transition: all 0.2s;
+    background: #f5f5f7;
+  }
+  .login-box input:focus { background: #ebebed; }
+  .login-box button {
+    width: 100%;
+    padding: 14px;
+    background: #000000;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     margin-top: 8px;
-    transition: background 0.2s;
+    transition: all 0.2s;
   }
-  .login-box button:hover { background: #5a7d6a; }
-  .login-error { color: #e74c3c; font-size: 13px; text-align: center; margin-top: 12px; }
+  .login-box button:active { transform: scale(0.98); }
+  .login-error { color: #ff3b30; font-size: 13px; text-align: center; margin-top: 12px; }
 
   /* 统计卡片 */
   .stats-grid {
@@ -79,20 +80,20 @@
     margin-bottom: 24px;
   }
   .stat-card {
-    background: #fff;
+    background: #ffffff;
     border-radius: 16px;
-    padding: 22px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     transition: transform 0.2s;
   }
   .stat-card:hover { transform: translateY(-2px); }
-  .stat-card .label { font-size: 12px; color: #999; margin-bottom: 8px; font-weight: 500; }
-  .stat-card .value { font-size: 28px; font-weight: 700; color: #2d3a33; line-height: 1.2; }
-  .stat-card .sub-text { font-size: 12px; color: #6b8e7b; margin-top: 6px; }
-  .stat-card.primary { background: linear-gradient(135deg, #6b8e7b, #8aae9b); color: #fff; }
-  .stat-card.primary .label { color: rgba(255,255,255,0.8); }
+  .stat-card .label { font-size: 13px; color: #8e8e93; margin-bottom: 10px; font-weight: 500; }
+  .stat-card .value { font-size: 32px; font-weight: 700; color: #000; line-height: 1.2; letter-spacing: -0.5px; }
+  .stat-card .sub-text { font-size: 12px; color: #8e8e93; margin-top: 8px; }
+  .stat-card.primary { background: #000000; color: #fff; }
+  .stat-card.primary .label { color: rgba(255,255,255,0.7); }
   .stat-card.primary .value { color: #fff; }
-  .stat-card.primary .sub-text { color: rgba(255,255,255,0.7); }
+  .stat-card.primary .sub-text { color: rgba(255,255,255,0.6); }
 
   /* 图表区 */
   .chart-grid {
@@ -101,88 +102,84 @@
     gap: 16px;
     margin-bottom: 24px;
   }
+  .chart-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
   .section {
-    background: #fff;
+    background: #ffffff;
     border-radius: 16px;
     padding: 24px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
   .section-title {
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 600;
-    margin-bottom: 16px;
-    color: #2d3a33;
+    margin-bottom: 20px;
+    color: #000;
+    letter-spacing: -0.3px;
   }
-  .chart-wrap { position: relative; height: 260px; }
+  .chart-wrap { position: relative; height: 280px; }
 
   /* 表格 */
   table { width: 100%; border-collapse: collapse; }
-  th { text-align: left; padding: 10px 14px; font-size: 12px; color: #999; border-bottom: 1px solid #f0ede8; font-weight: 500; }
-  td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid #f8f6f2; }
+  th { text-align: left; padding: 12px 14px; font-size: 12px; color: #8e8e93; border-bottom: 1px solid rgba(0,0,0,0.08); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 14px; font-size: 14px; border-bottom: 1px solid rgba(0,0,0,0.04); }
   tr:last-child td { border-bottom: none; }
-  tr:hover td { background: #faf8f5; }
+  tr:hover td { background: #f5f5f7; }
 
   /* 标签 */
   .tag {
     display: inline-block;
-    padding: 3px 10px;
+    padding: 4px 10px;
     border-radius: 20px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 500;
   }
-  .tag-admin { background: #f0e6d3; color: #b8860b; }
-  .tag-user { background: #e8f0e8; color: #6b8e7b; }
-  .tag-active { background: #e8f5e9; color: #4caf50; }
-  .tag-inactive { background: #f5f5f5; color: #999; }
+  .tag-admin { background: #000; color: #fff; }
+  .tag-user { background: rgba(0,0,0,0.08); color: #000; }
+  .tag-active { background: rgba(52, 199, 89, 0.15); color: #248a3d; }
+  .tag-inactive { background: rgba(0,0,0,0.06); color: #8e8e93; }
 
   /* 头像 */
   .avatar {
-    width: 32px; height: 32px;
+    width: 36px; height: 36px;
     border-radius: 50%;
-    background: #6b8e7b;
+    background: #000;
     color: #fff;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
-    margin-right: 10px;
+    margin-right: 12px;
     vertical-align: middle;
   }
 
   /* 退出按钮 */
   .logout-btn {
-    padding: 8px 16px;
-    background: transparent;
-    border: 1.5px solid #e0dcd5;
-    border-radius: 10px;
-    font-size: 13px;
-    cursor: pointer;
-    color: #666;
-    transition: all 0.2s;
-  }
-  .logout-btn:hover { border-color: #e74c3c; color: #e74c3c; }
-
-  .empty { text-align: center; color: #bbb; padding: 40px; font-size: 13px; }
-
-  /* tab切换 */
-  .tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-  }
-  .tab {
-    padding: 8px 16px;
-    border-radius: 10px;
-    font-size: 13px;
-    cursor: pointer;
+    padding: 10px 20px;
     background: transparent;
     border: none;
-    color: #888;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #ff3b30;
     transition: all 0.2s;
+    font-weight: 500;
   }
-  .tab.active { background: #6b8e7b; color: #fff; }
-  .tab:hover:not(.active) { background: #f0ede8; }
+  .logout-btn:active { background: rgba(255, 59, 48, 0.1); }
+
+  .empty { text-align: center; color: #8e8e93; padding: 48px; font-size: 14px; }
+
+  code {
+    background: rgba(0,0,0,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
 </style>
 </head>
 <body>
@@ -208,6 +205,7 @@ const eventDescriptions = {
   'task_add': '添加日程成功',
   'task_edit': '编辑日程',
   'task_delete': '删除日程',
+  'task_complete': '完成日程',
   'theme_change': '切换主题皮肤',
   'theme_preview': '预览主题',
   'profile_edit': '修改个人信息',
@@ -217,6 +215,9 @@ const eventDescriptions = {
   'phone_bind': '绑定手机号',
   'account_delete': '注销账号',
   'app_launch': '打开APP',
+  'alarm_ring': '闹钟提醒触发',
+  'alarm_snooze': '闹钟稍后提醒',
+  'alarm_confirm': '闹钟确认关闭',
   'test_event': '测试事件'
 };
 
@@ -285,8 +286,8 @@ function renderDashboard(stats) {
   document.getElementById('app').innerHTML = `
     <div class="admin-header">
       <div>
-        <h1>语程 · 管理后台</h1>
-        <div class="sub">数据概览 · 实时更新 · ${new Date().toLocaleDateString('zh-CN')}</div>
+        <h1>语程 · 数据概览</h1>
+        <div class="sub">内测阶段数据 · 实时更新 · ${new Date().toLocaleDateString('zh-CN')}</div>
       </div>
       <button class="logout-btn" onclick="logout()">退出登录</button>
     </div>
@@ -300,17 +301,17 @@ function renderDashboard(stats) {
       <div class="stat-card">
         <div class="label">总日程数</div>
         <div class="value">${stats.tasks}</div>
-        <div class="sub-text">用户创建的全部日程</div>
+        <div class="sub-text">人均 ${stats.users ? (stats.tasks / stats.users).toFixed(1) : 0} 条日程</div>
       </div>
       <div class="stat-card">
-        <div class="label">语音添加次数</div>
+        <div class="label">语音创建次数</div>
         <div class="value">${stats.voice_adds}</div>
-        <div class="sub-text">核心功能使用情况</div>
+        <div class="sub-text">占总日程 ${stats.tasks ? (stats.voice_adds / stats.tasks * 100).toFixed(0) : 0}%</div>
       </div>
       <div class="stat-card">
-        <div class="label">总事件数</div>
-        <div class="value">${stats.total_events}</div>
-        <div class="sub-text">埋点累计</div>
+        <div class="label">日程完成率</div>
+        <div class="value">${stats.completion_rate || 0}%</div>
+        <div class="sub-text">已完成 ${stats.completed_tasks || 0} 条日程</div>
       </div>
     </div>
 
@@ -320,8 +321,40 @@ function renderDashboard(stats) {
         <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
       </div>
       <div class="section">
-        <div class="section-title">热门操作分布</div>
+        <div class="section-title">核心功能使用分布</div>
         <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-grid-2">
+      <div class="section">
+        <div class="section-title">用户主题偏好</div>
+        <div class="chart-wrap"><canvas id="themeChart"></canvas></div>
+      </div>
+      <div class="section">
+        <div class="section-title">内测核心指标</div>
+        <div style="padding: 8px 0;">
+          <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(0,0,0,0.06);">
+            <span style="color:#000;font-size:15px;">次日留存率</span>
+            <span style="font-weight:600;font-size:15px;">${stats.retention_d1 || '-'}%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(0,0,0,0.06);">
+            <span style="color:#000;font-size:15px;">7日留存率</span>
+            <span style="font-weight:600;font-size:15px;">${stats.retention_d7 || '-'}%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(0,0,0,0.06);">
+            <span style="color:#000;font-size:15px;">闹钟提醒触发次数</span>
+            <span style="font-weight:600;font-size:15px;">${stats.alarm_count || 0}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(0,0,0,0.06);">
+            <span style="color:#000;font-size:15px;">语音解析成功率</span>
+            <span style="font-weight:600;font-size:15px;">${stats.voice_success_rate || 0}%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:14px 0;">
+            <span style="color:#000;font-size:15px;">人均日活时长</span>
+            <span style="font-weight:600;font-size:15px;">${stats.avg_duration || '-'}分钟</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -331,14 +364,14 @@ function renderDashboard(stats) {
     </div>
 
     <div class="section">
-      <div class="section-title">热门操作明细</div>
+      <div class="section-title">操作事件明细</div>
       ${stats.top_events.length ? `
         <table>
           <thead><tr><th>事件名</th><th>说明</th><th>次数</th><th>占比</th></tr></thead>
           <tbody>
             ${stats.top_events.map(e => `
               <tr>
-                <td><code style="font-size:12px;color:#6b8e7b">${e.event_name}</code></td>
+                <td><code>${e.event_name}</code></td>
                 <td>${eventDescriptions[e.event_name] || '自定义事件'}</td>
                 <td>${e.cnt}</td>
                 <td>${(e.cnt / stats.total_events * 100).toFixed(1)}%</td>
@@ -350,12 +383,11 @@ function renderDashboard(stats) {
     </div>
   `;
 
-  // 渲染趋势图
   setTimeout(() => renderCharts(stats), 100);
 }
 
 function renderCharts(stats) {
-  // 折线图
+  // 活跃趋势折线图
   const trendCtx = document.getElementById('trendChart');
   if (trendCtx) {
     if (charts.trend) charts.trend.destroy();
@@ -364,14 +396,15 @@ function renderCharts(stats) {
       data: {
         labels: stats.daily_events.map(d => d.date.slice(5)),
         datasets: [{
-          label: '事件数',
+          label: '活跃事件数',
           data: stats.daily_events.map(d => d.cnt),
-          borderColor: '#6b8e7b',
-          backgroundColor: 'rgba(107, 142, 123, 0.1)',
+          borderColor: '#000000',
+          backgroundColor: 'rgba(0, 0, 0, 0.06)',
           fill: true,
           tension: 0.4,
           pointRadius: 4,
-          pointBackgroundColor: '#6b8e7b'
+          pointBackgroundColor: '#000000',
+          borderWidth: 2
         }]
       },
       options: {
@@ -379,31 +412,66 @@ function renderCharts(stats) {
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          y: { beginAtZero: true, grid: { color: '#f0ede8' } },
+          y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.06)' } },
           x: { grid: { display: false } }
         }
       }
     });
   }
 
-  // 饼图
+  // 功能分布环形图
   const pieCtx = document.getElementById('pieChart');
   if (pieCtx && stats.top_events.length) {
     if (charts.pie) charts.pie.destroy();
     charts.pie = new Chart(pieCtx, {
       type: 'doughnut',
       data: {
-        labels: stats.top_events.slice(0, 6).map(e => e.event_name),
+        labels: stats.top_events.slice(0, 6).map(e => eventDescriptions[e.event_name] || e.event_name),
         datasets: [{
           data: stats.top_events.slice(0, 6).map(e => e.cnt),
-          backgroundColor: ['#6b8e7b', '#b8860b', '#8aae9b', '#d4a574', '#a8c5b8', '#e0d5c1']
+          backgroundColor: ['#000000', '#8e8e93', '#c7c7cc', '#48484a', '#aeaeb2', '#636366'],
+          borderWidth: 0
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        cutout: '65%',
         plugins: {
-          legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, font: { size: 11 } } }
+          legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, font: { size: 11 }, color: '#000' } }
+        }
+      }
+    });
+  }
+
+  // 主题偏好柱状图
+  const themeCtx = document.getElementById('themeChart');
+  if (themeCtx) {
+    if (charts.theme) charts.theme.destroy();
+    const themeData = stats.theme_stats || [
+      { theme: 'ios-minimal', cnt: stats.users || 0 },
+      { theme: 'black-gold', cnt: 0 },
+      { theme: 'sage', cnt: 0 },
+      { theme: 'midnight', cnt: 0 }
+    ];
+    charts.theme = new Chart(themeCtx, {
+      type: 'bar',
+      data: {
+        labels: themeData.map(t => t.theme),
+        datasets: [{
+          data: themeData.map(t => t.cnt),
+          backgroundColor: '#000000',
+          borderRadius: 8,
+          barThickness: 32
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.06)' } },
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } }
         }
       }
     });

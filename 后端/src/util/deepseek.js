@@ -77,12 +77,15 @@ function systemPrompt(baseDate, weekday, nowHM, nowHour) {
     '  type  : string，"event" 表示有具体时间的安排，"todo" 表示没有具体时间的待办',
     '',
     '【时间推断 · 重要】现在是 ' + baseDate + ' ' + nowHM + '（当前小时 ' + nowHour + ' 点）。',
+    '- ⚠️ **最高优先级：用户说「现在、此刻、马上、这会儿、这就」开始做什么，start必须直接等于当前给出的时间 ' + nowHM + '，绝对不能改成其他任何时间！**',
+    '  例如现在是凌晨03:15，用户说「现在开始睡觉」→ start必须是03:15，不能改成下午15点多；',
+    '  现在是晚上20:00，用户说「我马上开始写作业」→ start必须是20:00。',
     '- 用户只说「两点」「三点」「四点」这类 1–11 的数字、**没说上午/下午/晚上**时，按下面的逻辑判断：',
     '  · 如果今天这个时刻已经明显过去（早于现在 3 小时以上）→ 理解为**下午/晚上**，加 12 小时；',
     '    例如现在是 15 点，用户说「三点」→ 15:00；说「两点开会」→ 14:00。',
     '  · 如果今天这个时刻还没到、或刚过去不久（差距小于 3 小时）→ 按最近的将来理解，不加 12。',
-    '    例如现在是 9 点，用户说「十点」→ 10:00。',
-    '- 说了「凌晨/早上/上午」按原小时；说了「中午」→12；说了「下午/傍晚/晚上/夜里」若小于 12 则加 12。',
+    '    例如现在是 9 点，用户说「十点」→ 10:00；现在凌晨2点说「三点睡觉」→ 03:00，不能加12变成15点。',
+    '- 说了「凌晨/深夜/半夜/早上/上午」按原小时（0-11点，不加12）；说了「中午」→12；说了「下午/傍晚/晚上/夜里」若小于 12 则加 12。',
     '- 中文数字也要识别（「三点半」→ 03:30 或按上面规则 15:30；「八点半」→ 08:30）。',
     '- 「4点到7点」→ start/end；「2小时」「半小时」→ 用来推算 end；**用户只说了开始时间、没说结束时间也没说时长 → end 必须留空给 ""，绝对不要自动加1小时！**',
     '',
@@ -249,6 +252,38 @@ function systemPrompt(baseDate, weekday, nowHM, nowHour) {
       }
     ]),
     '',
+    // 凌晨场景测试样例：现在时间是凌晨03:15
+    '【特殊场景样例 · 当前时间为凌晨03:15】',
+    S('今天现在开始睡觉', [
+      {
+        title: '睡觉',
+        date: dAdd(0),
+        start: '03:15',
+        end: '',
+        place: '',
+        cat: '健康',
+        remind: -1,
+        repeatDays: null,
+        note: '',
+        type: 'event'
+      }
+    ]),
+    '',
+    S('凌晨三点我要睡觉', [
+      {
+        title: '睡觉',
+        date: dAdd(0),
+        start: '03:00',
+        end: '',
+        place: '',
+        cat: '健康',
+        remind: -1,
+        repeatDays: null,
+        note: '',
+        type: 'event'
+      }
+    ]),
+    '',
     S('明天上午十点去医院体检要空腹，下周三下午三点跟导师开会讨论毕设选题', [
       {
         title: '去医院体检',
@@ -343,8 +378,9 @@ function actionPrompt(baseDate, weekday, nowHM, count) {
     '  note  : 额外说明；没有给 ""',
     '  type  : "event"（有具体时间）/ "todo"（没有具体时间）',
     '',
-    '【时间推断】只说「三点」这类 1–11 的数字且没说上下午时：若今天该时刻已过去 3 小时以上，',
-    '按下午/晚上理解（+12）；否则按最近的将来。说了「早上/上午」按原小时，「下午/晚上/夜里」+12。',
+    '【时间推断】⚠️ 用户说「现在、此刻、马上」开始，start必须直接等于当前给出的' + nowHM + '，不能改成其他时间；',
+    '只说「三点」这类 1–11 的数字且没说上下午时：若今天该时刻已过去 3 小时以上，',
+    '按下午/晚上理解（+12）；否则按最近的将来。说了「凌晨/深夜/早上/上午」按原小时不加12，「下午/晚上/夜里」+12。',
     '',
     '================ 样例（基准日 ' + baseDate + '，现在 ' + nowHM + '）================',
     '（假设清单里有：1 | 学习PM理论知识 | ' + baseDate + ' | 15:00-16:00 | 学习',
@@ -438,7 +474,7 @@ function normRepeat(v) {
   return uniq.length ? uniq : null;
 }
 
-function normalizeOne(d, baseDate, now) {
+function normalizeOne(d, baseDate, now, rawInput) {
   const o = d && typeof d === 'object' ? d : {};
   let title = cleanTitle(o.title).slice(0, 30);
   if (!title) title = '新任务';
@@ -447,6 +483,13 @@ function normalizeOne(d, baseDate, now) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) date = baseDate;
 
   let start = hhmm(o.start);
+
+  /* 硬保险：用户明确说「现在、此刻、马上、这会儿」，直接强制start为当前真实时间，防止模型解析错误 */
+  const raw = String(rawInput || '');
+  if (/现在|此刻|马上|这会儿|这就/.test(raw)) {
+    start = pad(now.getHours()) + ':' + pad(now.getMinutes());
+    date = ymd(now);
+  }
 
   /* 注意：这里**不做**「1–11 点自动 +12」的兜底。
      提示词里已经把当前时间给了模型，模型自己就能判断「三点」是凌晨还是下午。
@@ -565,7 +608,7 @@ async function parseVoiceAction(text, baseDate, existing) {
 
     if (intent === 'create') {
       const arr = Array.isArray(got.tasks) ? got.tasks : [];
-      const tasks = arr.map((x) => normalizeOne(x, bd, now));
+      const tasks = arr.map((x) => normalizeOne(x, bd, now, src));
       // 硬保险：用户没在输入里提结束时间/时长，就直接删掉task里的end，防止模型乱补一小时
       const hasEndWord = /到|结束|持续|小时|分钟|时长|点到/.test(src);
       if (!hasEndWord) {
@@ -707,7 +750,7 @@ async function callOnce(src, bd, wd, nowHM, nowHour, now) {
     let arr = obj.tasks;
     if (!Array.isArray(arr)) arr = obj.title ? [obj] : [];
     const list = arr
-      .map((x) => normalizeOne(x, bd, now))
+      .map((x) => normalizeOne(x, bd, now, src))
       .filter((t) => t.title && t.title !== '新任务' ? true : true);
     if (!list.length) return null;
     return sortTasks(mergeRepeats(dedupe(list)));

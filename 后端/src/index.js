@@ -15,10 +15,13 @@ app.use(express.json({ limit: '10mb' }));
 // 健康检查
 app.get('/api/health', (req, res) => res.json({ ok: true, time: Date.now() }));
 
-// 管理后台页面
-app.get('/admin', (req, res) => {
-  res.sendFile(require('path').join(__dirname, '..', 'public', 'admin.html'));
-});
+// 托管public目录（管理后台静态资源）
+app.use(express.static(require('path').join(__dirname, '..', 'public')));
+
+// 管理后台页面，同时支持 /admin 和 /admin.html 两种路径
+const adminPath = require('path').join(__dirname, '..', 'public', 'admin.html');
+app.get('/admin', (req, res) => res.sendFile(adminPath));
+app.get('/admin.html', (req, res) => res.sendFile(adminPath));
 
 // 埋点接口：接收前端事件
 app.post('/api/track', async (req, res) => {
@@ -84,6 +87,25 @@ app.get('/api/admin/stats', async (req, res) => {
     const [[voiceAdd]] = await pool.query(`
       SELECT COUNT(*) as cnt FROM events WHERE event_name='task_add' AND JSON_EXTRACT(event_data, '$.method')='voice'
     `);
+    // 已完成任务数
+    const [[completedTasks]] = await pool.query(`SELECT COUNT(*) as cnt FROM tasks WHERE status='done'`);
+    // 语音解析成功/失败次数
+    const [[voiceSuccess]] = await pool.query(`SELECT COUNT(*) as cnt FROM events WHERE event_name='voice_parse_success'`);
+    const [[voiceFail]] = await pool.query(`SELECT COUNT(*) as cnt FROM events WHERE event_name='voice_parse_fail'`);
+    const voiceTotal = voiceSuccess.cnt + voiceFail.cnt;
+    const voiceSuccessRate = voiceTotal ? Math.round(voiceSuccess.cnt / voiceTotal * 100) : 0;
+    // 闹钟触发次数
+    const [[alarmCount]] = await pool.query(`SELECT COUNT(*) as cnt FROM events WHERE event_name='alarm_ring'`);
+    // 主题偏好统计
+    let themeStats = [];
+    try {
+      const [themeRows] = await pool.query(`
+        SELECT theme, COUNT(*) as cnt FROM user_themes GROUP BY theme ORDER BY cnt DESC
+      `);
+      themeStats = themeRows;
+    } catch { /* 表不存在就用默认 */ }
+    // 完成率
+    const completionRate = taskCount.cnt ? Math.round(completedTasks.cnt / taskCount.cnt * 100) : 0;
 
     res.json({
       users: userCount.cnt,
@@ -91,6 +113,11 @@ app.get('/api/admin/stats', async (req, res) => {
       today_new_users: todayUsers.cnt,
       total_events: eventCount.cnt,
       voice_adds: voiceAdd.cnt,
+      completed_tasks: completedTasks.cnt,
+      completion_rate: completionRate,
+      voice_success_rate: voiceSuccessRate,
+      alarm_count: alarmCount.cnt,
+      theme_stats: themeStats,
       daily_events: dailyEvents,
       top_events: topEvents
     });

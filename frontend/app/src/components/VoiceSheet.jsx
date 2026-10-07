@@ -73,11 +73,25 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
     const isHTTPS = window.location.protocol === 'https:';
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const ua = navigator.userAgent.toLowerCase();
-    const isWeChat = /micromessenger|wechat|qq|alipay|dingtalk|feishu|lark/i.test(ua);
 
-    // 不支持语音的场景：HTTP局域网访问 或者 微信/QQ等webview环境
-    if ((!isHTTPS && !isLocalhost) || isWeChat) {
+    // 精准识别第三方APP内置webview，避免误判普通浏览器（QQ浏览器、Chrome等）
+    // 微信：micromessenger；支付宝：alipay；钉钉：dingtalk；飞书：lark/feishu
+    // QQ内置webview：包含 v1_and_sq 或 qq/ 版本标识，排除qq浏览器(mqqbrowser)
+    const isThirdPartyWebview =
+      /micromessenger|alipayclient|dingtalk|feishu|lark/i.test(ua) ||
+      (/qq\//i.test(ua) && !/mqqbrowser/i.test(ua));
+
+    // 本地localhost环境永远允许语音，不做任何拦截
+    if (isLocalhost) {
+      setEnvTip('');
+      return;
+    }
+
+    // 不支持语音的场景：HTTP公网/局域网非本地访问 或者 明确的第三方APP内置webview
+    if ((!isHTTPS) || isThirdPartyWebview) {
       setEnvTip('当前为内测阶段，语音识别功能仅支持浏览器环境使用。您可以手动输入任务，系统会自动识别时间和内容。');
+    } else {
+      setEnvTip('');
     }
   }, []);
 

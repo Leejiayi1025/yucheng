@@ -3794,25 +3794,30 @@ iframe[src*="netlify"] {
 
 .vs-env-btn {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   border: none;
   border-radius: 12px;
   background: var(--primary);
-  color: #000;
+  color: var(--on-primary);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   /* 统一立体效果 */
-  box-shadow: 
-    inset 0 1px 0 rgba(255,255,255,0.3),
-    0 4px 0 rgba(0,0,0,0.2),
-    0 6px 12px rgba(0,0,0,0.15);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    0 4px 0 rgba(0,0,0,0.15),
+    0 6px 12px rgba(0,0,0,0.1);
   transition: all 0.1s ease;
   /* 文字居中 */
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1.2;
+}
+
+/* iOS黑白极简主题：黑底白字，高对比度清晰可见 */
+[data-theme='ios-minimal'] .vs-env-btn {
+  color: #ffffff;
 }
 
 /* 黑白金主题下弹窗按钮文字加粗更明显 */
