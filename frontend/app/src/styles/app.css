@@ -8,7 +8,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hir
 /* 页面底与两个吸顶头部共享同一层背景画（--bg-art）。
    三者的 background-size 都用固定高度（见 tokens.css 的 --bg-size），
    所以它们画的是同一张图的同一段，滚动时头部与内容之间不会露出接缝。 */
-.app,.today-sticky,.cal-head{background-color:var(--bg);background-image:var(--bg-art);background-size:var(--bg-size);background-repeat:var(--bg-repeat);background-position:top center}
+.app,.today-sticky,.cal-head{background-color:var(--bg);background-image:var(--bg-art);background-size:var(--bg-size);background-repeat:var(--bg-repeat);background-position:var(--bg-pos)}
 .screen{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);position:relative}
 .content{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0 20px calc(160px + env(safe-area-inset-bottom));scrollbar-width:none}
 .content::-webkit-scrollbar{display:none}
