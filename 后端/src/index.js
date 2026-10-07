@@ -20,6 +20,7 @@ app.set('trust proxy', 1);
    本地开发放行 Vite 的几个端口。CORS_ORIGINS 可用逗号分隔追加/覆盖。
    同源请求和 curl 不带 Origin，一律放行。 */
 const DEFAULT_ORIGINS = [
+  'https://yuchengailee.online',
   'https://yuchengaileen.netlify.app',
   'http://localhost:5173',
   'http://localhost:5174',
