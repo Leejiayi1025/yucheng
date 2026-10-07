@@ -15,6 +15,36 @@ const Mine = lazy(() => import('./pages/Mine'));
    太小会漏提醒；太大会在打开 App 时把今天所有已过去的任务一次性全响一遍。 */
 const CATCH_UP_MIN = 30;
 
+const NOTIFIED_KEY = 'yc_notified';
+const ymd = (d) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+/* 已提醒记录必须跨刷新保留：否则用户点「知道了」之后一刷新，只要还在
+   补提醒窗口内就会再响一次。只认当天的记录，隔天自动作废。 */
+function loadNotified() {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(NOTIFIED_KEY) || '{}');
+    const today = ymd(new Date());
+    const set = new Set();
+    for (const id of Object.keys(saved)) if (saved[id] === today) set.add(id);
+    return set;
+  } catch {
+    return new Set();
+  }
+}
+function saveNotified(set) {
+  try {
+    const today = ymd(new Date());
+    const obj = {};
+    set.forEach((id) => {
+      obj[id] = today;
+    });
+    sessionStorage.setItem(NOTIFIED_KEY, JSON.stringify(obj));
+  } catch {
+    /* 隐私模式下 storage 可能不可写，忽略即可 */
+  }
+}
+
 export default function App() {
   const { user, toastData, closeToast, soundOn, tasks } = useApp();
   const [page, setPage] = useState('today');
@@ -26,7 +56,7 @@ export default function App() {
       return true;
     }
   });
-  const notifiedRef = useRef(new Set()); // 已经提醒过的任务ID，避免重复弹
+  const notifiedRef = useRef(loadNotified()); // 已经提醒过的任务ID，避免重复弹
   const alarmTimeoutRef = useRef(null); // 存闹钟的setTimeout，方便停的时候清掉
   /* 定时器里要读「最新」的任务。直接依赖 tasks 会让 interval 每次任务变动都重建，
      频繁变动时定时器一直重置、反而永远不触发，所以放进 ref。 */
@@ -95,7 +125,7 @@ export default function App() {
     const timer = setInterval(() => {
       const now = new Date();
       const nowHM = now.getHours() * 60 + now.getMinutes();
-      const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      const todayStr = ymd(now);
       tasksRef.current.forEach(t => {
         if (!t.start || t.date !== todayStr || t.remind < 0) return;
         // 已完成的任务不提醒（任务的状态字段是 status，不是 done）
@@ -109,6 +139,7 @@ export default function App() {
         if (late < 0 || late > CATCH_UP_MIN) return;
         if (notifiedRef.current.has(t.id)) return;
         notifiedRef.current.add(t.id);
+        saveNotified(notifiedRef.current);
         ringAlarm();
         notifySystem(t.title, t.start);
         setAlarm({ id: t.id, title: t.title, start: t.start });
