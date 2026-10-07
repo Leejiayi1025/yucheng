@@ -257,7 +257,9 @@ router.post('/email', authMiddleware, async (req, res) => {
 router.get('/themes', async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT theme_key as key, theme_name as name, group_name as `group`, preview_bg as bg, preview_card as card, preview_text as text, preview_primary as primary FROM themes WHERE is_active=1 ORDER BY sort_order'
+      /* key / group 都是 MySQL 保留字，作别名必须加反引号，否则整条 SQL 直接语法错误。
+         这里原本漏了 key 的反引号，导致接口一直返回空列表（前端有本地兜底，所以没被发现）。 */
+      'SELECT theme_key as `key`, theme_name as name, group_name as `group`, preview_bg as bg, preview_card as card, preview_text as text, preview_primary as `primary` FROM themes WHERE is_active=1 ORDER BY sort_order'
     );
     res.json({ themes: rows });
   } catch (e) {
