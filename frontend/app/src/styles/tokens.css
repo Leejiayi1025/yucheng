@@ -391,30 +391,6 @@
 }
 
 
-/* 杂志编辑风：黑白大排版 */
-[data-theme='editorial'] {
-  --bg: #fcfbf8;
-  --card: #ffffff;
-  --solid: #ffffff;
-  --primary: #1a1a1a;
-  --on-primary: #ffffff;
-  --primary-soft: #f0f0f0;
-  --primary-dark: #000000;
-  --text: #1a1a1a;
-  --text2: #999999;
-  --line: rgba(0, 0, 0, 0.12);
-  --shadow: none;
-  --danger: #c0392b;
-  --body-bg: #fafaf8;
-  --mic-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  --tabbar-bg: rgba(255, 255, 255, 0.98);
-  --tabbar-border: rgba(0, 0, 0, 0.08);
-  --fab-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-  --bg-art: linear-gradient(180deg, transparent 132px, rgba(26, 26, 26, 0.9) 132px, rgba(26, 26, 26, 0.9) 135px, transparent 135px, transparent 140px, rgba(26, 26, 26, 0.35) 140px, rgba(26, 26, 26, 0.35) 140.8px, transparent 140.8px), repeating-linear-gradient(90deg, rgba(26, 26, 26, 0.075) 0px, rgba(26, 26, 26, 0.075) 1px, transparent 1px, transparent 25%), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='204' height='150'%3E%3Cg fill='%231a1a1a' opacity='.5'%3E%3Ccircle cx='17' cy='15' r='1.63'/%3E%3Ccircle cx='51' cy='15' r='1.37'/%3E%3Ccircle cx='85' cy='15' r='1.11'/%3E%3Ccircle cx='119' cy='15' r='0.86'/%3E%3Ccircle cx='153' cy='15' r='0.60'/%3E%3Ccircle cx='187' cy='15' r='0.35'/%3E%3Ccircle cx='17' cy='45' r='1.94'/%3E%3Ccircle cx='51' cy='45' r='1.69'/%3E%3Ccircle cx='85' cy='45' r='1.43'/%3E%3Ccircle cx='119' cy='45' r='1.18'/%3E%3Ccircle cx='153' cy='45' r='0.92'/%3E%3Ccircle cx='187' cy='45' r='0.67'/%3E%3Ccircle cx='17' cy='75' r='2.26'/%3E%3Ccircle cx='51' cy='75' r='2.01'/%3E%3Ccircle cx='85' cy='75' r='1.75'/%3E%3Ccircle cx='119' cy='75' r='1.50'/%3E%3Ccircle cx='153' cy='75' r='1.24'/%3E%3Ccircle cx='187' cy='75' r='0.99'/%3E%3Ccircle cx='17' cy='105' r='2.58'/%3E%3Ccircle cx='51' cy='105' r='2.33'/%3E%3Ccircle cx='85' cy='105' r='2.07'/%3E%3Ccircle cx='119' cy='105' r='1.82'/%3E%3Ccircle cx='153' cy='105' r='1.56'/%3E%3Ccircle cx='187' cy='105' r='1.31'/%3E%3Ccircle cx='17' cy='135' r='2.90'/%3E%3Ccircle cx='51' cy='135' r='2.65'/%3E%3Ccircle cx='85' cy='135' r='2.39'/%3E%3Ccircle cx='119' cy='135' r='2.13'/%3E%3Ccircle cx='153' cy='135' r='1.88'/%3E%3Ccircle cx='187' cy='135' r='1.63'/%3E%3C/g%3E%3C/svg%3E"), radial-gradient(760px 420px at 50% -140px, rgba(26, 26, 26, 0.045) 0%, rgba(26, 26, 26, 0) 72%);
-  --bg-size: 100% 900px, 100% 900px, 204px 150px, 100% 900px;
-  --bg-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
-  --bg-pos: top center, top center, right 10px top 78px, top center;
-}
 
 /* 薄荷清新 */
 [data-theme='mint'] {

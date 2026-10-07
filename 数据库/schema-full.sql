@@ -94,25 +94,24 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 
 -- 主题字典初始数据（重复执行安全）
-INSERT IGNORE INTO themes VALUES (1,'sage','奶油鼠尾草','','classic','#f5f1ec','#fff','#2d3a33','#6b8e7b',1,1,'2026-10-06 03:41:08');
-INSERT IGNORE INTO themes VALUES (2,'ios-minimal','iOS黑白极简','','classic','#f5f5f7','#fff','#000','#000',2,1,'2026-10-06 03:41:08');
-INSERT IGNORE INTO themes VALUES (3,'bento','iOS 原生风','','classic','#f2f2f7','#fff','#000','#007aff',3,1,'2026-10-06 03:41:08');
-INSERT IGNORE INTO themes VALUES (4,'mono','线框工程风','','classic','#fafafa','#fff','#111','#111',4,1,'2026-10-06 03:41:08');
-INSERT IGNORE INTO themes VALUES (5,'luxe','暗黑奢华黑金','','dark','#0a0a0a','#151412','#f3eadb','#d4af37',5,1,'2026-10-06 03:41:08');
-INSERT IGNORE INTO themes VALUES (6,'film','复古胶片风','','dark','#2a2520','#3a3028','#e8d8c0','#c97b4a',6,1,'2026-10-06 03:41:08');
-INSERT IGNORE INTO themes VALUES (7,'morandi','莫兰迪色系','','light','#e8e0d8','#f5f0ea','#5a5048','#a89a90',7,1,'2026-10-06 03:41:08');
-INSERT IGNORE INTO themes VALUES (8,'navy','藏青商务风','','dark','#0f172a','#1e293b','#e2e8f0','#3b82f6',8,1,'2026-10-06 03:41:08');
-INSERT IGNORE INTO themes VALUES (9,'peach','蜜桃奶油风','','light','#fff0e8','#fff8f3','#5a3a2a','#ff9a7a',9,1,'2026-10-06 03:41:08');
-INSERT IGNORE INTO themes VALUES (10,'forest','森林墨绿风','','dark','#1a2e1f','#243b2b','#d8e8d8','#4a9a5a',10,1,'2026-10-06 03:41:08');
-INSERT IGNORE INTO themes VALUES (11,'terminal','终端绿极客','','dark','#0a0f0a','#1a2a1a','#00ff41','#00ff41',11,1,'2026-10-06 03:41:08');
-INSERT IGNORE INTO themes VALUES (12,'paper','手绘手账','','texture','#f4ecd8','#fefcf5','#5a4a3a','#5b9e5b',12,1,'2026-10-06 03:41:08');
-INSERT IGNORE INTO themes VALUES (13,'clay','3D 黏土','','texture','#d4e4ed','#fdfaf3','#3a4a52','#5aa564',13,1,'2026-10-06 03:41:08');
-INSERT IGNORE INTO themes VALUES (14,'midnight','午夜深蓝','深海午夜蓝：深蓝底 + 亮蓝主色','dark','#0f172a','rgba(30, 41, 59, 0.78)','#f1f5f9','#38bdf8',14,1,'2026-10-07 18:40:00');
-INSERT IGNORE INTO themes VALUES (15,'ios','iOS 暗黑','iOS 高级暗黑：纯黑底 + 深灰光泽卡片 + iOS 系统蓝','dark','#000000','rgba(28, 28, 30, 0.85)','#ffffff','#0a84ff',15,1,'2026-10-07 18:40:00');
-INSERT IGNORE INTO themes VALUES (16,'porcelain','青花瓷','冷白瓷底 + 钴蓝主色 + 墨黑文字，卡片一道极细的钴蓝釉线','texture','#f4f7fb','#ffffff','#17222f','#1e4d8c',16,1,'2026-10-07 18:40:00');
-INSERT IGNORE INTO themes VALUES (17,'editorial','杂志编辑风','杂志编辑风：黑白大排版、无阴影、粗体大标题','light','#fafaf8','#ffffff','#1a1a1a','#1a1a1a',17,1,'2026-10-07 18:40:00');
-INSERT IGNORE INTO themes VALUES (18,'mint','薄荷清新','薄荷清新：干净通透的浅绿','light','#f0faf6','#ffffff','#2d4a3e','#5ec9a8',18,1,'2026-10-07 18:40:00');
-INSERT IGNORE INTO themes VALUES (19,'amber-dusk','琥珀暮色','奶油到杏色的黄昏渐变底 + 暖白卡片 + 深琥珀主色','light','linear-gradient(180deg, #fff7ee 0%, #ffe9d5 100%)','#fffdfa','#43291a','#c2410c',19,1,'2026-10-07 18:40:00');
-INSERT IGNORE INTO themes VALUES (20,'black-gold','黑白金奢华','纯黑底 + 真金 3D 按钮 + 白色文字，高级奢华','dark','linear-gradient(165deg, #050505 0%, #121212 40%, #1e1e1e 70%, #2a2a2a 100%)','linear-gradient(145deg, #222222 0%, #161616 100%)','#f5f5f5','#d4af37',20,1,'2026-10-07 18:40:00');
+INSERT IGNORE INTO themes VALUES (2,'ios-minimal','iOS黑白极简','','minimal','#f5f5f7','#fff','#000','#000',1,1,'2026-10-06 03:41:08');
+INSERT IGNORE INTO themes VALUES (4,'mono','线框工程风','','minimal','#fafafa','#fff','#111','#111',2,1,'2026-10-06 03:41:08');
+INSERT IGNORE INTO themes VALUES (3,'bento','iOS 原生风','','minimal','#f2f2f7','#fff','#000','#007aff',3,1,'2026-10-06 03:41:08');
+INSERT IGNORE INTO themes VALUES (1,'sage','奶油鼠尾草','','soft','#f5f1ec','#fff','#2d3a33','#6b8e7b',4,1,'2026-10-06 03:41:08');
+INSERT IGNORE INTO themes VALUES (7,'morandi','莫兰迪色系','','soft','#e8e0d8','#f5f0ea','#5a5048','#a89a90',5,1,'2026-10-06 03:41:08');
+INSERT IGNORE INTO themes VALUES (18,'mint','薄荷清新','薄荷清新：干净通透的浅绿','soft','#f0faf6','#ffffff','#2d4a3e','#5ec9a8',6,1,'2026-10-07 10:50:10');
+INSERT IGNORE INTO themes VALUES (9,'peach','蜜桃奶油风','','soft','#fff0e8','#fff8f3','#5a3a2a','#ff9a7a',7,1,'2026-10-06 03:41:08');
+INSERT IGNORE INTO themes VALUES (22,'amber-dusk','琥珀暮色','奶油到杏色的黄昏渐变底 + 暖白卡片 + 深琥珀主色','soft','linear-gradient(180deg, #fff7ee 0%, #ffe9d5 100%)','#fffdfa','#43291a','#c2410c',8,1,'2026-10-07 11:10:18');
+INSERT IGNORE INTO themes VALUES (12,'paper','手绘手账','','texture','#f4ecd8','#fefcf5','#5a4a3a','#5b9e5b',9,1,'2026-10-06 03:41:08');
+INSERT IGNORE INTO themes VALUES (13,'clay','3D 黏土','','texture','#d4e4ed','#fdfaf3','#3a4a52','#5aa564',10,1,'2026-10-06 03:41:08');
+INSERT IGNORE INTO themes VALUES (21,'porcelain','青花瓷','冷白瓷底 + 钴蓝主色 + 墨黑文字，卡片一道极细的钴蓝釉线','texture','#f4f7fb','#ffffff','#17222f','#1e4d8c',11,1,'2026-10-07 11:10:17');
+INSERT IGNORE INTO themes VALUES (15,'ios','iOS 暗黑','iOS 高级暗黑：纯黑底 + 深灰光泽卡片 + iOS 系统蓝','dark','#000000','rgba(28, 28, 30, 0.8','#ffffff','#0a84ff',12,1,'2026-10-07 10:50:08');
+INSERT IGNORE INTO themes VALUES (14,'midnight','午夜深蓝','深海午夜蓝：深蓝底 + 亮蓝主色','dark','#0f172a','rgba(30, 41, 59, 0.7','#f1f5f9','#38bdf8',13,1,'2026-10-07 10:50:08');
+INSERT IGNORE INTO themes VALUES (8,'navy','藏青商务风','','dark','#0f172a','#1e293b','#e2e8f0','#3b82f6',14,1,'2026-10-06 03:41:08');
+INSERT IGNORE INTO themes VALUES (10,'forest','森林墨绿风','','dark','#1a2e1f','#243b2b','#d8e8d8','#4a9a5a',15,1,'2026-10-06 03:41:08');
+INSERT IGNORE INTO themes VALUES (11,'terminal','终端绿极客','','dark','#0a0f0a','#1a2a1a','#00ff41','#00ff41',16,1,'2026-10-06 03:41:08');
+INSERT IGNORE INTO themes VALUES (5,'luxe','暗黑奢华黑金','','retro','#0a0a0a','#151412','#f3eadb','#d4af37',17,1,'2026-10-06 03:41:08');
+INSERT IGNORE INTO themes VALUES (20,'black-gold','黑白金奢华','纯黑底 + 真金 3D 按钮 + 白色文字，高级奢华','retro','linear-gradient(165deg, #050505 0%, #121212 40%, #1e1e1e 70%, #2a2a2a 100%)','linear-gradient(145d','#f5f5f5','#d4af37',18,1,'2026-10-07 10:50:11');
+INSERT IGNORE INTO themes VALUES (6,'film','复古胶片风','','retro','#2a2520','#3a3028','#e8d8c0','#c97b4a',19,1,'2026-10-06 03:41:08');
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -7,26 +7,25 @@ import { track } from '../lib/track';
    这份兜底必须与数据库 themes 表保持一致（顺序即 sort_order）——
    两边不一致会导致「接口挂了」和「接口正常」看到两套不同的主题。 */
 const DEFAULT_THEMES = [
-  { key: 'sage', name: '奶油鼠尾草', group: 'classic' },
-  { key: 'ios-minimal', name: 'iOS黑白极简', group: 'classic' },
-  { key: 'bento', name: 'iOS 原生风', group: 'classic' },
-  { key: 'mono', name: '线框工程风', group: 'classic' },
-  { key: 'luxe', name: '暗黑奢华黑金', group: 'dark' },
-  { key: 'film', name: '复古胶片风', group: 'dark' },
-  { key: 'morandi', name: '莫兰迪色系', group: 'light' },
-  { key: 'navy', name: '藏青商务风', group: 'dark' },
-  { key: 'peach', name: '蜜桃奶油风', group: 'light' },
-  { key: 'forest', name: '森林墨绿风', group: 'dark' },
-  { key: 'terminal', name: '终端绿极客', group: 'dark' },
+  { key: 'ios-minimal', name: 'iOS黑白极简', group: 'minimal' },
+  { key: 'mono', name: '线框工程风', group: 'minimal' },
+  { key: 'bento', name: 'iOS 原生风', group: 'minimal' },
+  { key: 'sage', name: '奶油鼠尾草', group: 'soft' },
+  { key: 'morandi', name: '莫兰迪色系', group: 'soft' },
+  { key: 'mint', name: '薄荷清新', group: 'soft' },
+  { key: 'peach', name: '蜜桃奶油风', group: 'soft' },
+  { key: 'amber-dusk', name: '琥珀暮色', group: 'soft' },
   { key: 'paper', name: '手绘手账', group: 'texture' },
   { key: 'clay', name: '3D 黏土', group: 'texture' },
-  { key: 'midnight', name: '午夜深蓝', group: 'dark' },
-  { key: 'ios', name: 'iOS 暗黑', group: 'dark' },
   { key: 'porcelain', name: '青花瓷', group: 'texture' },
-  { key: 'editorial', name: '杂志编辑风', group: 'light' },
-  { key: 'mint', name: '薄荷清新', group: 'light' },
-  { key: 'amber-dusk', name: '琥珀暮色', group: 'light' },
-  { key: 'black-gold', name: '黑白金奢华', group: 'dark' }
+  { key: 'ios', name: 'iOS 暗黑', group: 'dark' },
+  { key: 'midnight', name: '午夜深蓝', group: 'dark' },
+  { key: 'navy', name: '藏青商务风', group: 'dark' },
+  { key: 'forest', name: '森林墨绿风', group: 'dark' },
+  { key: 'terminal', name: '终端绿极客', group: 'dark' },
+  { key: 'luxe', name: '暗黑奢华黑金', group: 'retro' },
+  { key: 'black-gold', name: '黑白金奢华', group: 'retro' },
+  { key: 'film', name: '复古胶片风', group: 'retro' }
 ];
 
 /* 每个主题的 mini 预览配色和特征参数 */
@@ -60,11 +59,6 @@ const PREVIEWS = {
     bg: '#e8e4df', card: '#f5f2ee', text: '#4a4540', sub: '#9a928a', primary: '#a89f91',
     cardRadius: 10, cardBorder: 'none', cardBorderW: 0, cardShadow: '0 1px 6px rgba(0,0,0,0.05)',
     checkRadius: '50%', font: 'normal'
-  },
-  editorial: {
-    bg: '#fafaf8', card: '#fff', text: '#1a1a1a', sub: '#999', primary: '#1a1a1a',
-    cardRadius: 0, cardBorder: 'none', cardBorderW: 0, cardShadow: 'none',
-    checkRadius: '0', font: 'bold'
   },
   mint: {
     bg: '#f0faf6', card: '#fff', text: '#2d4a3e', sub: '#8aa89a', primary: '#5ec9a8',
@@ -256,12 +250,16 @@ export default function ThemeSheet({ onClose }) {
     () => (group === 'all' ? themes : themes.filter((t) => (t.group || 'classic') === group)),
     [themes, group]
   );
+  /* 按「风格气质」分区，而不是按明暗或材质。
+     原来那套是三套标准混在一起（「经典」是个筐、明暗一套、材质又一套），
+     用户很难预判某套主题会落在哪一组。 */
   const GROUPS = [
     { key: 'all', name: '全部' },
-    { key: 'classic', name: '经典' },
+    { key: 'minimal', name: '极简' },
+    { key: 'soft', name: '柔和' },
+    { key: 'texture', name: '质感' },
     { key: 'dark', name: '深色' },
-    { key: 'light', name: '浅色' },
-    { key: 'texture', name: '质感' }
+    { key: 'retro', name: '复古' }
   ];
 
   // 从后端加载主题列表

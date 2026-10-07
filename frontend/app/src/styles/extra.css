@@ -2338,52 +2338,6 @@
   border-radius: 50%;
 }
 
-/* ---------- 杂志编辑风：无阴影、粗体、大标题 ---------- */
-/* 美式时尚杂志的排版。
-   杂志感大半来自字而不是背景：标题用 Didone 衬线（Playfair Display，
-   中文落到思源宋体），副标题是杂志里那种「字距拉得很开的全大写小标签」
-   （kicker），正文条目也走衬线 —— 这是美式时装杂志最核心的视觉特征。 */
-[data-theme='editorial'] .today-sticky .date-header h2 {
-  font-family: 'Playfair Display', 'Noto Serif SC', Georgia, serif;
-  font-weight: 900;
-  font-size: 30px;
-  letter-spacing: -0.005em;
-}
-[data-theme='editorial'] .today-sticky .date-header .sub {
-  font-family: 'Playfair Display', 'Noto Serif SC', Georgia, serif;
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  font-size: 10px;
-  opacity: 0.5;
-  margin-top: 5px;
-}
-[data-theme='editorial'] .event-title,
-[data-theme='editorial'] .todo-text,
-[data-theme='editorial'] .sec-title .st-left {
-  font-family: 'Playfair Display', 'Noto Serif SC', Georgia, serif;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-}
-[data-theme='editorial'] .event-meta,
-[data-theme='editorial'] .event-tag {
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 10px;
-}
-[data-theme='editorial'] .event-card,
-[data-theme='editorial'] .todo-item {
-  border: none;
-  border-bottom: 1px solid var(--line);
-  border-radius: 0;
-  box-shadow: none;
-  padding-left: 0;
-  padding-right: 0;
-}
-[data-theme='editorial'] .strip-day.is-today .d {
-  background: #1a1a1a;
-  color: #fff;
-  border-radius: 0;
-}
 
 /* ---------- 薄荷清新：绿色清新感 ---------- */
 [data-theme='mint'] .event-card,
@@ -3229,6 +3183,7 @@
   background: none;
   color: var(--text2);
   font-size: 13px;
+  white-space: nowrap;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
@@ -4158,12 +4113,6 @@ button:active, .primary-btn:active, .vs-submit:active, .vs-immersive-btn.done:ac
     inset 0 1px 0 rgba(255, 255, 255, 0.4),
     inset 0 -4px 8px rgba(0, 0, 0, 0.28),
     0 10px 22px -8px rgba(168, 124, 78, 0.6);
-}
-/* 编辑风是黑白大排版，按钮也走方形，不做圆 */
-[data-theme='editorial'] .fab {
-  background: #1a1a1a;
-  border-radius: 4px;
-  box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.5);
 }
 
 /* ---------- 手绘手账：卡片贴一条和纸胶带 ---------- */
