@@ -3913,3 +3913,118 @@ button:active, .primary-btn:active, .vs-submit:active, .vs-immersive-btn.done:ac
   box-shadow: 0 2px 6px var(--primary-soft);
 }
 
+/* ============================================================
+   引导页演示插画 · 立体化
+   ------------------------------------------------------------
+   原来的卡片一律是「var(--card) 纯色 + 1px 边框 + 一层柔和阴影」，
+   这是最典型的扁平感来源：没有受光面、没有厚度、也没脱离背景。
+
+   这里统一打光模型 —— 光从左上打来（与第 1 屏的手表同一方向，
+   这样五屏看起来是同一套光照，而不是五张各自为政的插画）。
+   每个面由四层构成，缺一层就塌回平面：
+     ① 面    160° 极淡渐变，左上亮、右下暗，不用单一纯色
+     ② 上棱  inset 顶部白色高光 —— 受光的那条边
+     ③ 下棱  inset 底部暗色 —— 厚度
+     ④ 落地影 偏下的柔和投影 —— 让物体脱离背景
+
+   颜色全部用 color-mix 从主题变量派生，深浅主题都成立，
+   不写死白色（否则暗色主题上会变成一块突兀的白板）。
+   ============================================================ */
+
+/* 面：语音气泡 / 识别结果卡 / 操作卡 / 任务卡 */
+.ob-vtext,
+.ob-vcard,
+.ob-opcard,
+.ob-card {
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--card) 74%, #fff) 0%,
+    var(--card) 50%,
+    color-mix(in srgb, var(--card) 84%, var(--text)) 100%
+  );
+  border: none;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 90%, transparent),
+    inset 0 -2px 4px color-mix(in srgb, var(--text) 12%, transparent),
+    0 10px 18px -8px rgba(16, 26, 44, 0.34),
+    0 3px 6px -2px rgba(16, 26, 44, 0.14);
+}
+
+/* 麦克风：一颗球，不是一块圆片。
+   左上角一颗高光点 + 右下压暗，是最省事也最有效的球体做法。 */
+.ob-vmic {
+  background:
+    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 44%),
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--primary) 76%, #fff) 0%,
+      var(--primary) 46%,
+      color-mix(in srgb, var(--primary) 62%, #000) 100%
+    );
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.35),
+    inset 0 -7px 14px rgba(0, 0, 0, 0.38),
+    0 16px 24px -10px color-mix(in srgb, var(--primary) 55%, transparent),
+    0 5px 10px -4px rgba(16, 26, 44, 0.3);
+}
+
+/* 分类圆点：小球 */
+.ob-vdot {
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.65),
+    0 1px 2px rgba(0, 0, 0, 0.28);
+}
+
+/* 色条：一条有厚度的小柱，不是一根扁线 */
+.ob-bar {
+  border-radius: 999px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+    0 1px 3px rgba(16, 26, 44, 0.22);
+}
+
+/* 分类标签：凸起的小药丸 */
+.ob-ctag {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 2px 4px -1px rgba(16, 26, 44, 0.28);
+}
+
+/* 日期条上选中那天：按下去有厚度的按钮 */
+.ob-sd.on {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -2px 3px rgba(16, 26, 44, 0.12),
+    0 6px 12px -4px rgba(16, 26, 44, 0.4);
+}
+
+/* 圆形图标钮：编辑 / 删除 / 勾选 */
+.ob-opcheck,
+.ob-opedit,
+.ob-opdel {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 2px 5px -1px rgba(16, 26, 44, 0.32);
+}
+
+/* 迷你手机：金属中框，外加一层玻璃反光 */
+.ob-theme-phone {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(150deg, #414a59 0%, #1d232d 54%, #0f131a 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.6),
+    0 18px 30px -12px rgba(16, 26, 44, 0.5),
+    0 6px 12px -4px rgba(16, 26, 44, 0.3);
+}
+.ob-theme-phone::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0) 46%);
+  pointer-events: none;
+}
+

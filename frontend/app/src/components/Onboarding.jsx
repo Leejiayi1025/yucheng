@@ -397,7 +397,7 @@ const PAGES = [
   },
   {
     key: 'theme',
-    title: '14套主题',
+    title: '20套主题',
     title2: '随心切换',
     desc: '总有一款适合你',
     demo: <ThemeDemo />
