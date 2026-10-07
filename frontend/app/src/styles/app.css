@@ -4,7 +4,11 @@ html,body{margin:0;padding:0;height:100%;background:var(--body-bg)}
 body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif;color:var(--text);overscroll-behavior-y:none;-webkit-font-smoothing:antialiased}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 #root{height:100vh;height:100dvh;display:flex;justify-content:center}
-.app{position:relative;width:100%;max-width:520px;height:100vh;height:100dvh;background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+.app{position:relative;width:100%;max-width:520px;height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column}
+/* 页面底与两个吸顶头部共享同一层背景画（--bg-art）。
+   三者的 background-size 都用固定高度（见 tokens.css 的 --bg-size），
+   所以它们画的是同一张图的同一段，滚动时头部与内容之间不会露出接缝。 */
+.app,.today-sticky,.cal-head{background-color:var(--bg);background-image:var(--bg-art);background-size:var(--bg-size);background-repeat:var(--bg-repeat);background-position:top center}
 .screen{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);position:relative}
 .content{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0 20px calc(160px + env(safe-area-inset-bottom));scrollbar-width:none}
 .content::-webkit-scrollbar{display:none}
@@ -32,7 +36,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hir
 .topbar .profile svg{width:18px;height:18px;color:#7D7065}
 
 /* today */
-.today-sticky{position:sticky;top:0;background:var(--bg);z-index:80;margin:0 -20px;padding:0 20px}
+.today-sticky{position:sticky;top:0;z-index:80;margin:0 -20px;padding:0 20px}
 .today-sticky .topbar{padding:0;height:36px;align-items:flex-start;padding-top:4px}
 .today-sticky .date-header{display:flex;align-items:center;justify-content:space-between;margin-top:0;margin-bottom:10px}
 .today-sticky .date-header h2{font-size:28px;font-weight:700;letter-spacing:-.5px;line-height:1.1;margin:0}
@@ -421,7 +425,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hir
 
 /* calendar board — minimal */
 /* 日历页固定区：与 .topbar 同层，只有下方 .content 滚动 */
-.cal-head{flex-shrink:0;padding:0 20px;background:var(--bg)}
+.cal-head{flex-shrink:0;padding:0 20px}
 .cal-board{margin:0 0 20px}
 .cb-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .cb-pill{font-size:13px;color:var(--text2);background:var(--card);padding:6px 12px;border-radius:20px}
