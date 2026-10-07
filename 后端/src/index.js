@@ -188,6 +188,21 @@ if (fs.existsSync(dist)) {
   console.log('H5 单文件已托管(frontend/h5)');
 }
 
+/* 兜底错误处理：必须注册在所有路由之后。
+   asyncRouter 包装过的路由会把 await 抛错交给这里，返回 500 而不是让进程退出。 */
+app.use((err, req, res, next) => {
+  console.error('[error]', req.method, req.originalUrl, '-', (err && err.message) || err);
+  if (res.headersSent) return next(err);
+  res.status(500).json({ error: '服务暂时不可用，请稍后再试' });
+});
+
+/* 安全网：还有没被 asyncRouter 覆盖、或被定时器/回调吞掉的 rejection 时，
+   只记录不退出 —— 让一次偶发故障不至于把整个服务拖下线。
+   注意这是兜底，不是修复；真出现说明还有地方没包住，日志里能查到。 */
+process.on('unhandledRejection', (reason) => {
+  console.error('[unhandledRejection]', (reason && reason.stack) || reason);
+});
+
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log('语程后端已启动: http://localhost:' + PORT);

@@ -1,7 +1,9 @@
-const express = require('express');
-const router = express.Router();
 const pool = require('../config/db');
 const { authMiddleware } = require('../middleware/auth');
+const { asyncRouter } = require('../middleware/asyncHandler');
+
+// 用 asyncRouter：本文件的路由都是 async，await 抛错必须转成 500 而不是杀掉进程
+const router = asyncRouter();
 
 function fmtTime(v) {
   if (v == null) return null;

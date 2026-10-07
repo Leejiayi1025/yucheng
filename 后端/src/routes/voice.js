@@ -1,10 +1,11 @@
-const express = require('express');
-const router = express.Router();
 const pool = require('../config/db');
 const { authMiddleware } = require('../middleware/auth');
 const { parseVoice, parseVoiceMulti } = require('../util/parse');
 const { parseTasksWithDeepSeek, parseVoiceAction, hasDeepSeek } = require('../util/deepseek');
 const { rateLimit } = require('../middleware/rateLimit');
+const { asyncRouter } = require('../middleware/asyncHandler');
+
+const router = asyncRouter();
 
 router.use(authMiddleware);
 

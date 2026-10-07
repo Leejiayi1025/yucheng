@@ -1,7 +1,8 @@
-const express = require('express');
-const router = express.Router();
 const pool = require('../config/db');
 const { authMiddleware } = require('../middleware/auth');
+const { asyncRouter } = require('../middleware/asyncHandler');
+
+const router = asyncRouter();
 
 router.use(authMiddleware);
 
