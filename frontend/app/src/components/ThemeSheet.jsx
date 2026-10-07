@@ -22,10 +22,10 @@ const DEFAULT_THEMES = [
   { key: 'clay', name: '3D 黏土', group: 'texture' },
   { key: 'midnight', name: '午夜深蓝', group: 'dark' },
   { key: 'ios', name: 'iOS 暗黑', group: 'dark' },
-  { key: 'glass', name: '玻璃拟态', group: 'texture' },
+  { key: 'porcelain', name: '青花瓷', group: 'texture' },
   { key: 'editorial', name: '杂志编辑风', group: 'light' },
   { key: 'mint', name: '薄荷清新', group: 'light' },
-  { key: 'y2k', name: 'Y2K 千禧风', group: 'light' },
+  { key: 'amber-dusk', name: '琥珀暮色', group: 'light' },
   { key: 'black-gold', name: '黑白金奢华', group: 'dark' }
 ];
 
@@ -87,17 +87,14 @@ const PREVIEWS = {
     cardRadius: 10, cardBorder: '1px solid rgba(212,175,55,0.5)', cardBorderW: 1, cardShadow: '0 2px 12px rgba(212,175,55,0.1)',
     checkRadius: '50%', font: 'normal'
   },
-  glass: {
-    bg: 'linear-gradient(135deg,#667eea,#764ba2)', card: 'rgba(255,255,255,0.2)', text: '#fff', sub: 'rgba(255,255,255,0.7)', primary: '#fff',
-    cardRadius: 16, cardBorder: '1px solid rgba(255,255,255,0.3)', cardBorderW: 1, cardShadow: '0 8px 32px rgba(31,38,135,0.37)',
-    checkRadius: '50%', font: 'normal'
+  porcelain: {
+    bg: '#f4f7fb', card: '#ffffff', text: '#17222f', sub: '#7b8a9c', primary: '#1e4d8c',
+    cardRadius: 12, cardBorder: '1px solid rgba(30,77,140,0.2)', cardBorderW: 1, cardShadow: '0 2px 10px rgba(30,77,140,0.1)',
+    checkRadius: '50%', font: 'serif'
   },
-  /* 修正：原预览写的是「深紫底 + 荧光粉」，而 tokens.css 里 y2k 实际是
-     「浅紫底 + 柔紫」，两者描述的是完全不同的一套设计，预览等于骗人。
-     这里按 tokens.css 的 --bg/--text/--primary 对齐。 */
-  y2k: {
-    bg: '#e8e0f5', card: 'rgba(255,255,255,0.5)', text: '#4a3a6b', sub: 'rgba(74,58,107,0.6)', primary: '#b89fd9',
-    cardRadius: 14, cardBorder: '1px solid rgba(184,159,217,0.32)', cardBorderW: 1, cardShadow: '0 8px 24px rgba(180,160,220,0.2)',
+  'amber-dusk': {
+    bg: 'linear-gradient(180deg,#fff7ee,#ffe9d5)', card: '#fffdfa', text: '#43291a', sub: '#a2866f', primary: '#c2410c',
+    cardRadius: 16, cardBorder: 'none', cardBorderW: 0, cardShadow: '0 3px 14px rgba(160,88,40,0.16)',
     checkRadius: '50%', font: 'normal'
   },
   'ios-minimal': {

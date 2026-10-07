@@ -212,24 +212,28 @@
 }
 
 /* 玻璃拟态：渐变紫蓝底 + 半透明玻璃卡片 */
-[data-theme='glass'] {
-  --bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --card: rgba(255, 255, 255, 0.15);
-  --solid: rgba(255, 255, 255, 0.25);
-  --primary: #ffffff;
-  --on-primary: #000000;
-  --primary-soft: rgba(255, 255, 255, 0.2);
-  --primary-dark: #e0e0ff;
-  --text: #ffffff;
-  --text2: rgba(255, 255, 255, 0.7);
-  --line: rgba(255, 255, 255, 0.2);
-  --shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-  --danger: #ff6b6b;
-  --body-bg: #667eea;
-  --mic-shadow: 0 8px 32px rgba(255, 255, 255, 0.3);
-  --tabbar-bg: rgba(255, 255, 255, 0.15);
-  --tabbar-border: rgba(255, 255, 255, 0.1);
-  --fab-shadow: 0 8px 32px rgba(255, 255, 255, 0.4);
+/* 青花瓷：冷白瓷底 + 钴蓝主色 + 墨黑文字。
+   取代原来的「玻璃拟态」—— 那套渐变底配半透明卡片，卡片在亮底上会发灰发脏，
+   文字对比也不稳。这里的做法是「白瓷 + 一道钴蓝」，克制但成体系，
+   卡片描边（见 extra.css）是这套主题的签名细节。 */
+[data-theme='porcelain'] {
+  --bg: #f4f7fb;
+  --card: #ffffff;
+  --solid: #ffffff;
+  --primary: #1e4d8c;
+  --on-primary: #ffffff;
+  --primary-soft: #e6eef9;
+  --primary-dark: #143a6b;
+  --text: #17222f;
+  --text2: #7b8a9c;
+  --line: rgba(30, 77, 140, 0.13);
+  --shadow: 0 2px 10px rgba(30, 77, 140, 0.07);
+  --danger: #b0392b;
+  --body-bg: #eaf0f7;
+  --mic-shadow: 0 6px 18px rgba(30, 77, 140, 0.26);
+  --tabbar-bg: rgba(255, 255, 255, 0.94);
+  --tabbar-border: rgba(30, 77, 140, 0.1);
+  --fab-shadow: 0 6px 18px rgba(30, 77, 140, 0.3);
 }
 
 /* 复古胶片：暖棕色调+颗粒感 */
@@ -381,24 +385,27 @@
 }
 
 /* Y2K 千禧风：亮紫粉霓虹 */
-[data-theme='y2k'] {
-  --bg: #e8e0f5;
-  --card: rgba(255, 255, 255, 0.5);
-  --solid: rgba(255, 255, 255, 0.7);
-  --primary: #b89fd9;
-  --on-primary: #000000;
-  --primary-soft: rgba(184, 159, 217, 0.2);
-  --primary-dark: #9a7dc4;
-  --text: #4a3a6b;
-  --text2: rgba(74, 58, 107, 0.6);
-  --line: rgba(184, 159, 217, 0.2);
-  --shadow: 0 8px 24px rgba(180, 160, 220, 0.2);
-  --danger: #e87a9a;
-  --body-bg: #e8e0f5;
-  --mic-shadow: 0 8px 24px rgba(184, 159, 217, 0.4);
-  --tabbar-bg: rgba(255, 255, 255, 0.7);
-  --tabbar-border: rgba(184, 159, 217, 0.15);
-  --fab-shadow: 0 8px 24px rgba(184, 159, 217, 0.4);
+/* 琥珀暮色：奶油到杏色的黄昏渐变底 + 暖白卡片 + 深琥珀主色。
+   取代原来的「Y2K 千禧风」—— 那套紫粉霓虹偏花、且只停留在配色层。
+   这套的「设计感」来自背景本身的黄昏渐变，以及卡片偏暖的柔和投影。 */
+[data-theme='amber-dusk'] {
+  --bg: linear-gradient(180deg, #fff7ee 0%, #ffe9d5 100%);
+  --card: #fffdfa;
+  --solid: #fffdfa;
+  --primary: #c2410c;
+  --on-primary: #ffffff;
+  --primary-soft: #fcecdd;
+  --primary-dark: #9a3412;
+  --text: #43291a;
+  --text2: #a2866f;
+  --line: rgba(194, 65, 12, 0.14);
+  --shadow: 0 2px 12px rgba(160, 88, 40, 0.1);
+  --danger: #b91c1c;
+  --body-bg: #fff2e3;
+  --mic-shadow: 0 6px 20px rgba(194, 65, 12, 0.3);
+  --tabbar-bg: rgba(255, 250, 244, 0.95);
+  --tabbar-border: rgba(194, 65, 12, 0.1);
+  --fab-shadow: 0 6px 20px rgba(194, 65, 12, 0.34);
 }
 
 
