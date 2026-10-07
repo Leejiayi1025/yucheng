@@ -363,7 +363,7 @@
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
-  transition: transform 0.42s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform var(--mo-normal) cubic-bezier(0.32, 0.72, 0, 1);
   will-change: transform;
 }
 .ob-page {
@@ -376,6 +376,16 @@
   gap: 4px;
   padding: 64px 28px 0;
   box-sizing: border-box;
+}
+
+/* 非当前屏上的无限动画全部暂停。
+   5 屏是同时挂载在轨道里的，不暂停的话离屏那 4 屏上 30 多个
+   infinite 动画会一直空转、白白占用合成与绘制资源。
+   必须带 !important：animation 简写会把 animation-play-state 一并重置为
+   running，而后面「全面升级」那一段用的正是简写，不加就会被它覆盖回去。 */
+.ob-page:not(.is-on) *,
+.ob-page:not(.is-on) {
+  animation-play-state: paused !important;
 }
 
 /* 演示区（每页的插画） */
@@ -393,7 +403,7 @@
   flex: 0 0 auto;
   text-align: center;
   padding-bottom: 8px;
-  animation: obCopyIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: obCopyIn var(--mo-slow) cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @keyframes obCopyIn {
   from { opacity: 0; transform: translateY(24px); }
@@ -436,7 +446,7 @@
   border-radius: 50%;
   background: var(--line);
   cursor: pointer;
-  transition: width 0.25s, background 0.25s;
+  transition: width var(--mo-fast), background var(--mo-fast);
 }
 .ob-dot.on {
   width: 20px;
@@ -459,7 +469,7 @@
   font-weight: 500;
   cursor: pointer;
   box-shadow: var(--fab-shadow);
-  transition: transform 0.15s;
+  transition: transform var(--mo-fast);
 }
 .ob-next:active {
   transform: scale(0.96);
@@ -497,7 +507,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: obHeroPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: obHeroPop var(--mo-slow) cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 @keyframes obHeroPop {
   from { opacity: 0; transform: scale(0.5); }
@@ -515,7 +525,7 @@
   border-radius: 50%;
   border: 2px solid var(--primary);
   opacity: 0;
-  animation: obRipple 2.4s ease-out 0.6s infinite;
+  animation: obRipple 2.4s ease-out var(--mo-slow) infinite;
 }
 .ob-hero-ripple.d2 {
   animation-delay: 1.8s;
@@ -550,7 +560,7 @@
   border: 2px solid var(--primary);
   animation: obRing 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
-.ob-ring.d2 { animation-delay: 0.8s; }
+.ob-ring.d2 { animation-delay: var(--mo-slow); }
 .ob-ring.d3 { animation-delay: 1.6s; }
 @keyframes obRing {
   0% { transform: scale(0.9); opacity: 0.6; }
@@ -571,15 +581,18 @@
 }
 .ob-typewriter {
   display: inline-block;
-  overflow: hidden;
   white-space: nowrap;
-  animation: obType 4s steps(22) infinite;
-  width: 0;
+  width: 100%;
+  /* 用 clip-path 而不是动画 width：width 每帧都会触发重排（整段文字重新布局），
+     而 clip-path 只影响绘制，且从左往右揭示更接近「打字」的语义。
+     原来动 width 还会把文字压扁，clip-path 不会。 */
+  clip-path: inset(0 100% 0 0);
+  animation: obType var(--mo-loop) steps(22) infinite;
 }
 @keyframes obType {
-  0% { width: 0; }
-  30%, 80% { width: 100%; }
-  100% { width: 0; }
+  0% { clip-path: inset(0 100% 0 0); }
+  30%, 80% { clip-path: inset(0 0 0 0); }
+  100% { clip-path: inset(0 100% 0 0); }
 }
 .ob-vlist {
   width: 100%;
@@ -600,7 +613,7 @@
   opacity: 0;
   animation: obCardPop 4.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
 }
-.ob-vcard.d2 { animation-delay: 0.4s; }
+.ob-vcard.d2 { animation-delay: var(--mo-normal); }
 @keyframes obCardPop {
   0% { opacity: 0; transform: translateX(-16px) scale(0.95); }
   15%, 75% { opacity: 1; transform: translateX(0) scale(1); }
@@ -686,12 +699,12 @@
   align-items: center;
   justify-content: center;
   color: #fff;
-  transition: all 0.3s;
+  transition: all var(--mo-normal);
 }
 .ob-opcheck.on {
   background: var(--primary);
   border-color: var(--primary);
-  animation: obCheckPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: obCheckPop var(--mo-slow) cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 @keyframes obCheckPop {
   0% { transform: scale(0); }
@@ -774,7 +787,7 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  transition: background 0.3s;
+  transition: background var(--mo-normal);
 }
 .ob-sd.on {
   background: var(--primary);
@@ -811,8 +824,8 @@
   opacity: 0;
   animation: obCardSlide 5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
-.ob-card.d2 { animation-delay: 0.2s; }
-.ob-card.d3 { animation-delay: 0.4s; }
+.ob-card.d2 { animation-delay: var(--mo-fast); }
+.ob-card.d3 { animation-delay: var(--mo-normal); }
 @keyframes obCardSlide {
   0% { opacity: 0; transform: translateX(-24px); }
   12%, 80% { opacity: 1; transform: translateX(0); }
@@ -856,11 +869,11 @@
   animation: obDotPop 3.8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
 }
 .ob-cdot:nth-child(1) { animation-delay: 0s; left: 75px; top: 0; }
-.ob-cdot:nth-child(2) { animation-delay: 0.1s; left: 135px; top: 38px; }
-.ob-cdot:nth-child(3) { animation-delay: 0.2s; left: 150px; top: 102px; }
-.ob-cdot:nth-child(4) { animation-delay: 0.3s; left: 108px; top: 150px; }
-.ob-cdot:nth-child(5) { animation-delay: 0.4s; left: 48px; top: 150px; }
-.ob-cdot:nth-child(6) { animation-delay: 0.5s; left: 8px; top: 102px; }
+.ob-cdot:nth-child(2) { animation-delay: var(--mo-instant); left: 135px; top: 38px; }
+.ob-cdot:nth-child(3) { animation-delay: var(--mo-fast); left: 150px; top: 102px; }
+.ob-cdot:nth-child(4) { animation-delay: var(--mo-normal); left: 108px; top: 150px; }
+.ob-cdot:nth-child(5) { animation-delay: var(--mo-normal); left: 48px; top: 150px; }
+.ob-cdot:nth-child(6) { animation-delay: var(--mo-slow); left: 8px; top: 102px; }
 @keyframes obDotPop {
   0%, 5% { opacity: 0; transform: scale(0); }
   20%, 80% { opacity: 1; transform: scale(1); }
@@ -883,18 +896,28 @@
 .ob-tb.mid { width: 58%; }
 .ob-tb.sm { width: 38%; }
 
-/* 尊重系统的「减少动效」设置 */
+/* 尊重系统的「减少动效」设置。
+   这里用通配而不是逐个类名白名单 —— 原来是手写清单，结果后面新增的
+   .ob-page（逐页入场）和 .ob-theme-* 全漏在外面，等于没生效。
+   注意排除 .ob-track：它的 transform 是轮播定位，不是动效，清掉就翻不了页。 */
 @media (prefers-reduced-motion: reduce) {
-  .ob-ring, .ob-vcard, .ob-card, .ob-cdot,
-  .ob-hero, .ob-glow, .ob-vmic, .ob-edittip,
-  .ob-opcard, .ob-opedit, .ob-copy, .ob-hero-ripple,
-  .ob-typewriter {
+  .ob *:not(.ob-track),
+  .ob *:not(.ob-track)::before,
+  .ob *:not(.ob-track)::after {
     animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-    width: auto !important;
+    transition-duration: var(--mo-fast) !important;
+    transition-delay: 0ms !important;
   }
-  .ob-track { transition: none; }
+  /* 这几个的「基态」就是 opacity:0、靠动画淡入，animation:none 之后必须显式
+     显示，否则永远停在透明。
+     .ob-hero-ripple 是纯装饰的扩散涟漪，保持隐藏即可，故意不列进来。 */
+  .ob-vcard,
+  .ob-opcard,
+  .ob-card,
+  .ob-cdot {
+    opacity: 1 !important;
+  }
+  .ob-track { transition: none !important; }
 }
 
 /* 注册页：邮件服务未配置时，直接显示验证码方便联调 */
@@ -3481,12 +3504,12 @@ iframe[src*="netlify"] {
 
 /* 滑动过渡更丝滑，带视差 */
 .ob-track {
-  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1) !important;
+  transition: transform var(--mo-slow) cubic-bezier(0.23, 1, 0.32, 1) !important;
 }
 
 /* 所有演示卡片都加立体感 */
 .ob-demo > div {
-  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.5s ease;
+  transition: transform var(--mo-slow) cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow var(--mo-slow) ease;
 }
 
 /* 底部按钮：悬浮感更强 */
@@ -3496,7 +3519,7 @@ iframe[src*="netlify"] {
   padding: 16px 36px !important;
   font-weight: 600 !important;
   box-shadow: 0 8px 24px color-mix(in srgb, var(--primary) 40%, transparent), inset 0 1px 0 rgba(255,255,255,0.2) !important;
-  transition: all 0.2s ease;
+  transition: all var(--mo-fast) ease;
 }
 
 .ob-next:active {
@@ -3512,7 +3535,7 @@ iframe[src*="netlify"] {
 .ob-dot {
   width: 6px !important;
   height: 6px !important;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all var(--mo-normal) cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .ob-dot.on {
@@ -3521,9 +3544,12 @@ iframe[src*="netlify"] {
   box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 40%, transparent);
 }
 
-/* 引导页所有元素入场动画 */
-.ob-page {
-  animation: obPageIn 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+/* 引导页逐屏入场。
+   挂在 .is-on 上而不是 .ob-page 上：5 屏是同时挂载的，挂在 .ob-page 上会
+   在加载瞬间让 5 屏一起播完（其中 4 屏还在屏幕外，等于白播）；
+   挂在 .is-on 上则每次翻到该屏时重新触发，入场才真正看得见。 */
+.ob-page.is-on {
+  animation: obPageIn var(--mo-slow) var(--mo-ease-smooth);
 }
 
 @keyframes obPageIn {
@@ -3566,7 +3592,7 @@ iframe[src*="netlify"] {
   display: flex;
   gap: 16px;
   padding: 0 25%;
-  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform var(--mo-slow) cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .ob-theme-phone {
@@ -3577,7 +3603,7 @@ iframe[src*="netlify"] {
   position: relative;
   opacity: 0.5;
   transform: scale(0.85);
-  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all var(--mo-slow) cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 8px 24px rgba(0,0,0,0.1);
 }
 
@@ -3590,7 +3616,7 @@ iframe[src*="netlify"] {
 /* 主题面板也加悬浮感 */
 .ob-theme-sheet {
   box-shadow: 0 -8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8) !important;
-  animation: obSheetUp 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  animation: obSheetUp var(--mo-slow) cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 @keyframes obSheetUp {
@@ -3619,7 +3645,7 @@ iframe[src*="netlify"] {
   box-shadow: 0 4px 0 #b88620, 0 6px 16px rgba(240, 192, 64, 0.4) !important;
   border: none !important;
   transform: translateY(0);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: all var(--mo-fast) cubic-bezier(0.4, 0, 0.2, 1) !important;
   will-change: transform, box-shadow;
 }
 
@@ -3642,7 +3668,7 @@ iframe[src*="netlify"] {
   background: linear-gradient(145deg, #1a1a1a 0%, #111111 100%) !important;
   border: 1px solid rgba(240, 192, 64, 0.2) !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 215, 96, 0.1) !important;
-  transition: all 0.2s ease !important;
+  transition: all var(--mo-fast) ease !important;
 }
 
 [data-theme='black-gold'] .card:active,
@@ -3669,7 +3695,7 @@ iframe[src*="netlify"] {
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  animation: fadeIn 0.2s ease;
+  animation: fadeIn var(--mo-fast) ease;
 }
 
 .vs-env-dialog {

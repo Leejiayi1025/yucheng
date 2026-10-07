@@ -9,6 +9,33 @@
   --radius-xl: 28px;
   --font: -apple-system, BlinkMacSystemFont, 'SF Pro SC', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+
+  /* ---------- 动效 token ----------
+     动效时长/缓动必须从这里取，不要在组件和样式里散写具体数值 ——
+     之前引导页出现了 0.15s~6s 共 12 种时长、9 条缓动曲线，无法维护。
+     档位对齐通用动效规范：instant 用于即时反馈，fast 用于控件反馈，
+     normal 用于元素入场，slow 用于整屏转场，story 只用于刻意的叙事节奏。 */
+  --mo-instant: 0.08s;
+  --mo-fast: 0.18s;
+  --mo-normal: 0.35s;
+  --mo-slow: 0.6s;
+  /* 缓动：smooth 用于大多数入场，sharp 用于状态切换，bounce 用于俏皮的弹跳 */
+  --mo-ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --mo-ease-sharp: cubic-bezier(0.4, 0, 0.2, 1);
+  --mo-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* 引导页演示动画的循环周期（属于叙事节奏，单独成档） */
+  --mo-loop: 4s;
+}
+
+/* 用户系统里开了「减弱动态效果」：把所有过渡压到最短、去掉位移与缩放。
+   只保留 ≤0.2s 的透明度变化，避免动画突然消失造成的认知断层。 */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --mo-instant: 0.01s;
+    --mo-fast: 0.15s;
+    --mo-normal: 0.2s;
+    --mo-slow: 0.2s;
+  }
 }
 
 /* 奶油鼠尾草（默认） */

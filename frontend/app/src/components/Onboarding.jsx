@@ -2,6 +2,24 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Icon from './Icon';
 import { catColor } from '../lib/cats';
 
+/* 与 CSS 里的 prefers-reduced-motion 同一个判据。
+   CSS 管不到 JS 驱动的动效（定时器轮播、逐字打字），那些必须在这里拦。 */
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false
+  );
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = () => setReduced(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return reduced;
+}
+
 /** 第 1 页：Brand Hero —— 智能手表 Logo + 光晕 */
 function BrandHero() {
   return (
@@ -161,21 +179,30 @@ function PlanDemo() {
 
 /** 第 5 页：主题切换演示 - 迷你手机预览 */
 function ThemeDemo() {
+  /* 取真实存在的主题，色值照抄 tokens.css 里对应的 --bg/--card/--primary/--text。
+     之前这里是编的：「黑白金高级」实际叫「黑白金奢华」，「蜜桃粉」根本不存在
+     （真实的是「蜜桃奶油风」），用户进来第一眼看到的主题名就是错的。 */
   const themes = [
-    { bg: '#000000', card: '#141414', primary: '#f0c040', text: '#fff', name: '黑白金高级' },
-    { bg: '#f5f5f7', card: '#fff', primary: '#000', text: '#000', name: 'iOS黑白极简' },
-    { bg: '#f5f1ec', card: '#fff', primary: '#6b8e7b', text: '#2d3a33', name: '鼠尾草' },
-    { bg: '#0c0a09', card: '#1c1917', primary: '#d4af37', text: '#e8e0c8', name: '暗黑奢华金' },
-    { bg: '#ffebee', card: '#fff', primary: '#ff8a80', text: '#c62828', name: '蜜桃粉' }
+    { bg: '#0a0a0a', card: '#151412', primary: '#d4af37', text: '#f3eadb', name: '暗黑奢华黑金' },
+    { bg: '#f5f5f7', card: '#ffffff', primary: '#000000', text: '#000000', name: 'iOS黑白极简' },
+    { bg: '#f5f1ec', card: '#ffffff', primary: '#6b8e7b', text: '#2d3a33', name: '奶油鼠尾草' },
+    { bg: '#fff0e8', card: '#fff8f3', primary: '#ff9a7a', text: '#5a3a2a', name: '蜜桃奶油风' },
+    { bg: '#0a0f0a', card: '#1a2a1a', primary: '#00ff41', text: '#00ff41', name: '终端绿极客' }
   ];
   const [active, setActive] = useState(0);
+  const reduced = usePrefersReducedMotion();
 
   useEffect(() => {
+    // 用户要求减弱动效时停在第一套，不要一直轮换
+    if (reduced) {
+      setActive(0);
+      return;
+    }
     const timer = setInterval(() => {
       setActive(prev => (prev + 1) % themes.length);
     }, 1500);
     return () => clearInterval(timer);
-  }, []);
+  }, [reduced]);
 
   return (
     <div className="ob-demo" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
@@ -377,7 +404,8 @@ export default function Onboarding({ onEnter }) {
         onPointerLeave={onUp}
       >
         {PAGES.map((p, idx) => (
-          <section className="ob-page" key={p.key}>
+          /* is-on 用来让 CSS 暂停非当前屏上的动画（5 屏是同时挂载的） */
+          <section className={'ob-page' + (idx === i ? ' is-on' : '')} key={p.key}>
             <div className="ob-art">{p.demo}</div>
             <div className="ob-copy">
               <h2 className="ob-title">
