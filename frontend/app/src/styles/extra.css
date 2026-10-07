@@ -3930,10 +3930,17 @@ button:active, .primary-btn:active, .vs-submit:active, .vs-immersive-btn.done:ac
    ============================================================ */
 .ob-phones {
   position: relative;
-  width: 100%;
+  /* 比内容宽出一点，让两侧的机器能露出来；超出部分必须裁掉 ——
+     手机是绝对定位、向左右各摊开一百多像素，不裁的话最外侧那台会越过
+     本屏边界，直接漏到相邻那一屏上（第 4 屏会看到第 5 屏的手机）。
+     裁切放在这里而不是 .ob-page：.ob-page 是 static，
+     它的 overflow 管不到「包含块在它内部」的绝对定位元素。 */
+  width: calc(100% + 72px);
+  margin: 0 -36px;
   height: 232px;
   perspective: 1000px;
   perspective-origin: 50% 42%;
+  overflow: hidden;
 }
 .ob-ph {
   position: absolute;

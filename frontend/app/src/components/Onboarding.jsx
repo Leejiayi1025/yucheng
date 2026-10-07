@@ -369,7 +369,9 @@ const PAGES = [
   },
   {
     key: 'theme',
-    title: '20套主题',
+    /* {n} 在渲染时替换成真实主题数。这里写死过两次、也过期过两次，
+       改成从 /api/auth/themes 取（公开接口，未登录也能调）。 */
+    title: '{n}套主题',
     title2: '随心切换',
     desc: '总有一款适合你',
     demo: <ThemeDemo />
@@ -379,7 +381,23 @@ const PAGES = [
 export default function Onboarding({ onEnter }) {
   const [i, setI] = useState(0);
   const [dragX, setDragX] = useState(0);
+  const [themeCount, setThemeCount] = useState(null);
   const trackRef = useRef(null);
+
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/auth/themes')
+      .then((r) => r.json())
+      .then((d) => {
+        if (alive && d.themes && d.themes.length) setThemeCount(d.themes.length);
+      })
+      .catch(() => {
+        /* 取不到就退回「多套主题」，不影响引导页 */
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const last = i === PAGES.length - 1;
   const next = useCallback(() => setI((v) => Math.min(v + 1, PAGES.length - 1)), []);
@@ -450,7 +468,7 @@ export default function Onboarding({ onEnter }) {
             <div className="ob-art">{p.demo}</div>
             <div className="ob-copy">
               <h2 className="ob-title">
-                {p.title}
+                {p.title.replace('{n}', themeCount == null ? '多' : themeCount)}
                 {p.title2 && (
                   <>
                     <br />
