@@ -8,31 +8,32 @@
 
 ```
 D:\语程
-├── 原型\        # 高保真交互原型（单文件 HTML，设计稿基准）
-├── 前端\        # 移动端前端（Vite + React + TypeScript）— 待搭建
-├── 后端\        # 服务端 API（Node + Express + MySQL）
-├── 产品文档\    # PRD / 技术文档 / 数据库设计 / 运行手册（本目录）
-└── 数据库\      # MySQL schema.sql（建库建表语句）
+├── frontend\app\     # 移动端前端（Vite + React 18，已落地）
+├── 后端\             # 服务端 API（Node + Express + MySQL）
+├── 产品文档\          # PRD / 技术文档 / 部署指南（本目录）
+└── 数据库\           # schema-full.sql（建库建表语句）
 ```
+
+> ⚠️ 前端目录是英文 `frontend`（不是「前端」）；早期 `.gitignore` 因路径写错导致构建产物被误提交，已修复。
 
 ## 二、技术栈
 
 | 层 | 选型 | 说明 |
 |----|------|------|
-| 前端 | Vite + React + TypeScript | 移动端模拟手机壳，严格还原原型视觉 |
+| 前端 | Vite + React 18 | 移动端 H5，自适应真实手机尺寸，无手机壳 |
 | 后端 | Node.js + Express | REST API，CommonJS |
-| 数据库 | MySQL 8.x（兼容 5.7+） | 用户信息 / 任务 / 分类 |
+| 数据库 | MySQL 8.x（Railway 云端） | 用户信息 / 任务 / 分类 / 主题 |
 | 鉴权 | JWT（jsonwebtoken） | 登录后返回 token，请求头 `Authorization: Bearer <token>` |
 | 密码 | bcryptjs | 加盐哈希，不存明文 |
 | 数据库驱动 | mysql2/promise | 连接池 |
 
 ## 三、当前进度
 
-- ✅ 后端：已完成（schema、连接池、鉴权、任务/分类/语音解析 API、初始化脚本与种子数据）
-- ✅ 数据库：schema 与种子数据脚本已完成
-- 📄 产品文档：PRD + 技术文档已完成（见同目录）
-- ⏳ 前端：工程结构与页面待搭建（已定技术方案，等确认后开工）
-- ⏳ 原型：作为视觉与交互基准，已在 `原型\` 提供
+- ✅ 前端：已落地（Vite + React 18 H5，引导页 / 登录 / 今日 / 日历 / 我的）
+- ✅ 后端：已完成（schema、连接池、鉴权、任务/分类/主题/语音解析 API、初始化脚本与种子数据）
+- ✅ 数据库：schema 与种子数据脚本已完成（含 19 套主题字典）
+- ✅ 已上线：前端 Netlify + 自定义域名 https://yuchengailee.online，后端+数据库 Railway
+- 📄 最新文档见：《PRD-产品需求文档.md》《技术文档.md》《部署指南.md》
 
 ## 四、快速开始（后端）
 

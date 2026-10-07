@@ -57,9 +57,9 @@ CREATE TABLE IF NOT EXISTS `themes` (
   `description` varchar(200) DEFAULT '',
   `group_name` varchar(20) DEFAULT 'classic',
   `preview_bg` varchar(100) DEFAULT '',
-  `preview_card` varchar(20) DEFAULT '#fff',
-  `preview_text` varchar(20) DEFAULT '#000',
-  `preview_primary` varchar(20) DEFAULT '#6b8e7b',
+  `preview_card` varchar(100) DEFAULT '#fff',
+  `preview_text` varchar(100) DEFAULT '#000',
+  `preview_primary` varchar(100) DEFAULT '#6b8e7b',
   `sort_order` int(11) DEFAULT '0',
   `is_active` tinyint(4) DEFAULT '1',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -105,13 +105,13 @@ INSERT IGNORE INTO themes VALUES (22,'amber-dusk','琥珀暮色','奶油到杏�
 INSERT IGNORE INTO themes VALUES (12,'paper','手绘手账','','texture','#f4ecd8','#fefcf5','#5a4a3a','#5b9e5b',9,1,'2026-10-06 03:41:08');
 INSERT IGNORE INTO themes VALUES (13,'clay','3D 黏土','','texture','#d4e4ed','#fdfaf3','#3a4a52','#5aa564',10,1,'2026-10-06 03:41:08');
 INSERT IGNORE INTO themes VALUES (21,'porcelain','青花瓷','冷白瓷底 + 钴蓝主色 + 墨黑文字，卡片一道极细的钴蓝釉线','texture','#f4f7fb','#ffffff','#17222f','#1e4d8c',11,1,'2026-10-07 11:10:17');
-INSERT IGNORE INTO themes VALUES (15,'ios','iOS 暗黑','iOS 高级暗黑：纯黑底 + 深灰光泽卡片 + iOS 系统蓝','dark','#000000','rgba(28, 28, 30, 0.8','#ffffff','#0a84ff',12,1,'2026-10-07 10:50:08');
-INSERT IGNORE INTO themes VALUES (14,'midnight','午夜深蓝','深海午夜蓝：深蓝底 + 亮蓝主色','dark','#0f172a','rgba(30, 41, 59, 0.7','#f1f5f9','#38bdf8',13,1,'2026-10-07 10:50:08');
+INSERT IGNORE INTO themes VALUES (15,'ios','iOS 暗黑','iOS 高级暗黑：纯黑底 + 深灰光泽卡片 + iOS 系统蓝','dark','#000000','rgba(28, 28, 30, 0.85)','#ffffff','#0a84ff',12,1,'2026-10-07 10:50:08');
+INSERT IGNORE INTO themes VALUES (14,'midnight','午夜深蓝','深海午夜蓝：深蓝底 + 亮蓝主色','dark','#0f172a','rgba(30, 41, 59, 0.78)','#f1f5f9','#38bdf8',13,1,'2026-10-07 10:50:08');
 INSERT IGNORE INTO themes VALUES (8,'navy','藏青商务风','','dark','#0f172a','#1e293b','#e2e8f0','#3b82f6',14,1,'2026-10-06 03:41:08');
 INSERT IGNORE INTO themes VALUES (10,'forest','森林墨绿风','','dark','#1a2e1f','#243b2b','#d8e8d8','#4a9a5a',15,1,'2026-10-06 03:41:08');
 INSERT IGNORE INTO themes VALUES (11,'terminal','终端绿极客','','dark','#0a0f0a','#1a2a1a','#00ff41','#00ff41',16,1,'2026-10-06 03:41:08');
 INSERT IGNORE INTO themes VALUES (5,'luxe','暗黑奢华黑金','','retro','#0a0a0a','#151412','#f3eadb','#d4af37',17,1,'2026-10-06 03:41:08');
-INSERT IGNORE INTO themes VALUES (20,'black-gold','黑白金奢华','纯黑底 + 真金 3D 按钮 + 白色文字，高级奢华','retro','linear-gradient(165deg, #050505 0%, #121212 40%, #1e1e1e 70%, #2a2a2a 100%)','linear-gradient(145d','#f5f5f5','#d4af37',18,1,'2026-10-07 10:50:11');
+INSERT IGNORE INTO themes VALUES (20,'black-gold','黑白金奢华','纯黑底 + 真金 3D 按钮 + 白色文字，高级奢华','retro','linear-gradient(165deg, #050505 0%, #121212 40%, #1e1e1e 70%, #2a2a2a 100%)','linear-gradient(145deg, #222222 0%, #161616 100%)','#f5f5f5','#d4af37',18,1,'2026-10-07 10:50:11');
 INSERT IGNORE INTO themes VALUES (6,'film','复古胶片风','','retro','#2a2520','#3a3028','#e8d8c0','#c97b4a',19,1,'2026-10-06 03:41:08');
 
 SET FOREIGN_KEY_CHECKS = 1;
