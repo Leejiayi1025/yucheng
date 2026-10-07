@@ -53,13 +53,16 @@ export function stopAlarmRing() {
   } catch (e) {}
 }
 
-// 翻书声：切换主题的时候触发，真实mp3翻书声
+// 翻书声：切换主题的时候触发
 let pageFlipAudio = null;
 export function playPageFlip() {
   try {
     if (!pageFlipAudio) {
       pageFlipAudio = new Audio('/pageflip.mp3');
-      pageFlipAudio.volume = 0.4;
+      /* 0.2 是配合当前素材定的：pageflip.mp3 峰值 -8dB，铃声 alarm.mp3 峰值
+         -13.6dB 且以 0.6 播放。翻书只是背景反馈，必须压在铃声之下，
+         否则换主题时会比闹钟还响。换素材后要重新对一下这两个数。 */
+      pageFlipAudio.volume = 0.2;
     }
     pageFlipAudio.currentTime = 0;
     pageFlipAudio.play();
