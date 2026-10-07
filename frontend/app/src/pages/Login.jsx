@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { login, register, sendCode as apiSendCode } from '../lib/api';
-import WatchLogo from '../components/WatchLogo';
 import { useApp } from '../store';
 import { track } from '../lib/track';
 
@@ -158,7 +157,7 @@ export default function Login() {
         </div>
         <div className="auth-brand has-back">
           <div className="auth-logo">
-            <WatchLogo straps={false} />
+            <img src="/app-icon.webp" alt="语程" draggable={false} />
           </div>
           <div className="auth-name">找回密码</div>
           <div className="auth-slogan">输入注册邮箱，接收验证码重置密码</div>
@@ -261,7 +260,7 @@ export default function Login() {
         </div>
         <div className="auth-brand has-back">
           <div className="auth-logo">
-            <WatchLogo straps={false} />
+            <img src="/app-icon.webp" alt="语程" draggable={false} />
           </div>
           <div className="auth-name">创建账号</div>
           <div className="auth-slogan">30 秒开始你的语音日程</div>
@@ -427,7 +426,7 @@ export default function Login() {
     <div className="content auth-content">
       <div className="auth-brand">
         <div className="auth-logo">
-          <WatchLogo straps={false} />
+          <img src="/app-icon.webp" alt="语程" draggable={false} />
         </div>
         <div className="auth-name">语程</div>
         <div className="auth-slogan">一句话，让生活有条不紊</div>

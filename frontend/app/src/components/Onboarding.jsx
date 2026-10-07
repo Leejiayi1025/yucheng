@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import WatchLogo from './WatchLogo';
 import Icon from './Icon';
 import { catColor } from '../lib/cats';
 
@@ -28,7 +27,7 @@ function BrandHero() {
     <div className="ob-demo ob-brand">
       <div className="ob-glow" />
       <div className="ob-hero">
-        <WatchLogo className="ob-hero-clock" />
+        <img className="ob-hero-clock" src="/app-icon.webp" alt="语程" draggable={false} />
       </div>
       <div className="ob-hero-ripple" />
       <div className="ob-hero-ripple d2" />

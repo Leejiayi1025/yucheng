@@ -516,7 +516,7 @@
 .ob-hero-clock {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 12px 28px rgba(0,0,0,0.12));
+  object-fit: contain;
 }
 .ob-hero-ripple {
   position: absolute;
@@ -3428,10 +3428,11 @@ iframe[src*="netlify"] {
 
 /* 第一页Logo：更强的立体感和浮动动画 */
 .ob-hero {
-  width: 140px !important;
-  height: 160px !important;
+  /* APP 图标是正方形（原来是 140×160 的手表竖构图） */
+  width: 150px !important;
+  height: 150px !important;
   animation: obLogoFloat 3s ease-in-out infinite;
-  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.2)) drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.18)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
 }
 
 @keyframes obLogoFloat {
@@ -4242,13 +4243,13 @@ button:active, .primary-btn:active, .vs-submit:active, .vs-immersive-btn.done:ac
    注意比例 —— 手表是 120×150（4:5），原来这里是 76×76 的正方形盒子，
    直接套会把表压扁，所以盒子跟着改成 4:5。 */
 .auth-logo {
-  /* 用不带表带的那一版（APP 图标），画布是 95×116 的比例 */
-  width: 84px;
-  height: 103px;
+  width: 88px;
+  height: 88px;
   margin-bottom: 16px;
-  filter: drop-shadow(0 12px 22px rgba(34, 48, 63, 0.16));
+  filter: drop-shadow(0 12px 22px rgba(34, 48, 63, 0.14));
 }
-.auth-logo svg { width: 100%; height: 100%; display: block; }
+.auth-logo svg,
+.auth-logo img { width: 100%; height: 100%; display: block; object-fit: contain; }
 
 /* 输入框：凹槽，不是浮起的卡片 */
 .auth-field {
