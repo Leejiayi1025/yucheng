@@ -4168,3 +4168,31 @@ button:active, .primary-btn:active, .vs-submit:active, .vs-immersive-btn.done:ac
   pointer-events: none;
 }
 
+/* ---------- 蜜桃奶油：软绵 —— 像一块被托起来的奶油 ----------
+   软绵的关键不是圆角大，而是「投影很轻、很散」：
+   硬投影会让卡片显得是板子，散投影才像软的。 */
+[data-theme='peach'] .event-card,
+[data-theme='peach'] .todo-item {
+  border: none;
+  border-radius: 22px;
+  background: linear-gradient(170deg, #ffffff 0%, #fffaf6 58%, #ffefe6 100%);
+  box-shadow:
+    inset 0 1px 0 #ffffff,
+    inset 0 -3px 6px rgba(214, 140, 110, 0.1),
+    0 12px 22px -12px rgba(214, 140, 110, 0.55),
+    0 4px 10px -5px rgba(214, 140, 110, 0.28);
+}
+[data-theme='peach'] .event-tag,
+[data-theme='peach'] .cat-tag {
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 3px 7px -3px rgba(214, 140, 110, 0.45);
+}
+[data-theme='peach'] .fab {
+  background: linear-gradient(160deg, #ffc0aa 0%, #ff9a7a 52%, #ef7f5c 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -5px 10px rgba(200, 110, 80, 0.28),
+    0 14px 24px -12px rgba(239, 127, 92, 0.7),
+    0 5px 10px -5px rgba(239, 127, 92, 0.4);
+}
+
