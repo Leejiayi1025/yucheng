@@ -2339,6 +2339,16 @@
 }
 
 /* ---------- 杂志编辑风：无阴影、粗体、大标题 ---------- */
+/* 杂志感有一半来自排版而不是背景：标题走衬线、副标题拉开字距，
+   配合背景里的栏线网格和报头横线才成立 */
+[data-theme='editorial'] .today-sticky .date-header h2 {
+  font-family: 'Noto Serif SC', -apple-system, sans-serif;
+  letter-spacing: 0.02em;
+}
+[data-theme='editorial'] .today-sticky .date-header .sub {
+  letter-spacing: 0.12em;
+  font-size: 11px;
+}
 [data-theme='editorial'] .event-card,
 [data-theme='editorial'] .todo-item {
   border: none;
