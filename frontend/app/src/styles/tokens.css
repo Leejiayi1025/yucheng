@@ -17,6 +17,7 @@
   --card: rgba(255, 255, 255, 0.82);
   --solid: #ffffff;
   --primary: #6b8e7b;
+  --on-primary: #000000;
   --primary-soft: #e1f0e8;
   --primary-dark: #5a7a6a;
   --text: #3d3d3d;
@@ -37,6 +38,7 @@
   --card: rgba(30, 41, 59, 0.78);
   --solid: #1e293b;
   --primary: #38bdf8;
+  --on-primary: #000000;
   --primary-soft: rgba(56, 189, 248, 0.18);
   --primary-dark: #0ea5e9;
   --text: #f1f5f9;
@@ -51,65 +53,6 @@
   --fab-shadow: 0 8px 24px rgba(56, 189, 248, 0.35);
 }
 
-/* 樱粉甜梦 */
-[data-theme='sakura'] {
-  --bg: #fff0f3;
-  --card: rgba(255, 255, 255, 0.82);
-  --solid: #ffffff;
-  --primary: #e78b8e;
-  --primary-soft: #fce1e4;
-  --primary-dark: #d66a6e;
-  --text: #4a3f41;
-  --text2: #a89195;
-  --line: rgba(74, 63, 65, 0.08);
-  --shadow: 0 8px 32px rgba(180, 120, 130, 0.08);
-  --danger: #c44d5a;
-  --body-bg: #f8dde3;
-  --mic-shadow: 0 8px 22px rgba(231, 139, 142, 0.32);
-  --tabbar-bg: rgba(255, 240, 243, 0.92);
-  --tabbar-border: rgba(74, 63, 65, 0.06);
-  --fab-shadow: 0 8px 24px rgba(231, 139, 142, 0.35);
-}
-
-/* 荧光暗境 */
-[data-theme='neon'] {
-  --bg: #111111;
-  --card: rgba(30, 30, 30, 0.8);
-  --solid: #1a1a1a;
-  --primary: #b6ff00;
-  --primary-soft: rgba(182, 255, 0, 0.16);
-  --primary-dark: #9ed900;
-  --text: #f5f5f5;
-  --text2: #888888;
-  --line: rgba(255, 255, 255, 0.1);
-  --shadow: 0 8px 32px rgba(182, 255, 0, 0.12);
-  --danger: #ff3b30;
-  --body-bg: #000000;
-  --mic-shadow: 0 8px 22px rgba(182, 255, 0, 0.35);
-  --tabbar-bg: rgba(17, 17, 17, 0.92);
-  --tabbar-border: rgba(255, 255, 255, 0.1);
-  --fab-shadow: 0 8px 24px rgba(182, 255, 0, 0.35);
-}
-
-/* 薰衣草雾 */
-[data-theme='lavender'] {
-  --bg: #f3f0f7;
-  --card: rgba(255, 255, 255, 0.82);
-  --solid: #ffffff;
-  --primary: #8b7ec8;
-  --primary-soft: #eae4f6;
-  --primary-dark: #6b5db0;
-  --text: #3d3548;
-  --text2: #8e86a0;
-  --line: rgba(61, 53, 72, 0.08);
-  --shadow: 0 8px 32px rgba(100, 90, 140, 0.08);
-  --danger: #d95d7b;
-  --body-bg: #e5e0ed;
-  --mic-shadow: 0 8px 22px rgba(139, 126, 200, 0.32);
-  --tabbar-bg: rgba(243, 240, 247, 0.92);
-  --tabbar-border: rgba(61, 53, 72, 0.06);
-  --fab-shadow: 0 8px 24px rgba(139, 126, 200, 0.35);
-}
 
 /* ---------- 以下为新增主题 ---------- */
 
@@ -119,6 +62,7 @@
   --card: #fdfaf1;
   --solid: #fdfaf1;
   --primary: #5b9e5b;
+  --on-primary: #000000;
   --primary-soft: #dfeeda;
   --primary-dark: #4a8a4a;
   --text: #4a4038;
@@ -139,6 +83,7 @@
   --card: #ffffff;
   --solid: #ffffff;
   --primary: #111111;
+  --on-primary: #ffffff;
   --primary-soft: #f0f0f0;
   --primary-dark: #000000;
   --text: #111111;
@@ -159,6 +104,7 @@
   --card: rgba(28, 28, 30, 0.85);
   --solid: #1c1c1e;
   --primary: #0a84ff;
+  --on-primary: #000000;
   --primary-soft: rgba(10, 132, 255, 0.16);
   --primary-dark: #0066cc;
   --text: #ffffff;
@@ -179,6 +125,7 @@
   --card: #151412;
   --solid: #1a1815;
   --primary: #d4af37;
+  --on-primary: #000000;
   --primary-soft: rgba(212, 175, 55, 0.14);
   --primary-dark: #b8952c;
   --text: #f3eadb;
@@ -193,25 +140,6 @@
   --fab-shadow: 0 8px 24px rgba(212, 175, 55, 0.35);
 }
 
-/* 日系马卡龙：粉白渐变底 + 白卡片 + 马卡龙粉主色（轻盈柔和） */
-[data-theme='japan'] {
-  --bg: #fdf5f7;
-  --card: #ffffff;
-  --solid: #ffffff;
-  --primary: #f2a0b4;
-  --primary-soft: #fde7ec;
-  --primary-dark: #e088a0;
-  --text: #4a4048;
-  --text2: #a898a0;
-  --line: rgba(200, 160, 175, 0.18);
-  --shadow: 0 6px 18px rgba(240, 170, 190, 0.26);
-  --danger: #e58b8b;
-  --body-bg: #fdf5f7;
-  --mic-shadow: 0 8px 20px rgba(242, 160, 180, 0.45);
-  --tabbar-bg: rgba(255, 255, 255, 0.92);
-  --tabbar-border: rgba(200, 160, 175, 0.16);
-  --fab-shadow: 0 8px 20px rgba(242, 160, 180, 0.45);
-}
 
 /* 3D 黏土：浅蓝底 + 米白黏土块 + 草绿，靠「厚投影」做出厚度 */
 [data-theme='clay'] {
@@ -219,6 +147,7 @@
   --card: #fdfaf3;
   --solid: #fdfaf3;
   --primary: #5aa564;
+  --on-primary: #000000;
   --primary-soft: #d8ead9;
   --primary-dark: #468a50;
   --text: #3a4a52;
@@ -233,25 +162,6 @@
   --fab-shadow: 0 5px 0 rgba(70, 138, 80, 0.5);
 }
 
-/* 极简无卡片：纯白 + 分隔线 + 深绿 */
-[data-theme='plain'] {
-  --bg: #ffffff;
-  --card: #ffffff;
-  --solid: #ffffff;
-  --primary: #3f7d52;
-  --primary-soft: #e8f2ea;
-  --primary-dark: #326844;
-  --text: #1c1c1c;
-  --text2: #9a9a9a;
-  --line: rgba(0, 0, 0, 0.08);
-  --shadow: none;
-  --danger: #c25b4e;
-  --body-bg: #ffffff;
-  --mic-shadow: 0 6px 16px rgba(63, 125, 82, 0.35);
-  --tabbar-bg: rgba(255, 255, 255, 0.96);
-  --tabbar-border: rgba(0, 0, 0, 0.06);
-  --fab-shadow: 0 6px 16px rgba(63, 125, 82, 0.35);
-}
 
 /* Bento 大圆角：浅灰白底 + 纯白大圆角卡片 + 草绿，现代苹果风 */
 [data-theme='bento'] {
@@ -259,6 +169,7 @@
   --card: #ffffff;
   --solid: #ffffff;
   --primary: #5cb86b;
+  --on-primary: #000000;
   --primary-soft: #e5f4e8;
   --primary-dark: #4a9a58;
   --text: #1d1d1f;
@@ -279,6 +190,7 @@
   --card: rgba(255, 255, 255, 0.15);
   --solid: rgba(255, 255, 255, 0.25);
   --primary: #ffffff;
+  --on-primary: #000000;
   --primary-soft: rgba(255, 255, 255, 0.2);
   --primary-dark: #e0e0ff;
   --text: #ffffff;
@@ -299,6 +211,7 @@
   --card: #2d2420;
   --solid: #2d2420;
   --primary: #d4a574;
+  --on-primary: #000000;
   --primary-soft: rgba(212, 165, 116, 0.15);
   --primary-dark: #b8895a;
   --text: #f5e6d3;
@@ -319,6 +232,7 @@
   --card: #f5f2ee;
   --solid: #f5f2ee;
   --primary: #a89f91;
+  --on-primary: #000000;
   --primary-soft: #d9d2c7;
   --primary-dark: #8a8175;
   --text: #4a4540;
@@ -339,6 +253,7 @@
   --card: #1e293b;
   --solid: #1e293b;
   --primary: #3b82f6;
+  --on-primary: #000000;
   --primary-soft: rgba(59, 130, 246, 0.15);
   --primary-dark: #2563eb;
   --text: #f1f5f9;
@@ -359,6 +274,7 @@
   --card: #ffffff;
   --solid: #ffffff;
   --primary: #ff8a80;
+  --on-primary: #000000;
   --primary-soft: rgba(255, 138, 128, 0.15);
   --primary-dark: #ff6f61;
   --text: #4a3a3a;
@@ -379,6 +295,7 @@
   --card: #2d4a35;
   --solid: #2d4a35;
   --primary: #81c784;
+  --on-primary: #000000;
   --primary-soft: rgba(129, 199, 132, 0.15);
   --primary-dark: #66bb6a;
   --text: #f5f5f0;
@@ -393,25 +310,6 @@
   --fab-shadow: 0 8px 24px rgba(129, 199, 132, 0.5);
 }
 
-/* 日系马卡龙：柔和粉蓝 */
-[data-theme='japan'] {
-  --bg: #fef6f0;
-  --card: #ffffff;
-  --solid: #ffffff;
-  --primary: #f2a0b4;
-  --primary-soft: #fde8ee;
-  --primary-dark: #e8899e;
-  --text: #5a4a52;
-  --text2: #b09aa2;
-  --line: rgba(242, 160, 180, 0.15);
-  --shadow: 0 4px 16px rgba(242, 160, 180, 0.12);
-  --danger: #e07060;
-  --body-bg: #fef6f0;
-  --mic-shadow: 0 6px 20px rgba(242, 160, 180, 0.3);
-  --tabbar-bg: rgba(255, 255, 255, 0.95);
-  --tabbar-border: rgba(242, 160, 180, 0.1);
-  --fab-shadow: 0 6px 20px rgba(242, 160, 180, 0.35);
-}
 
 /* 杂志编辑风：黑白大排版 */
 [data-theme='editorial'] {
@@ -419,6 +317,7 @@
   --card: #ffffff;
   --solid: #ffffff;
   --primary: #1a1a1a;
+  --on-primary: #ffffff;
   --primary-soft: #f0f0f0;
   --primary-dark: #000000;
   --text: #1a1a1a;
@@ -439,6 +338,7 @@
   --card: #ffffff;
   --solid: #ffffff;
   --primary: #5ec9a8;
+  --on-primary: #000000;
   --primary-soft: #d4f5e9;
   --primary-dark: #4ab896;
   --text: #2d4a3e;
@@ -459,6 +359,7 @@
   --card: rgba(255, 255, 255, 0.5);
   --solid: rgba(255, 255, 255, 0.7);
   --primary: #b89fd9;
+  --on-primary: #000000;
   --primary-soft: rgba(184, 159, 217, 0.2);
   --primary-dark: #9a7dc4;
   --text: #4a3a6b;
@@ -473,65 +374,6 @@
   --fab-shadow: 0 8px 24px rgba(184, 159, 217, 0.4);
 }
 
-/* 暖纸棕调 */
-[data-theme='warm-paper'] {
-  --bg: #f5e6d3;
-  --card: #fdf6ec;
-  --solid: #fdf6ec;
-  --primary: #b8860b;
-  --primary-soft: #f5e6c8;
-  --primary-dark: #9a7009;
-  --text: #4a3728;
-  --text2: #9a8068;
-  --line: rgba(184, 134, 11, 0.15);
-  --shadow: 0 2px 12px rgba(74, 55, 40, 0.1);
-  --danger: #c05040;
-  --body-bg: #f5e6d3;
-  --mic-shadow: 0 6px 20px rgba(184, 134, 11, 0.3);
-  --tabbar-bg: rgba(253, 246, 236, 0.95);
-  --tabbar-border: rgba(184, 134, 11, 0.1);
-  --fab-shadow: 0 6px 20px rgba(184, 134, 11, 0.35);
-}
-
-/* 蓝色科技 */
-[data-theme='blue-tech'] {
-  --bg: #f0f5fa;
-  --card: #ffffff;
-  --solid: #ffffff;
-  --primary: #3b82f6;
-  --primary-soft: #dbeafe;
-  --primary-dark: #2563eb;
-  --text: #1e293b;
-  --text2: #64748b;
-  --line: rgba(59, 130, 246, 0.15);
-  --shadow: 0 4px 16px rgba(59, 130, 246, 0.12);
-  --danger: #ef4444;
-  --body-bg: #f0f5fa;
-  --mic-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
-  --tabbar-bg: rgba(255, 255, 255, 0.95);
-  --tabbar-border: rgba(59, 130, 246, 0.1);
-  --fab-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
-}
-
-/* 渐变卡片风 */
-[data-theme='gradient-cards'] {
-  --bg: #faf5ff;
-  --card: linear-gradient(135deg, #ffffff 0%, #f0e6ff 100%);
-  --solid: #ffffff;
-  --primary: #8b5cf6;
-  --primary-soft: #ede9fe;
-  --primary-dark: #7c3aed;
-  --text: #2d1b4e;
-  --text2: #9d8db8;
-  --line: rgba(139, 92, 246, 0.15);
-  --shadow: 0 4px 20px rgba(139, 92, 246, 0.12);
-  --danger: #ef4444;
-  --body-bg: #faf5ff;
-  --mic-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
-  --tabbar-bg: rgba(255, 255, 255, 0.95);
-  --tabbar-border: rgba(139, 92, 246, 0.1);
-  --fab-shadow: 0 6px 20px rgba(139, 92, 246, 0.35);
-}
 
 /* 终端绿极客 */
 [data-theme='terminal'] {
@@ -539,6 +381,7 @@
   --card: #1a2a1a;
   --solid: #1a2a1a;
   --primary: #00ff41;
+  --on-primary: #000000;
   --primary-soft: rgba(0, 255, 65, 0.1);
   --primary-dark: #00cc33;
   --text: #00ff41;
@@ -594,6 +437,4 @@
   --tabbar-border: rgba(212, 175, 55, 0.15);
   --fab-shadow: 0 8px 28px rgba(212, 175, 55, 0.4);
   /* 3D按钮效果：凸起、高光、底部阴影 */
-  --btn-3d: 0 4px 0 #8b6f1a, 0 6px 12px rgba(212, 175, 55, 0.3);
-  --btn-3d-active: 0 2px 0 #8b6f1a, 0 3px 8px rgba(212, 175, 55, 0.3);
 }

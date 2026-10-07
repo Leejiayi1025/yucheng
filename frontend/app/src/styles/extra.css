@@ -490,10 +490,6 @@
   background: radial-gradient(circle, var(--primary-soft) 0%, transparent 70%);
   animation: obGlowPulse 3s ease-in-out infinite;
 }
-@keyframes obGlowPulse {
-  0%, 100% { transform: scale(0.9); opacity: 0.6; }
-  50% { transform: scale(1.1); opacity: 1; }
-}
 .ob-hero {
   position: relative;
   width: 110px;
@@ -1614,11 +1610,6 @@
   --surf-shadow: 0 8px 16px -5px rgba(122, 156, 178, 0.55),
     inset 0 -5px 10px rgba(158, 184, 202, 0.5), inset 0 5px 10px rgba(255, 255, 255, 0.95);
 }
-[data-theme='japan'] {
-  --surf-bg: #ffffff;
-  --surf-radius: 20px;
-  --surf-shadow: 0 6px 18px rgba(240, 170, 190, 0.26);
-}
 [data-theme='mono'] {
   --surf-bg: #ffffff;
   --surf-radius: 12px;
@@ -1635,11 +1626,6 @@
   --surf-radius: 16px;
   --surf-shadow: 0 2px 14px rgba(212, 175, 55, 0.07);
   --surf-border: 1px solid rgba(212, 175, 55, 0.42);
-}
-[data-theme='plain'] {
-  --surf-bg: transparent;
-  --surf-radius: 0;
-  --surf-shadow: none;
 }
 
 /* 统一应用：任何主题下这些「表面」都自动获得该主题的质感 */
@@ -2133,27 +2119,6 @@
   box-shadow: inset 0 0 0 2px var(--primary), 0 0 0 3px rgba(91, 158, 91, 0.22);
 }
 
-/* ---------- 日系马卡龙：粉白渐变 + 白卡片 + 粉色柔光 ---------- */
-[data-theme='japan'] .app {
-  background: linear-gradient(180deg, #fbe9ef 0%, #fdf7f9 42%, #ffffff 100%);
-}
-[data-theme='japan'] .event-card,
-[data-theme='japan'] .todo-item {
-  border: none;
-  border-radius: 20px;
-  box-shadow: 0 6px 18px rgba(240, 170, 190, 0.26);
-}
-[data-theme='japan'] .es-block,
-[data-theme='japan'] .vs-item {
-  border: none;
-  box-shadow: 0 6px 18px rgba(240, 170, 190, 0.22);
-}
-[data-theme='japan'] .fab,
-[data-theme='japan'] .vs-mic {
-  background: linear-gradient(165deg, #f8bcca 0%, #f2a0b4 60%, #e88ba2 100%);
-  box-shadow: 0 8px 20px rgba(242, 160, 180, 0.45);
-}
-
 /* ---------- 3D 黏土：标准 claymorphism ----------
    配方（顺序不能乱，缺一层就塌）：
    ① 外部投影用「背景同色系的加深色」，不能用纯黑（纯黑会显脏）
@@ -2306,26 +2271,6 @@
     inset 0 3px 5px rgba(255, 255, 255, 0.8);
 }
 
-/* ---------- 极简无卡片：去掉卡片与色条，改用分隔线 ---------- */
-[data-theme='plain'] .event-card,
-[data-theme='plain'] .todo-item {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--line);
-  border-radius: 0;
-  box-shadow: none;
-  padding-left: 0;
-  padding-right: 0;
-}
-[data-theme='plain'] .event-card::before,
-[data-theme='plain'] .todo-item::before {
-  display: none;
-}
-[data-theme='plain'] .event-tag,
-[data-theme='plain'] .vm-cat {
-  border: none;
-}
-
 /* ---------- Bento 大圆角：苹果风极简 ---------- */
 [data-theme='bento'] .event-card,
 [data-theme='bento'] .todo-item {
@@ -2370,23 +2315,6 @@
   border-radius: 50%;
 }
 
-/* ---------- 日系马卡龙：粉色大圆角、可爱 ---------- */
-[data-theme='japan'] .event-card,
-[data-theme='japan'] .todo-item {
-  border: none;
-  border-radius: 20px;
-  box-shadow: 0 4px 16px rgba(242, 160, 180, 0.15);
-}
-[data-theme='japan'] .strip-day.is-today .d {
-  background: var(--primary);
-  color: #fff;
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(242, 160, 180, 0.4);
-}
-[data-theme='japan'] .fab {
-  border-radius: 24px;
-}
-
 /* ---------- 杂志编辑风：无阴影、粗体、大标题 ---------- */
 [data-theme='editorial'] .event-card,
 [data-theme='editorial'] .todo-item {
@@ -2411,46 +2339,6 @@
   box-shadow: 0 3px 12px rgba(94, 201, 168, 0.12);
 }
 [data-theme='mint'] .strip-day.is-today .d {
-  background: var(--primary);
-  color: #fff;
-  border-radius: 50%;
-}
-
-/* ---------- 暖纸棕调：纸张质感、暖棕 ---------- */
-[data-theme='warm-paper'] .event-card,
-[data-theme='warm-paper'] .todo-item {
-  border: 1px solid rgba(184, 134, 11, 0.15);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(74, 55, 40, 0.08);
-}
-[data-theme='warm-paper'] .strip-day.is-today .d {
-  background: var(--primary);
-  color: #fff;
-  border-radius: 50%;
-}
-
-/* ---------- 蓝色科技：专业蓝色 ---------- */
-[data-theme='blue-tech'] .event-card,
-[data-theme='blue-tech'] .todo-item {
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 3px 12px rgba(59, 130, 246, 0.1);
-}
-[data-theme='blue-tech'] .strip-day.is-today .d {
-  background: var(--primary);
-  color: #fff;
-  border-radius: 50%;
-}
-
-/* ---------- 渐变紫卡：紫色渐变 ---------- */
-[data-theme='gradient-cards'] .event-card,
-[data-theme='gradient-cards'] .todo-item {
-  border: none;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #ffffff 0%, #f0e6ff 100%);
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.12);
-}
-[data-theme='gradient-cards'] .strip-day.is-today .d {
   background: var(--primary);
   color: #fff;
   border-radius: 50%;
@@ -3299,6 +3187,34 @@
   color: var(--primary);
   font-weight: 600;
 }
+/* 主题分区切换：20 套主题平铺太长，按 group 收起 */
+.tp-groups {
+  display: flex;
+  gap: 8px;
+  padding: 4px 20px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tp-groups::-webkit-scrollbar { display: none; }
+.tp-group {
+  flex: 0 0 auto;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text2);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.tp-group.on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
+}
+.tp-group:active { transform: scale(0.96); }
+
 .tp-track-wrap {
   overflow: hidden;
   margin: 0 -20px;

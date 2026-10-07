@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Icon from './Icon';
 import { useApp } from '../store';
 import { track } from '../lib/track';
 
-/* 主题清单：默认从后端themes表拉，拉不到时用本地兜底 */
+/* 主题清单：默认从后端 themes 表拉，拉不到时用本地兜底。
+   这份兜底必须与数据库 themes 表保持一致（顺序即 sort_order）——
+   两边不一致会导致「接口挂了」和「接口正常」看到两套不同的主题。 */
 const DEFAULT_THEMES = [
-  { key: 'black-gold', name: '黑白金高级', group: 'classic' },
-  { key: 'ios-minimal', name: 'iOS黑白极简', group: 'classic' },
   { key: 'sage', name: '奶油鼠尾草', group: 'classic' },
+  { key: 'ios-minimal', name: 'iOS黑白极简', group: 'classic' },
   { key: 'bento', name: 'iOS 原生风', group: 'classic' },
   { key: 'mono', name: '线框工程风', group: 'classic' },
   { key: 'luxe', name: '暗黑奢华黑金', group: 'dark' },
@@ -18,7 +19,14 @@ const DEFAULT_THEMES = [
   { key: 'forest', name: '森林墨绿风', group: 'dark' },
   { key: 'terminal', name: '终端绿极客', group: 'dark' },
   { key: 'paper', name: '手绘手账', group: 'texture' },
-  { key: 'clay', name: '3D 黏土', group: 'texture' }
+  { key: 'clay', name: '3D 黏土', group: 'texture' },
+  { key: 'midnight', name: '午夜深蓝', group: 'dark' },
+  { key: 'ios', name: 'iOS 暗黑', group: 'dark' },
+  { key: 'glass', name: '玻璃拟态', group: 'texture' },
+  { key: 'editorial', name: '杂志编辑风', group: 'light' },
+  { key: 'mint', name: '薄荷清新', group: 'light' },
+  { key: 'y2k', name: 'Y2K 千禧风', group: 'light' },
+  { key: 'black-gold', name: '黑白金奢华', group: 'dark' }
 ];
 
 /* 每个主题的 mini 预览配色和特征参数 */
@@ -59,11 +67,6 @@ const PREVIEWS = {
     cardRadius: 10, cardBorder: 'none', cardBorderW: 0, cardShadow: '0 1px 6px rgba(0,0,0,0.05)',
     checkRadius: '50%', font: 'normal'
   },
-  japan: {
-    bg: '#fef6f0', card: '#fff', text: '#5a4a52', sub: '#b09aa2', primary: '#f2a0b4',
-    cardRadius: 18, cardBorder: 'none', cardBorderW: 0, cardShadow: '0 3px 12px rgba(242,160,180,0.15)',
-    checkRadius: '50%', font: 'normal'
-  },
   editorial: {
     bg: '#fafaf8', card: '#fff', text: '#1a1a1a', sub: '#999', primary: '#1a1a1a',
     cardRadius: 0, cardBorder: 'none', cardBorderW: 0, cardShadow: 'none',
@@ -74,19 +77,9 @@ const PREVIEWS = {
     cardRadius: 16, cardBorder: 'none', cardBorderW: 0, cardShadow: '0 3px 12px rgba(94,201,168,0.15)',
     checkRadius: '50%', font: 'normal'
   },
-  'warm-paper': {
-    bg: '#f5e6d3', card: '#fdf6ec', text: '#4a3728', sub: '#9a8068', primary: '#b8860b',
-    cardRadius: 12, cardBorder: '1px solid rgba(184,134,11,0.2)', cardBorderW: 1, cardShadow: '0 1px 6px rgba(0,0,0,0.06)',
-    checkRadius: '50%', font: 'normal'
-  },
-  'blue-tech': {
-    bg: '#f0f5fa', card: '#fff', text: '#1e293b', sub: '#64748b', primary: '#3b82f6',
-    cardRadius: 12, cardBorder: 'none', cardBorderW: 0, cardShadow: '0 3px 12px rgba(59,130,246,0.12)',
-    checkRadius: '50%', font: 'normal'
-  },
-  'gradient-cards': {
-    bg: '#faf5ff', card: 'linear-gradient(135deg,#fff 0%,#f0e6ff 100%)', text: '#2d1b4e', sub: '#9d8db8', primary: '#8b5cf6',
-    cardRadius: 14, cardBorder: 'none', cardBorderW: 0, cardShadow: '0 3px 14px rgba(139,92,246,0.15)',
+  midnight: {
+    bg: '#0f172a', card: 'rgba(30,41,59,0.78)', text: '#f1f5f9', sub: '#94a3b8', primary: '#38bdf8',
+    cardRadius: 16, cardBorder: '1px solid rgba(255,255,255,0.08)', cardBorderW: 1, cardShadow: '0 8px 32px rgba(0,0,0,0.35)',
     checkRadius: '50%', font: 'normal'
   },
   luxe: {
@@ -99,9 +92,12 @@ const PREVIEWS = {
     cardRadius: 16, cardBorder: '1px solid rgba(255,255,255,0.3)', cardBorderW: 1, cardShadow: '0 8px 32px rgba(31,38,135,0.37)',
     checkRadius: '50%', font: 'normal'
   },
+  /* 修正：原预览写的是「深紫底 + 荧光粉」，而 tokens.css 里 y2k 实际是
+     「浅紫底 + 柔紫」，两者描述的是完全不同的一套设计，预览等于骗人。
+     这里按 tokens.css 的 --bg/--text/--primary 对齐。 */
   y2k: {
-    bg: '#1a0a2e', card: 'rgba(255,255,255,0.1)', text: '#fff', sub: 'rgba(255,255,255,0.6)', primary: '#ff6ec7',
-    cardRadius: 14, cardBorder: '1px solid rgba(255,110,199,0.3)', cardBorderW: 1, cardShadow: '0 0 16px rgba(255,110,199,0.2)',
+    bg: '#e8e0f5', card: 'rgba(255,255,255,0.5)', text: '#4a3a6b', sub: 'rgba(74,58,107,0.6)', primary: '#b89fd9',
+    cardRadius: 14, cardBorder: '1px solid rgba(184,159,217,0.32)', cardBorderW: 1, cardShadow: '0 8px 24px rgba(180,160,220,0.2)',
     checkRadius: '50%', font: 'normal'
   },
   'ios-minimal': {
@@ -148,7 +144,6 @@ const PREVIEWS = {
 
 function MiniPreview({ themeKey }) {
   const p = PREVIEWS[themeKey] || PREVIEWS.sage;
-  const isDark = ['luxe','glass','y2k','terminal','navy','forest','film'].includes(themeKey);
 
   return (
     <div className="tp-preview" style={{ background: p.bg }}>
@@ -255,7 +250,28 @@ export default function ThemeSheet({ onClose }) {
   const { theme, setTheme } = useApp();
   const [originalTheme] = useState(theme); // 打开面板时记录原始主题
   const [previewTheme, setPreviewTheme] = useState(theme); // 当前预览的主题
+  /* 滚动回调是防抖的、且 effect 不该因预览变化而重建，
+     所以用 ref 读最新值，避免闭包读到旧 state。 */
+  const previewRef = useRef(theme);
+  useEffect(() => {
+    previewRef.current = previewTheme;
+  }, [previewTheme]);
   const [themes, setThemes] = useState(DEFAULT_THEMES); // 主题列表（从后端拉）
+  const [group, setGroup] = useState('all'); // 当前分区：all / classic / dark / light / texture
+
+  /* 20 套主题平铺在横向轮播里太长，底部页码点也失去意义，所以按 group 分区。
+     group 由后端 themes 表提供，'auto'（跟随系统）不归属任何分区，只在「全部」里出现。 */
+  const shown = useMemo(
+    () => (group === 'all' ? themes : themes.filter((t) => (t.group || 'classic') === group)),
+    [themes, group]
+  );
+  const GROUPS = [
+    { key: 'all', name: '全部' },
+    { key: 'classic', name: '经典' },
+    { key: 'dark', name: '深色' },
+    { key: 'light', name: '浅色' },
+    { key: 'texture', name: '质感' }
+  ];
 
   // 从后端加载主题列表
   useEffect(() => {
@@ -273,18 +289,16 @@ export default function ThemeSheet({ onClose }) {
   // 滑动停止后，自动预览中间的卡片
   useEffect(() => {
     const track = document.querySelector('.tp-track');
-    if (!track) return;
+    if (!track || !shown.length) return;
 
-    // 打开时滚动到当前主题的位置
-    const currentIdx = themes.findIndex(t => t.key === theme);
-    if (currentIdx >= 0) {
-      requestAnimationFrame(() => {
-        const cards = track.querySelectorAll('.tp-card-item');
-        if (cards[currentIdx]) {
-          cards[currentIdx].scrollIntoView({ inline: 'center', block: 'nearest' });
-        }
-      });
-    }
+    /* 滚到当前预览主题所在的卡片；切分区后若当前主题不在该分区内，
+       就滚到该分区第一张（滚动的副作用会顺带预览它，取消可还原）。 */
+    const idx = shown.findIndex((t) => t.key === previewRef.current);
+    const target = idx >= 0 ? idx : 0;
+    requestAnimationFrame(() => {
+      const cards = track.querySelectorAll('.tp-card-item');
+      if (cards[target]) cards[target].scrollIntoView({ inline: 'center', block: 'nearest' });
+    });
 
     let timer;
     const onScroll = () => {
@@ -299,10 +313,10 @@ export default function ThemeSheet({ onClose }) {
           const dist = Math.abs(cardCenter - trackCenter);
           if (dist < minDist) { minDist = dist; closest = i; }
         });
-        const key = themes[closest].key;
-        if (key !== previewTheme) {
-          setPreviewTheme(key);
-          setTheme(key);
+        const t = shown[closest];
+        if (t && t.key !== previewRef.current) {
+          setPreviewTheme(t.key);
+          setTheme(t.key);
         }
       }, 80);
     };
@@ -311,7 +325,7 @@ export default function ThemeSheet({ onClose }) {
       track.removeEventListener('scroll', onScroll);
       clearTimeout(timer);
     };
-  }, []);
+  }, [shown, setTheme]);
 
   // 点卡片：直接滚动到该卡片
   const handleCardClick = (i) => {
@@ -342,9 +356,22 @@ export default function ThemeSheet({ onClose }) {
         </div>
 
         {/* 横向滑动卡片 */}
+        {/* 分区切换 */}
+        <div className="tp-groups">
+          {GROUPS.map((g) => (
+            <button
+              key={g.key}
+              className={'tp-group' + (group === g.key ? ' on' : '')}
+              onClick={() => setGroup(g.key)}
+            >
+              {g.name}
+            </button>
+          ))}
+        </div>
+
         <div className="tp-track-wrap">
           <div className="tp-track">
-            {themes.map((t, i) => (
+            {shown.map((t, i) => (
               <div
                 key={t.key}
                 className={'tp-card-item' + (previewTheme === t.key ? ' active' : '')}
@@ -361,7 +388,7 @@ export default function ThemeSheet({ onClose }) {
 
         {/* 底部页码点 */}
         <div className="tp-dots">
-          {themes.map((t, i) => (
+          {shown.map((t, i) => (
             <div key={t.key} className={'tp-dot' + (previewTheme === t.key ? ' on' : '')} />
           ))}
         </div>
