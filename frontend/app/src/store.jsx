@@ -17,7 +17,6 @@ export function useApp() {
   return useContext(Ctx);
 }
 
-const THEME_KEY = 'timely_theme';
 const USER_KEY = 'yucheng_user';
 
 /** profile按用户隔离：key里带userId */
@@ -77,19 +76,12 @@ export function AppProvider({ children }) {
 
   /**
    * 主题：一个 data-theme 属性切换整套色板。
-   * theme='auto' 时跟随系统深浅色（浅色→sage，深色→midnight），系统切换会实时响应。
    * 顺带生成日期/时间输入框的图标（原型 applyTheme 的做法）。
    */
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-
     const apply = () => {
       // 没登录时默认用iOS黑白极简风
-      const real = !user
-        ? 'ios-minimal'
-        : theme === 'auto'
-          ? (mq.matches ? 'midnight' : 'sage')
-          : theme;
+      const real = user ? theme : 'ios-minimal';
       document.documentElement.dataset.theme = real;
 
       const primary =
@@ -112,8 +104,6 @@ export function AppProvider({ children }) {
     };
 
     apply();
-    mq.addEventListener('change', apply);
-    return () => mq.removeEventListener('change', apply);
   }, [theme, user]);
 
   /* 手账主题要「手写体」：按需加载霞鹜文楷 Lite（按 unicode-range 分片，只下载用到的字）；

@@ -41,12 +41,6 @@ const PREVIEWS = {
     cardRadius: 14, cardBorder: '1px solid rgba(255,255,255,0.06)', cardBorderW: 1, cardShadow: '0 4px 16px rgba(0,0,0,0.5)',
     checkRadius: '50%', font: 'normal'
   },
-  auto: {
-    bg: 'linear-gradient(180deg,#f5f1ec 0%,#f5f1ec 55%,#0f172a 55%,#0f172a 100%)',
-    card: '#fff', text: '#2d3a33', sub: '#8a9a92', primary: '#6b8e7b',
-    cardRadius: 12, cardBorder: 'none', cardBorderW: 0, cardShadow: '0 2px 8px rgba(0,0,0,0.08)',
-    checkRadius: '50%', font: 'normal'
-  },
   sage: {
     bg: '#f5f1ec', card: '#fff', text: '#2d3a33', sub: '#8a9a92', primary: '#6b8e7b',
     cardRadius: 14, cardBorder: 'none', cardBorderW: 0, cardShadow: '0 2px 10px rgba(0,0,0,0.06)',
@@ -257,7 +251,7 @@ export default function ThemeSheet({ onClose }) {
   const [group, setGroup] = useState('all'); // 当前分区：all / classic / dark / light / texture
 
   /* 20 套主题平铺在横向轮播里太长，底部页码点也失去意义，所以按 group 分区。
-     group 由后端 themes 表提供，'auto'（跟随系统）不归属任何分区，只在「全部」里出现。 */
+     group 由后端 themes 表提供。 */
   const shown = useMemo(
     () => (group === 'all' ? themes : themes.filter((t) => (t.group || 'classic') === group)),
     [themes, group]
@@ -276,8 +270,7 @@ export default function ThemeSheet({ onClose }) {
       .then(r => r.json())
       .then(d => {
         if (d.themes && d.themes.length) {
-          // 加上"跟随系统"放最前面
-          setThemes([{ key: 'auto', name: '跟随系统', group: 'auto' }, ...d.themes]);
+          setThemes(d.themes);
         }
       })
       .catch(() => {});
