@@ -27,10 +27,13 @@ function BrandHero() {
     <div className="ob-demo ob-brand">
       <div className="ob-glow" />
       <div className="ob-hero">
+        {/* 涟漪放进图标容器里才居中对齐（原来挂在外面，位置跟着静态流走，
+            垂直方向是偏的） */}
+        <span className="ob-hero-ripple" />
+        <span className="ob-hero-ripple d2" />
+        <span className="ob-hero-ripple d3" />
         <img className="ob-hero-clock" src="/app-icon.webp" alt="语程" draggable={false} />
       </div>
-      <div className="ob-hero-ripple" />
-      <div className="ob-hero-ripple d2" />
     </div>
   );
 }

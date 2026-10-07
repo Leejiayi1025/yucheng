@@ -514,25 +514,46 @@
   to { opacity: 1; transform: scale(1); }
 }
 .ob-hero-clock {
+  /* 要盖在涟漪之上：涟漪是绝对定位的，而绝对定位元素默认压过静态元素，
+     所以图标自己也得是定位元素，靠 DOM 顺序决定层级。 */
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
   object-fit: contain;
+  filter: drop-shadow(0 18px 34px rgba(0, 0, 0, 0.16)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.07));
 }
+/* 声波涟漪：从图标边缘一圈圈向外散开，呼应「说话就能建日程」。
+   不用 2px 实线描边 —— 硬边圆环看着像示意图上的标注，不像水波；
+   改成一圈柔和的径向渐变（中间透明、边缘有色、再淡出）。
+   inset:0 让它跟图标容器同尺寸并居中（原来写成固定的 110px，
+   而图标早就是 150px 了，两者对不上、而且垂直方向也没对齐）。 */
 .ob-hero-ripple {
   position: absolute;
-  width: 110px;
-  height: 110px;
+  /* 比图标容器大一圈，环才有向外扩散的余地 */
+  inset: -30%;
   border-radius: 50%;
-  border: 2px solid var(--primary);
+  /* 必须写 closest-side。
+     radial-gradient(circle, …) 默认是 farthest-corner，100% 对应的是「到对角线
+     的长度」而不是半径 —— 那样 78~86% 的环会落到元素半径之外，被 border-radius
+     裁掉，等于什么都没画（改之前就是这样，死活看不见环）。 */
+  background: radial-gradient(
+    circle closest-side,
+    transparent 76%,
+    color-mix(in srgb, var(--primary) 20%, transparent) 80%,
+    color-mix(in srgb, var(--primary) 20%, transparent) 83%,
+    transparent 87%
+  );
   opacity: 0;
-  animation: obRipple 2.4s ease-out var(--mo-slow) infinite;
+  pointer-events: none;
+  animation: obRipple 3.2s var(--mo-ease-smooth) var(--mo-slow) infinite;
 }
-.ob-hero-ripple.d2 {
-  animation-delay: 1.8s;
-}
+.ob-hero-ripple.d2 { animation-delay: 1.55s; }
+.ob-hero-ripple.d3 { animation-delay: 2.65s; }
 @keyframes obRipple {
-  0% { transform: scale(1); opacity: 0.5; }
-  100% { transform: scale(1.8); opacity: 0; }
+  0% { transform: scale(0.78); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: scale(1.3); opacity: 0; }
 }
 
 /* ---------- 语音页：麦克风 + 打字机 + 卡片 ---------- */
@@ -3432,7 +3453,8 @@ iframe[src*="netlify"] {
   width: 150px !important;
   height: 150px !important;
   animation: obLogoFloat 3s ease-in-out infinite;
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.18)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
+  /* 投影挪到 .ob-hero-clock 上 —— 留在这里会把里面的涟漪一起投影，
+     涟漪外面再套一层灰影，看起来像一块脏晕而不是水波。 */
 }
 
 @keyframes obLogoFloat {
