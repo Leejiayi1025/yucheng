@@ -3210,33 +3210,47 @@
   color: var(--primary);
   font-weight: 600;
 }
-/* 主题分区切换：20 套主题平铺太长，按 group 收起 */
+/* 主题分区切换：20 套主题平铺太长，按 group 收起。
+   用 iOS 分段控件而不是一排独立胶囊 —— 五个各自带边框底色的块会互相争抢注意力，
+   收成一个整体底槽 + 一个滑动滑块之后，视觉上只有一个物件。 */
 .tp-groups {
+  position: relative;
   display: flex;
-  gap: 8px;
-  padding: 4px 20px 0;
-  overflow-x: auto;
-  scrollbar-width: none;
+  margin: 10px 20px 0;
+  padding: 2px;
+  border-radius: 10px;
+  background: var(--primary-soft);
 }
-.tp-groups::-webkit-scrollbar { display: none; }
+.tp-group-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  bottom: 2px;
+  border-radius: 8px;
+  background: var(--solid);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14), 0 0.5px 1px rgba(0, 0, 0, 0.08);
+  transition: transform var(--mo-normal) var(--mo-ease-sharp);
+  pointer-events: none;
+}
 .tp-group {
-  flex: 0 0 auto;
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: var(--card);
+  position: relative;
+  z-index: 1;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 7px 0;
+  border: 0;
+  background: none;
   color: var(--text2);
   font-size: 13px;
   font-weight: 500;
+  font-family: inherit;
   cursor: pointer;
-  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  transition: color var(--mo-fast) var(--mo-ease-sharp);
 }
 .tp-group.on {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: var(--on-primary);
+  color: var(--text);
+  font-weight: 600;
 }
-.tp-group:active { transform: scale(0.96); }
 
 .tp-track-wrap {
   overflow: hidden;

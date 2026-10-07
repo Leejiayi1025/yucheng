@@ -356,8 +356,15 @@ export default function ThemeSheet({ onClose }) {
         </div>
 
         {/* 横向滑动卡片 */}
-        {/* 分区切换 */}
+        {/* 分区切换：iOS 分段控件 —— 整体一个圆角底槽，选中项是滑动的白色滑块 */}
         <div className="tp-groups">
+          <span
+            className="tp-group-thumb"
+            style={{
+              width: `calc((100% - 4px) / ${GROUPS.length})`,
+              transform: `translateX(${Math.max(0, GROUPS.findIndex((g) => g.key === group)) * 100}%)`
+            }}
+          />
           {GROUPS.map((g) => (
             <button
               key={g.key}
