@@ -6,9 +6,17 @@
  *
  * 渐变 id 是固定的，但这两个页面不会同时渲染（App 里是二选一），不会撞。
  */
-export default function WatchLogo({ className }) {
+/* straps=false 时去掉表带，并把画布裁到表壳本身 —— 作为 APP 图标用。
+   裁切范围按表壳（x 18~102）加右侧表冠（到 107）算，四边各留一点余量：
+   x 15~110、y 17~133。 */
+export default function WatchLogo({ className, straps = true }) {
   return (
-    <svg viewBox="0 0 120 150" className={className} role="img" aria-label="语程">
+    <svg
+      viewBox={straps ? '0 0 120 150' : '15 17 95 116'}
+      className={className}
+      role="img"
+      aria-label="语程"
+    >
       <defs>
         {/* 外壳：金属质感靠三段渐变做出「左上受光、右下背光」 */}
         <linearGradient id="obw-case" x1="0" y1="0" x2="1" y2="1">
@@ -47,18 +55,25 @@ export default function WatchLogo({ className }) {
         </clipPath>
       </defs>
 
-      {/* 落地投影：让表「站」在平面上，而不是飘着 —— 立体感的一半来自这里 */}
-      <ellipse cx="60" cy="146" rx="36" ry="5" fill="url(#obw-shadow)" />
+      {/* 表带与落地投影只在带表带的版本里画。
+          作为 APP 图标时不要表带 —— 图标就是表本身，
+          加两条带子会显得是「一块手表」而不是一个图标。 */}
+      {straps && (
+        <>
+          {/* 落地投影：让表「站」在平面上，而不是飘着 —— 立体感的一半来自这里 */}
+          <ellipse cx="60" cy="146" rx="36" ry="5" fill="url(#obw-shadow)" />
 
-      {/* 表带 + 缝线 */}
-      <rect x="45" y="0" width="30" height="24" rx="6" fill="url(#obw-strap)" />
-      <rect x="45" y="126" width="30" height="24" rx="6" fill="url(#obw-strap)" />
-      {[6, 18, 132, 144].map((y, i) => (
-        <g key={y}>
-          <line x1="50" y1={y} x2="50" y2={y + 6} stroke="#8d97a6" strokeWidth="0.8" strokeDasharray="1.6 2" opacity={i < 2 ? 0.45 : 0.35} />
-          <line x1="70" y1={y} x2="70" y2={y + 6} stroke="#8d97a6" strokeWidth="0.8" strokeDasharray="1.6 2" opacity={i < 2 ? 0.45 : 0.35} />
-        </g>
-      ))}
+          {/* 表带 + 缝线 */}
+          <rect x="45" y="0" width="30" height="24" rx="6" fill="url(#obw-strap)" />
+          <rect x="45" y="126" width="30" height="24" rx="6" fill="url(#obw-strap)" />
+          {[6, 18, 132, 144].map((y, i) => (
+            <g key={y}>
+              <line x1="50" y1={y} x2="50" y2={y + 6} stroke="#8d97a6" strokeWidth="0.8" strokeDasharray="1.6 2" opacity={i < 2 ? 0.45 : 0.35} />
+              <line x1="70" y1={y} x2="70" y2={y + 6} stroke="#8d97a6" strokeWidth="0.8" strokeDasharray="1.6 2" opacity={i < 2 ? 0.45 : 0.35} />
+            </g>
+          ))}
+        </>
+      )}
 
       {/* 表冠 + 凹槽 */}
       <rect x="101" y="60" width="6" height="18" rx="2.5" fill="url(#obw-crown)" />
