@@ -7,6 +7,9 @@ node_modules/
 后端/.env
 后端/.env.local
 
+# Claude Code 的本机设置：里面记的是本机路径和系统用户名，属于隐私，不提交
+.claude/settings.local.json
+
 # 构建产物
 frontend/dist/
 frontend/app/dist/
