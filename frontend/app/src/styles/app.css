@@ -337,7 +337,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hir
 .day-events{flex:1;display:flex;flex-direction:column;gap:6px;padding-bottom:8px;border-left:2px solid var(--line);padding-left:10px}
 .day-ev{background:var(--card);border-radius:var(--radius);padding:8px 10px;border-left:3px solid var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.04);font-size:13px;font-weight:600}
 .day-ev .dm{font-size:11px;color:var(--text2);font-weight:400;margin-top:1px}
-.month-grid{display:flex;flex-direction:column;gap:6px}
+/* 月视图可左右滑动翻月。
+   touch-action: pan-y 是关键 —— 告诉浏览器纵向滚动照旧归它管，
+   横向手势交给我们，否则拖动时页面会跟着上下跳。
+   松手回弹带过渡，拖动中不加过渡，否则会跟手迟钝。 */
+.month-grid{display:flex;flex-direction:column;gap:6px;touch-action:pan-y;transition:transform .22s cubic-bezier(.22,1,.36,1)}
+.month-grid.dragging{transition:none}
 .mg-head,.mg-row{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .mg-head span{text-align:center;font-size:11px;color:var(--text2);padding:4px 0}
 .mg-cell{height:36px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer}

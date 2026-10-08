@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import Icon from '../components/Icon';
 import TabBar from '../components/TabBar';
 import EditSheet from '../components/EditSheet';
@@ -6,6 +6,7 @@ import PostponeSheet from '../components/PostponeSheet';
 import { useApp } from '../store';
 import { ymd, addDays, parseDS, dateLabel, weekStart, WEEK } from '../lib/date';
 import { catColor } from '../lib/cats';
+import { playPageFlip } from '../lib/sound';
 
 const HEAD = ['一', '二', '三', '四', '五', '六', '日'];
 
@@ -20,7 +21,53 @@ export default function Calendar({ page, onPage }) {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
-  const [monthBack, setMonthBack] = useState(false);
+  /* 翻月：改月份 + 播翻书声（与切换主题同一个音效）。
+     左右滑动和标题两边的箭头都走这一个入口，保证行为一致。 */
+  const shiftMonth = (delta) => {
+    playPageFlip();
+    setMonthDate((d) => new Date(d.getFullYear(), d.getMonth() + delta, 1));
+  };
+
+  /* 月视图左右滑动翻月。拖动时让整个网格跟手平移，松手按位移决定翻页还是弹回。
+     纵向意图为主时直接放弃接管，否则会把页面上下滚动一起吃掉。 */
+  const [dragX, setDragX] = useState(0);
+  const dragRef = useRef(null);
+
+  const onMonthDown = (e) => {
+    dragRef.current = { x: e.clientX, y: e.clientY, dx: 0, active: false };
+    // 捕获指针：手指滑出网格再松开也能收到 pointerup，
+    // 否则要靠 onPointerLeave 兜底，容易在边缘误触发翻月
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* 老浏览器不支持就算了，还有 onPointerCancel 兜底 */
+    }
+  };
+  const onMonthMove = (e) => {
+    const d = dragRef.current;
+    if (!d) return;
+    const dx = e.clientX - d.x;
+    const dy = e.clientY - d.y;
+    if (!d.active) {
+      if (Math.abs(dx) < 8) return;
+      if (Math.abs(dy) > Math.abs(dx)) {
+        dragRef.current = null; // 用户在上下滑，交还给页面滚动
+        return;
+      }
+      d.active = true;
+    }
+    d.dx = dx;
+    setDragX(dx);
+  };
+  const onMonthUp = () => {
+    const d = dragRef.current;
+    dragRef.current = null;
+    setDragX(0);
+    if (!d || !d.active) return;
+    // 位移从 ref 读，不读 state —— state 可能还停在上一帧
+    if (d.dx <= -60) shiftMonth(1);
+    else if (d.dx >= 60) shiftMonth(-1);
+  };
   const [sheet, setSheet] = useState(null);
   const [editing, setEditing] = useState(null);
 
@@ -298,21 +345,22 @@ export default function Calendar({ page, onPage }) {
           <div className="cal-pane active">
             {nav(
               my + '年 ' + (mm + 1) + '月',
-              () => {
-                setMonthDate(new Date(my, mm - 1, 1));
-                setMonthBack(true);
-              },
-              () => {
-                setMonthDate(new Date(my, mm + 1, 1));
-                setMonthBack(true);
-              }
+              () => shiftMonth(-1),
+              () => shiftMonth(1)
             )}
             {(my !== new Date().getFullYear() || mm !== new Date().getMonth()) && (
               <div className="month-back">
                 <span className="back-today" onClick={() => setMonthDate(new Date(new Date().getFullYear(), new Date().getMonth(), 1))}>{'回到本月'}</span>
               </div>
             )}
-            <div className="month-grid">
+            <div
+              className={'month-grid' + (dragX ? ' dragging' : '')}
+              style={dragX ? { transform: 'translateX(' + dragX + 'px)' } : undefined}
+              onPointerDown={onMonthDown}
+              onPointerMove={onMonthMove}
+              onPointerUp={onMonthUp}
+              onPointerCancel={onMonthUp}
+            >
               <div className="mg-head">
                 {HEAD.map((w) => (
                   <span key={w}>{w}</span>
