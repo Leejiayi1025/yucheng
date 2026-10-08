@@ -5,6 +5,8 @@
 // 前端只能通过本后端 /api/voice/parse 间接用到大模型。
 require('dotenv').config();
 
+const { cnNow, cnYmd, cnHM } = require('./timecn');
+
 const BASE = (process.env.DEEPSEEK_API_URL || 'https://api.deepseek.com').replace(/\/+$/, '');
 const ENDPOINT = BASE + '/chat/completions';
 const API_KEY = process.env.DEEPSEEK_API_KEY || '';
@@ -35,6 +37,38 @@ function hhmm(v) {
   return pad(h) + ':' + pad(mi);
 }
 
+/* title / note 的润色规范。
+ *
+ * 提示词有两套（纯新建 systemPrompt、意图解析 parseVoiceAction），
+ * 如果各写各的，改了一处必然漏另一处 —— 所以抽成一份共用。
+ *
+ * 要解决的是：模型倾向把用户口述**整句照搬**成任务名，
+ * 于是卡片上出现「我明天上午得去跟产品经理开个会讨论一下下个季度的排期」这种长句。
+ * 规范里用「对照」而不是抽象描述，是因为模型对例子的服从度远高于对形容词的。
+ */
+const TITLE_RULES = [
+  '  title : string，**润色后的任务名**，不是用户口述原文。规则：',
+  '          ① 固定写成「动词 + 对象」或「动词 + 修饰 + 对象」，一般 2~10 个字；',
+  '          ② 不带人称、时间、地点、情绪、原因、语气词（时间归 date/start，地点归 place）；',
+  '          ③ 结尾不带标点，不出现「我要 / 帮我 / 记得 / 一下 / 那个」这类词；',
+  '          ④ 口述里的背景说明、清单、注意事项**不进 title**，归到 note；',
+  '          ⑤ 也别缩成看不出对象的空泛词：有对象的要写上（「开会」→「跟产品经理开会」）；',
+  '          ⑥ 就算用户说了一整句，也要提炼成短句，禁止整句照搬。',
+  '          对照（口语原文 → title，其余信息的分流）：',
+  '            「我明天上午得去跟产品经理开个会讨论下个季度的排期」→「跟产品经理讨论排期」',
+  '            「提醒我晚上八点去健身房锻炼一个半小时」→「健身」（end 由「一个半小时」推算）',
+  '            「下午把数学作业和英语作业都写完」→「写作业」，note「数学和英语作业」',
+  '            「明天下午三点和小王他们去环球中心看新上映的电影」→「看电影」，place「环球中心」',
+  '            「你记得带上简历和作品集啊，九点半面试」→「面试」，note「带上简历和作品集」'
+];
+
+const NOTE_RULES = [
+  '  note  : string，口述里除了「做什么」之外的**补充信息**，没有给 ""。收录：',
+  '          ① 要带的东西（「带简历和作品集」）② 清单明细（「数学和英语作业」）',
+  '          ③ 对象或范围补充（「跟小王他们」「讨论下季度排期」）④ 注意事项（「别迟到」）',
+  '          写成短语，不要整句照搬，一般不超过 30 字。'
+];
+
 function systemPrompt(baseDate, weekday, nowHM, nowHour) {
   /* 样例里用真实日期，保证模型看到的示例与本次上下文一致 */
   const dAdd = (n) => {
@@ -59,10 +93,7 @@ function systemPrompt(baseDate, weekday, nowHM, nowHour) {
     '你要把它拆成一条条任务，并清洗掉口语噪声。',
     '',
     '【输出】只输出一个 JSON 对象，形如 {"tasks":[...]}，不要 markdown、不要解释。每个任务字段：',
-    '  title : string，任务名称。**必须是「关键动作 + 关键对象」的完整表达，不能简写成单个词**；',
-    '          例如「学习 PM 理论知识」就要写「学习PM理论知识」，不要只写「学习」；',
-    '          「跟产品经理开会讨论排期」不要只写「开会」。',
-    '          **不要把地点写进 title**（地点单独放 place）',
+    ...TITLE_RULES,
     '  date  : string，YYYY-MM-DD；没提日期用基准日期',
     '  start : string，HH:MM 24 小时制；没提具体时间给空串 ""',
     '  end   : string，HH:MM；用户明确说了结束时间或时长才推算；没说结束时间就给空串 ""，绝对不要自动加1小时',
@@ -75,7 +106,7 @@ function systemPrompt(baseDate, weekday, nowHM, nowHour) {
     '          「每周一三五」→ [1,3,5]；「每周三」→ [3]；「每周末」→ [0,6]；「每月X号」暂按 null',
     '          ⚠️ **重复任务只能输出一条**，用 repeatDays 表达，**绝对禁止**把「每天」展开成 7 条、把「每周一三五」展开成 3 条！',
     '             date 用**最近一次**的日期（今天该时刻已过 → 用下一次的那天）。',
-    '  note  : string，用户额外说明/清单（如「带上简历和作品集」「数学和英语作业」），没有给 ""',
+    ...NOTE_RULES,
     '  type  : string，"event" 表示有具体时间的安排，"todo" 表示没有具体时间的待办',
     '',
     '【时间推断 · 重要】现在是 ' + baseDate + ' ' + nowHM + '（当前小时 ' + nowHour + ' 点）。',
@@ -368,7 +399,7 @@ function actionPrompt(baseDate, weekday, nowHM, count) {
     '· desc 是一句简短的中文说明，给用户确认用（如「改到明天下午四点」「标题改为买沐浴露」）。',
     '',
     '【create 任务的字段】',
-    '  title : 关键动作 + 关键对象的完整表达，不许简写；地点不写进 title',
+    ...TITLE_RULES,
     '  date  : YYYY-MM-DD；没提日期用今天',
     '  start : HH:MM；没提具体时间给 ""',
     '  end   : HH:MM；用户明确说了结束时间或时长才推算；没说结束时间就给 ""，绝对不要自动加1小时',
@@ -377,7 +408,7 @@ function actionPrompt(baseDate, weekday, nowHM, count) {
     '  remind: 提前分钟数；没提给 -1；「准时提醒」给 0；说了「提醒我 / 提醒一下」但没说提前多久也给 0',
     '  repeatDays : [0..6]（0=周日）；不重复给 null。「每天」=[0,1,2,3,4,5,6]，「工作日」=[1,2,3,4,5]；',
     '               ⚠️ 重复任务只输出一条，禁止按天展开；date 用**最近一次**的那天（今天该时刻还没到就用今天）',
-    '  note  : 额外说明；没有给 ""',
+    ...NOTE_RULES,
     '  type  : "event"（有具体时间）/ "todo"（没有具体时间）',
     '',
     '【时间推断】⚠️ 用户说「现在、此刻、马上」开始，start必须直接等于当前给出的' + nowHM + '，不能改成其他时间；',
@@ -435,14 +466,22 @@ function extractJSON(s) {
 
 /** 去掉残留的语气词与重复字符，兜底清洗（防止模型漏删） */
 const NOISE = /^(嗯|呃|啊|哦|唉|那个|这个|就是说|然后|还有|接着|顺便|对了|另外|反正|大概|差不多|我要|我想|我打算|帮我|给我|记得|别忘了|提醒我|安排一下|搞一下|弄一下)+/;
+/* 单独的人称代词：NOISE 只覆盖「我要 / 我想 / 帮我」这类，不含裸的人称。
+   模型偶尔会把「我」留在任务名开头。后面跟「的」时不动 ——
+   「我们的小组会议」里的「我们的」是定语，不是多余的称代。 */
+const LEAD_PERSON = /^(我们|咱们|你们|他们|她们|大家|我|你|咱|他|她)(?!的)/;
+/* 结尾语气助词：「买牛奶吧」「早点睡啊」 */
+const TAIL_TONE = /[吧啊呀嘛哦呢啦咯嘞]+$/;
+
 function cleanTitle(s) {
   let t = String(s || '').trim();
   t = t.replace(/[，,。.、；;！!？?…\s]+$/g, '');
   let prev;
   do {
     prev = t;
-    t = t.replace(NOISE, '').trim();
+    t = t.replace(NOISE, '').replace(LEAD_PERSON, '').trim();
   } while (t !== prev && t);
+  t = t.replace(TAIL_TONE, '');
   t = t.replace(/(.)\1{2,}/g, '$1$1'); // 连续重复 3 次以上压成 2 次（保留「哈哈」这类正常叠词）
   return t.trim();
 }
@@ -587,10 +626,10 @@ async function parseVoiceAction(text, baseDate, existing) {
   const src = String(text || '').trim();
   if (!src) return null;
 
-  const now = new Date();
-  const bd = /^\d{4}-\d{2}-\d{2}$/.test(String(baseDate || '')) ? baseDate : ymd(now);
+  const now = cnNow();
+  const bd = /^\d{4}-\d{2}-\d{2}$/.test(String(baseDate || '')) ? baseDate : cnYmd(now);
   const wd = '日一二三四五六'[new Date(bd + 'T00:00:00').getDay()];
-  const nowHM = pad(now.getHours()) + ':' + pad(now.getMinutes());
+  const nowHM = cnHM(now);
 
   const list = (existing || []).slice(0, 60);
   const ctx = list.length
@@ -773,10 +812,10 @@ async function parseTasksWithDeepSeek(text, baseDate) {
   const src = String(text || '').trim();
   if (!src) return null;
 
-  const now = new Date();
-  const bd = /^\d{4}-\d{2}-\d{2}$/.test(String(baseDate || '')) ? baseDate : ymd(now);
-  const nowHM = pad(now.getHours()) + ':' + pad(now.getMinutes());
-  const nowHour = now.getHours();
+  const now = cnNow();
+  const bd = /^\d{4}-\d{2}-\d{2}$/.test(String(baseDate || '')) ? baseDate : cnYmd(now);
+  const nowHM = cnHM(now);
+  const nowHour = now.getUTCHours();
   const wd = '日一二三四五六'[new Date(bd + 'T00:00:00').getDay()];
 
   for (let i = 1; i <= 2; i++) {

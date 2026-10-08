@@ -10,7 +10,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hir
    所以它们画的是同一张图的同一段，滚动时头部与内容之间不会露出接缝。 */
 .app,.today-sticky,.cal-head{background-color:var(--bg);background-image:var(--bg-art);background-size:var(--bg-size);background-repeat:var(--bg-repeat);background-position:var(--bg-pos)}
 .screen{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);position:relative}
-.content{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0 20px calc(160px + env(safe-area-inset-bottom));scrollbar-width:none}
+.content{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0 20px calc(120px + env(safe-area-inset-bottom));scrollbar-width:none}
 .content::-webkit-scrollbar{display:none}
 
 
@@ -39,26 +39,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hir
 .today-sticky{position:sticky;top:0;z-index:80;margin:0 -20px;padding:0 20px}
 .today-sticky .topbar{padding:0;height:36px;align-items:flex-start;padding-top:4px}
 .today-sticky .date-header{display:flex;align-items:center;justify-content:space-between;margin-top:0;margin-bottom:10px}
-.today-sticky .date-header h2{font-size:28px;font-weight:700;letter-spacing:-.5px;line-height:1.1;margin:0}
-.today-sticky .date-header .sub{font-size:13px;color:var(--text2);margin-top:0}
+.today-sticky .date-header h2{font-size:24px;font-weight:700;letter-spacing:-.4px;line-height:1.1;margin:0}
+.today-sticky .date-header .sub{font-size:12px;color:var(--text2);margin-top:0}
 .today-sticky .date-header .settings{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--card);box-shadow:var(--shadow)}
 .today-sticky .date-header .settings svg{width:18px;height:18px;color:var(--text2)}
 .today-sticky .strip{display:flex;justify-content:space-between;margin-bottom:14px}
 .today-sticky .strip-day{padding:6px 0;width:38px;gap:4px}
 .today-sticky .strip-day .w{font-size:10px}
 .today-sticky .strip-day .d{width:30px;height:30px;font-size:13px}
-.strip-day{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 0;width:40px;border-radius:16px;cursor:pointer}
+.strip-day{display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 0;width:40px;border-radius:16px;cursor:pointer}
 .strip-day .w{font-size:11px;color:var(--text2)}
-.strip-day .d{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:14px;font-weight:600}
+.strip-day .d{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:600}
 .strip-day.active{background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.06)}
 .strip-day.active .d{background:var(--text);color:#fff}
-.sec-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:15px;font-weight:600}
+.sec-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;font-size:14px;font-weight:600}
 .sec-title .count{font-size:13px;color:var(--text2);font-weight:500;background:var(--solid);padding:2px 8px;border-radius:20px}
 /* 分区标题右侧的「手动添加」按钮 */
 .st-left{display:flex;align-items:center;gap:8px;min-width:0}
 .st-add{width:28px;height:28px;flex-shrink:0;border-radius:50%;background:var(--card);color:var(--primary);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:transform .12s}
 .st-add:active{transform:scale(.9)}
 .st-add svg{width:16px;height:16px}
+/* 分组标题可点击折叠：左半边整块都是点击区（手机上比只点文字好按） */
+.st-toggle{cursor:pointer;padding:5px 8px 5px 0;margin:-5px 0;border-radius:8px;-webkit-tap-highlight-color:transparent}
+.st-toggle:active{opacity:.55}
+.st-caret{display:flex;align-items:center;justify-content:center;color:var(--text2);transform:rotate(0deg);transition:transform .18s ease}
+.st-caret.open{transform:rotate(90deg)}
+.st-caret svg{width:14px;height:14px}
 /* 手动新建弹层：开始/结束并排 */
 .f-row2{display:flex;gap:10px}
 .f-row2>.edit-field{flex:1;min-width:0}
@@ -152,14 +158,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hir
 .rm-s{font-size:11px;font-weight:600;color:var(--text2);background:var(--line);border-radius:20px;padding:4px 9px;flex-shrink:0}
 .rm-s.on{background:var(--primary);color:#fff}
 .rm-note{font-size:12px;color:var(--text2);text-align:center;line-height:1.7;margin-top:4px}
-.event-card{background:var(--card);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.04);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.5);display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .1s}
+.event-card{background:var(--card);border-radius:var(--radius);padding:10px 14px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.04);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.5);display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .1s}
 .event-card:active{transform:scale(.99)}
 .event-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .event-info{flex:1}
-.event-title{font-size:15px;font-weight:600;margin-bottom:4px}
-.event-meta{font-size:13px;color:var(--text2)}
+.event-title{font-size:14px;font-weight:600;margin-bottom:2px;line-height:1.3}
+.event-meta{font-size:12px;color:var(--text2);line-height:1.3}
 .event-tag{font-size:11px;padding:3px 8px;border-radius:20px;color:#fff;background:var(--primary)}
-.todo-item{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.04);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.5);cursor:pointer}
+.todo-item{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:var(--radius);padding:10px 14px;margin-bottom:10px;box-shadow:0 2px 10px rgba(0,0,0,.04);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.5);cursor:pointer}
 .todo-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--text2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .todo-check svg{width:12px;height:12px;color:#fff;opacity:0}
 .todo-item.done .todo-check{background:var(--primary);border-color:var(--primary)}
@@ -174,12 +180,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hir
 .cal-tabs button.active{background:#fff;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .cal-range{text-align:center;font-size:14px;color:var(--text2);margin-bottom:16px}
 .week-list{display:flex;flex-direction:column;gap:18px}
-.week-day{display:flex;gap:12px}
+.week-day{display:flex;gap:10px}
 .week-label{width:34px;text-align:center}
 .week-label .wd{font-size:12px;color:var(--text2)}
 .week-label .dd{font-size:16px;font-weight:600;margin-top:2px}
 .week-events{flex:1;display:flex;flex-direction:column;gap:8px}
-.week-event{background:var(--card);border-radius:var(--radius);padding:12px 14px;border-left:4px solid var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.week-event{background:var(--card);border-radius:var(--radius);padding:9px 12px;border-left:3px solid var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .week-event .t{font-size:14px;font-weight:600;margin-bottom:2px}
 .week-event .m{font-size:12px;color:var(--text2)}
 
@@ -326,11 +332,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hir
 .cal-pane{display:none}
 .cal-pane.active{display:block}
 .day-axis{display:flex;flex-direction:column}
-.day-row{display:flex;gap:12px;min-height:60px}
-.day-time{width:44px;text-align:right;font-size:12px;color:var(--text2);padding-top:2px;flex-shrink:0}
-.day-events{flex:1;display:flex;flex-direction:column;gap:8px;padding-bottom:10px;border-left:2px solid var(--line);padding-left:12px}
-.day-ev{background:var(--card);border-radius:var(--radius);padding:10px 12px;border-left:4px solid var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.04);font-size:14px;font-weight:600}
-.day-ev .dm{font-size:12px;color:var(--text2);font-weight:400;margin-top:2px}
+.day-row{display:flex;gap:10px;min-height:46px}
+.day-time{width:40px;text-align:right;font-size:11px;color:var(--text2);padding-top:2px;flex-shrink:0}
+.day-events{flex:1;display:flex;flex-direction:column;gap:6px;padding-bottom:8px;border-left:2px solid var(--line);padding-left:10px}
+.day-ev{background:var(--card);border-radius:var(--radius);padding:8px 10px;border-left:3px solid var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.04);font-size:13px;font-weight:600}
+.day-ev .dm{font-size:11px;color:var(--text2);font-weight:400;margin-top:1px}
 .month-grid{display:flex;flex-direction:column;gap:6px}
 .mg-head,.mg-row{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .mg-head span{text-align:center;font-size:11px;color:var(--text2);padding:4px 0}
@@ -419,7 +425,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hir
 .event-card{margin-bottom:0;cursor:pointer}
 .todo-item{margin-bottom:0}
 .event-card:active,.todo-item:active{transform:none}
-.swipe-wrap{position:relative;margin-bottom:10px;border-radius:var(--radius);overflow:hidden}
+.swipe-wrap{position:relative;margin-bottom:8px;border-radius:var(--radius);overflow:hidden}
 /* 滑动删除：卡片直接滑走，背后不露任何面板/底色 */
 .event-card,.todo-item{will-change:transform;touch-action:pan-y}
 

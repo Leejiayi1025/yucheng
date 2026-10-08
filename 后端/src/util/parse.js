@@ -1,7 +1,9 @@
 // 本地启发式解析（后端兜底）：语音/自然语言 → 任务清单（支持一句话多任务）
 // 正式解析由 DeepSeek 完成，只有在模型不可用时才走这里。
+// 所有时间/日期均按北京时间（UTC+8）计算，见 util/timecn.js，不依赖容器时区。
+const { cnNow, cnYmd } = require('./timecn');
+
 function pad(n) { return String(n).padStart(2, '0'); }
-function ymd(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
 
 const DOW = { '日': 0, '天': 0, '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6 };
 
@@ -29,6 +31,22 @@ function cnToNum(s) {
   return NaN;
 }
 
+/** 中文数字 → 阿拉伯数字（支持 一~十、十一~十九、二十、两；用于「十一点」「三点半」） */
+function cnToNumFull(s) {
+  if (/^\d+$/.test(s)) return +s;
+  if (s === '两') return 2;
+  const map = { 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9 };
+  if (map[s] !== undefined) return map[s];
+  if (s === '十') return 10;
+  let m = s.match(/^十([一二三四五六七八九])$/);
+  if (m) return 10 + map[m[1]];
+  m = s.match(/^二?十([一二三四五六七八九])?$/);
+  if (m) return 20 + (m[1] ? map[m[1]] : 0);
+  m = s.match(/^两([一二三四五六七八九])$/);
+  if (m) return 2 * 10 + (m[1] ? map[m[1]] : 0);
+  return NaN;
+}
+
 function addMinutes(hms, mins) {
   let [h, m] = hms.split(':').map(Number);
   const total = h * 60 + m + mins;
@@ -52,18 +70,29 @@ function guessCat(title) {
 function parseOne(raw, base) {
   const t = String(raw || '').replace(/\s+/g, '');
   if (!t) return null;
-  const res = { title: '', date: ymd(base), start: '', end: '', place: '', cat: '其他', remind: -1 };
+  // base 契约：真实时刻的普通 Date；转为北京时间 Date（用 getUTC* 读取）
+  const baseCn = cnNow(base instanceof Date ? base.getTime() : undefined);
+  // 真实当前时刻（北京时间），用于「已过时间 → +12」推断
+  const now = cnNow();
+  const res = { title: '', date: cnYmd(baseCn), start: '', end: '', place: '', cat: '其他', remind: -1 };
 
-  if (/大后天/.test(t)) { const d = new Date(base); d.setDate(d.getDate() + 3); res.date = ymd(d); }
-  else if (/后天/.test(t)) { const d = new Date(base); d.setDate(d.getDate() + 2); res.date = ymd(d); }
-  else if (/明天|明日/.test(t)) { const d = new Date(base); d.setDate(d.getDate() + 1); res.date = ymd(d); }
+  /** 基准日偏移 n 天的北京日期 */
+  const shift = (n) => {
+    const d = new Date(baseCn.getTime());
+    d.setUTCDate(d.getUTCDate() + n);
+    return cnYmd(d);
+  };
+
+  if (/大后天/.test(t)) res.date = shift(3);
+  else if (/后天/.test(t)) res.date = shift(2);
+  else if (/明天|明日/.test(t)) res.date = shift(1);
   else if (/周|星期/.test(t)) {
     const m = t.match(/(?:周|星期)([一二三四五六日])/);
     if (m) {
       const target = DOW[m[1]];
-      let diff = (target - base.getDay() + 7) % 7;
+      let diff = (target - baseCn.getUTCDay() + 7) % 7;
       if (diff === 0) diff = 7;
-      const d = new Date(base); d.setDate(d.getDate() + diff); res.date = ymd(d);
+      res.date = shift(diff);
     }
   }
 
@@ -75,12 +104,31 @@ function parseOne(raw, base) {
     res.start = `${pad(h1)}:${pad(range[2] ? +range[2] : 0)}:00`;
     res.end = `${pad(h2)}:${pad(range[4] ? +range[4] : 0)}:00`;
   } else {
+    // 时间提取：先阿拉伯数字，再中文数字（三点半/十一点/八点半）
+    let hm = null; // {h, m}
     const single = t.match(/(\d{1,2})[点:：.](\d{0,2})?/);
     if (single) {
-      let h = +single[1];
-      if (/下午|傍晚|晚上|夜里/.test(t) && h < 12) h += 12;
-      if (/中午/.test(t) && h < 12) h = 12;
-      res.start = `${pad(h)}:${pad(single[2] ? +single[2] : 0)}:00`;
+      hm = { h: +single[1], m: single[2] ? +single[2] : 0 };
+    } else {
+      const cn = t.match(/([一二两三四五六七八九十]+)点(半|[一二三四五六七八九十]+)?/);
+      if (cn) {
+        hm = { h: cnToNumFull(cn[1]), m: cn[2] ? (cn[2] === '半' ? 30 : cnToNumFull(cn[2])) : 0 };
+      }
+    }
+    if (hm) {
+      let h = hm.h;
+      // 时段限定词
+      if (/凌晨|深夜|半夜/.test(t) && h <= 12) { /* 保持原小时（23点睡觉除外，见下） */ }
+      else if (/早上|上午/.test(t)) { /* 原小时 */ }
+      else if (/中午/.test(t) && h < 12) h = 12;
+      else if (/下午|傍晚|晚上|夜里|今晚/.test(t) && h < 12) h += 12;
+      else if (/睡觉|睡|起床|入睡|就寝/.test(t) && h <= 11 && h <= now.getUTCHours() - 3) h += 12; // 「十一点睡觉」深夜→23点
+      else if (!/凌晨|深夜|半夜|早上|上午|中午|下午|傍晚|晚上|夜里|今晚/.test(t)) {
+        // 无时段限定：数字+动作，按"已明显过去→加12"规则推断
+        if (h <= now.getUTCHours() - 3) h += 12;
+      }
+      if (h > 23) h -= 24; // 如「凌晨」语境但加了 12（24 点 → 0 点）
+      res.start = `${pad(h)}:${pad(hm.m)}:00`;
       // 只有开始时间，结束时间留空
       res.end = '';
     }
@@ -145,7 +193,7 @@ function splitSegments(text) {
 function parseVoice(text, base = new Date()) {
   const one = parseOne(text, base);
   if (one) return one;
-  return { title: '新任务', date: ymd(base), start: '', end: '', place: '', cat: '其他', remind: -1 };
+  return { title: '新任务', date: cnYmd(cnNow(base instanceof Date ? base.getTime() : undefined)), start: '', end: '', place: '', cat: '其他', remind: -1 };
 }
 
 /** 多任务解析：一句话拆成多条 */

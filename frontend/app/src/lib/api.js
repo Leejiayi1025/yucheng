@@ -280,6 +280,36 @@ export async function removeCategory(name) {
   }
 }
 
+/* ---------- 实时语音识别（AssemblyAI）：只拿后端签发的一次性临时令牌 ---------- */
+/**
+ * @returns {{ok:boolean, status:number, info?:object, msg?:string}}
+ *   成功 info = { token, endpoint, model, languageCodes, expiresInSeconds }
+ *   失败 status 为 HTTP 状态码（0 = 网络不通）
+ */
+export async function getAsrToken() {
+  let r;
+  try {
+    r = await fetch(API_BASE + '/voice/asr/token', {
+      headers: getToken() ? { Authorization: 'Bearer ' + getToken() } : {}
+    });
+  } catch {
+    return { ok: false, status: 0, msg: '无法连接语音服务' };
+  }
+  if (r.status === 401) {
+    setToken('');
+    try {
+      localStorage.removeItem('yucheng_user');
+    } catch {
+      /* ignore */
+    }
+    window.dispatchEvent(new CustomEvent('yc:unauthorized'));
+    return { ok: false, status: 401, msg: '登录已过期' };
+  }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) return { ok: false, status: r.status, msg: j.error || '语音服务暂不可用' };
+  return { ok: true, status: 200, info: j };
+}
+
 /* ---------- 语音解析（后端 -> DeepSeek）：一段口语 → 新建 / 修改 / 删除 ---------- */
 /**
  * @returns {{intent:'create'|'update'|'delete', tasks:Array, changes:Array, source:string}}

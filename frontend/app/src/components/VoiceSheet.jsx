@@ -3,7 +3,8 @@ import Icon from './Icon';
 import EditSheet from './EditSheet';
 import { parseTasks } from '../lib/api';
 import { parseLocalMulti } from '../lib/parse';
-import * as asr from '../lib/asr';
+import * as webasr from '../lib/asr'; // 一级降级：浏览器自带 Web Speech
+import * as aai from '../lib/aai'; // 主路径：AssemblyAI 云端实时识别
 import { catColor } from '../lib/cats';
 import { dateLabel, repeatText, remindText, ymd, pad } from '../lib/date';
 import { useApp } from '../store';
@@ -32,7 +33,7 @@ function normRow(t) {
 export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, onDelete }) {
   const { tasks: storeTasks, toast } = useApp();
   const [text, setText] = useState('');
-  const [stage, setStage] = useState('idle'); // idle | listening | parsing | ready | immersive
+  const [stage, setStage] = useState('idle'); // idle | connecting | listening | parsing | ready | immersive
   const [intent, setIntent] = useState('create'); // create | update | delete
   const [tasks, setTasks] = useState([]); // 新建的草稿
   const [changes, setChanges] = useState([]); // 要修改/删除的已有任务
@@ -40,8 +41,9 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
   const [err, setErr] = useState('');
   /* 正在编辑哪一条（复用统一的编辑弹层） */
   const [editingUid, setEditingUid] = useState(null);
-  /* 环境检测：不支持语音的环境（局域网HTTP/微信webview）点击麦克风时弹出提示 */
-  const [envTip, setEnvTip] = useState('');
+  /* 一级降级提示：云端不可用、已切浏览器识别时，顶部小条 */
+  const [fallbackNote, setFallbackNote] = useState('');
+  /* 二级降级弹窗：云端和浏览器都无法语音时弹出 */
   const [showEnvDialog, setShowEnvDialog] = useState(false);
   const seqRef = useRef(0);
   const timer = useRef(null);
@@ -49,6 +51,18 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
   const taRef = useRef(null);
   const touchStartY = useRef(0);
   const [touchY, setTouchY] = useState(0);
+  /* 当前识别引擎：cloud（AssemblyAI）| browser（Web Speech） */
+  const engineRef = useRef('');
+  /* 会话代际：取消/停止后，迟到的回调一律作废 */
+  const genRef = useRef(0);
+  /* 本次启动是否要进入沉浸式界面 */
+  const wantImmersiveRef = useRef(false);
+  const textRef = useRef('');
+  textRef.current = text;
+  /* 本次录音开始前已经有的文字。识别结果接在它后面 ——
+     用户说完第一条后想再补一条，应该能「接着说」，
+     而不是把之前说的清空重来（只有关掉整个弹窗才清空）。 */
+  const baseTextRef = useRef('');
 
   // 下滑关闭手势
   const onTouchStart = (e) => {
@@ -68,45 +82,11 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
     setTouchY(0);
   };
 
-  /* 检测当前环境是否允许使用语音功能 */
-  useEffect(() => {
-    const isHTTPS = window.location.protocol === 'https:';
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const ua = navigator.userAgent.toLowerCase();
-
-    // 精准识别第三方APP内置webview，避免误判普通浏览器（QQ浏览器、Chrome等）
-    // 微信：micromessenger；支付宝：alipay；钉钉：dingtalk；飞书：lark/feishu
-    // QQ内置webview：包含 v1_and_sq 或 qq/ 版本标识，排除qq浏览器(mqqbrowser)
-    const isThirdPartyWebview =
-      /micromessenger|alipayclient|dingtalk|feishu|lark/i.test(ua) ||
-      (/qq\//i.test(ua) && !/mqqbrowser/i.test(ua));
-
-    // 本地localhost环境永远允许语音，不做任何拦截
-    if (isLocalhost) {
-      setEnvTip('');
-      return;
-    }
-
-    // 不支持语音的场景：HTTP公网/局域网非本地访问 或者 明确的第三方APP内置webview
-    if ((!isHTTPS) || isThirdPartyWebview) {
-      setEnvTip('当前为内测阶段，语音识别功能仅支持浏览器环境使用。您可以手动输入任务，系统会自动识别时间和内容。');
-    } else {
-      setEnvTip('');
-    }
-  }, []);
-
-  /* 点击麦克风按钮时先检测环境 */
-  const handleMicClick = () => {
-    if (envTip) {
-      setShowEnvDialog(true);
-      return;
-    }
-    onMic(true);
-  };
-
   useEffect(
     () => () => {
-      asr.stop();
+      genRef.current++;
+      aai.stop();
+      webasr.stop();
       clearInterval(timer.current);
       clearTimeout(debounce.current);
     },
@@ -115,7 +95,7 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
 
   /* 录音计时（用户手动结束前一直走） */
   useEffect(() => {
-    if (stage !== 'listening') {
+    if (stage !== 'listening' && stage !== 'immersive') {
       clearInterval(timer.current);
       return;
     }
@@ -145,6 +125,17 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
     // 去掉重复的无意义词（如"哈喽哈喽"）
     v = v.replace(/^(哈喽|嗨|嘿|你好|您好)[\s\1]+$/i, '');
     return v.trim();
+  };
+
+  /* 把本次识别结果接到已有文字之后。
+     两段之间按需补一个逗号：用户停顿一下再说第二句时，识别结果未必带标点，
+     不补的话两句会黏成「开会健身」，语义会被切错。 */
+  const mergeTranscript = (t) => {
+    const base = (baseTextRef.current || '').trim();
+    const add = String(t || '').trim();
+    if (!base) return add;
+    if (!add) return base;
+    return /[，。！？、,.!?;；]$/.test(base) ? base + add : base + '，' + add;
   };
 
   const runParse = async (value) => {
@@ -195,46 +186,147 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
     setStage('ready');
   };
 
-  const onMic = (immersive = false) => {
+  /* ============ 录音：三级降级状态机 ============
+     主路径 AssemblyAI → 失败（额度/网络/WS/不支持）降级 Web Speech
+     → 浏览器也不支持则弹窗，引导手动输入。
+     麦克风权限被拒绝时不降级（Web Speech 同样需要麦克风权限）。 */
+
+  /** 切到浏览器识别（一级降级）；返回是否成功 */
+  const switchToBrowser = (gen) => {
+    if (!webasr.supported()) return false;
+    const ok = webasr.start(browserHandlers(gen));
+    if (ok) {
+      engineRef.current = 'browser';
+      setFallbackNote('云端语音暂不可用，已切换浏览器识别');
+    }
+    return ok;
+  };
+
+  const cloudHandlers = (gen) => ({
+    onStart: () => {
+      if (gen !== genRef.current) return;
+      setStage(wantImmersiveRef.current ? 'immersive' : 'listening');
+    },
+    onText: (t) => {
+      if (gen !== genRef.current) return;
+      setText(mergeTranscript(t));
+    },
+    onError: (code) => {
+      if (gen !== genRef.current) return;
+      // 录音途中云端出错：能降级就静默降级（用户继续说），否则落到错误态
+      if (code === 'ws_error' && switchToBrowser(gen)) return;
+      setStage('idle');
+      setErr('云端语音识别出错，请重试');
+    },
+    onEnd: (finalText) => {
+      if (gen !== genRef.current) return;
+      if (finalText) setText(mergeTranscript(finalText));
+      setStage((s) => {
+        if (s !== 'listening' && s !== 'immersive') return s;
+        const v = (finalText || textRef.current).trim();
+        if (!v) {
+          setErr('没有听清，请重试');
+          return 'idle';
+        }
+        return 'parsing';
+      });
+    }
+  });
+
+  const browserHandlers = (gen) => ({
+    onStart: () => {
+      if (gen !== genRef.current) return;
+      setStage(wantImmersiveRef.current ? 'immersive' : 'listening');
+    },
+    onText: (t) => {
+      if (gen !== genRef.current) return;
+      setText(mergeTranscript(t));
+    },
+    onError: (code) => {
+      if (gen !== genRef.current) return;
+      setStage('idle');
+      const map = {
+        'not-allowed': '麦克风权限被拒绝，请允许后重试',
+        'service-not-allowed': '浏览器禁止了语音识别，请检查权限',
+        'audio-capture': '未检测到麦克风',
+        network: '请检查网络'
+      };
+      const msg = map[code];
+      if (msg) setErr(msg);
+      else if (code) setErr('语音识别出错（' + code + '）');
+    },
+    onEnd: () => {
+      if (gen !== genRef.current) return;
+      setStage((s) => {
+        if (s !== 'listening' && s !== 'immersive') return s;
+        if (!textRef.current.trim()) {
+          setErr('没有听清，请重试');
+          return 'idle';
+        }
+        return 'parsing';
+      });
+    }
+  });
+
+  /** 开始录音（点麦克风） */
+  const startListening = (immersive = false) => {
+    // 正在录音 → 结束并解析
     if (stage === 'listening' || stage === 'immersive') {
-      asr.stop(); // 用户手动结束
-      setStage('parsing');
+      stopListening();
       return;
     }
+    const gen = ++genRef.current;
+    wantImmersiveRef.current = immersive;
+    engineRef.current = '';
+    setFallbackNote('');
     setErr('');
-    if (!asr.supported()) {
-      const s = SAMPLES[Math.floor(Math.random() * SAMPLES.length)];
-      setText(s);
-      runParse(s);
-      return;
-    }
-    const ok = asr.start({
-      onStart: () => setStage(immersive ? 'immersive' : 'listening'),
-      onText: (t) => setText(t),
-      onError: (code) => {
+    /* 记住当前已有文字，识别结果接在它后面（见 mergeTranscript）。
+       这里原来写的是 setText('')，所以每按一次麦克风就把上一轮说好的清空 ——
+       用户想补一条只能从头重说。 */
+    baseTextRef.current = textRef.current;
+    setStage('connecting');
+
+    aai
+      .start(cloudHandlers(gen))
+      .then(() => {
+        if (gen === genRef.current) engineRef.current = 'cloud';
+      })
+      .catch((e) => {
+        if (gen !== genRef.current) return;
+        const code = (e && e.code) || 'unknown';
+        // 麦克风类问题：降级无意义，直接提示
+        if (code === 'mic_denied') {
+          setStage('idle');
+          setErr('麦克风权限被拒绝，请允许后重试');
+          return;
+        }
+        if (code === 'no_mic') {
+          setStage('idle');
+          setErr('未检测到麦克风');
+          return;
+        }
+        if (code === 'unauthorized') {
+          setStage('idle');
+          setErr('登录已过期，请重新登录');
+          return;
+        }
+        // token_failed / ws_fail / unsupported_audio / network → 一级降级
+        if (switchToBrowser(gen)) return;
+        // 浏览器也不支持 → 二级降级弹窗
         setStage('idle');
-        const map = {
-          'not-allowed': '麦克风权限被拒绝，请允许后重试',
-          'service-not-allowed': '浏览器禁止了语音识别，请检查权限',
-          'audio-capture': '未检测到麦克风',
-          network: '请检查网络'
-        };
-        const msg = map[code];
-        if (msg) setErr(msg);
-        else if (code) setErr('语音识别出错（' + code + '）');
-      },
-      onEnd: () => {
-        setStage((s) => {
-          if (s !== 'listening') return s;
-          if (!text.trim()) {
-            setErr('没有听清，请重试');
-            return 'idle';
-          }
-          return 'parsing';
-        });
-      }
-    });
-    if (!ok) setErr('无法启动语音识别');
+        setShowEnvDialog(true);
+      });
+  };
+
+  /** 停止录音（按引擎分别停止） */
+  const stopListening = () => {
+    const gen = genRef.current;
+    setStage('parsing');
+    if (engineRef.current === 'cloud') {
+      aai.stop();
+    } else {
+      webasr.stop();
+    }
   };
 
   /* 录音结束后进入解析 */
@@ -253,6 +345,8 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
     setTasks((prev) => prev.map((x) => (x._uid === u ? { ...x, ...obj } : x)));
   const removeBy = (u) => setTasks((prev) => prev.filter((x) => x._uid !== u));
   const pickSample = (s) => {
+    // 示例是整体替换，基准也要跟着换成示例文本，否则下次录音会接到旧文字上
+    baseTextRef.current = s;
     setText(s);
     runParse(s);
   };
@@ -341,7 +435,7 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
       if (intent === 'delete') {
         if (onDelete) await onDelete(ch.id);
       } else if (onUpdate) {
-        await onUpdate(ch.id, ch.patch);
+        await onUpdate(ch.patch);
       }
     }
     toast((intent === 'delete' ? '已删除 ' : '已修改 ') + n + ' 条');
@@ -350,11 +444,12 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
 
   const editing = editingUid ? tasks.find((t) => t._uid === editingUid) : null;
   const listening = stage === 'listening';
+  const connecting = stage === 'connecting';
 
   return (
     <div className="voice-modal show" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      {stage === 'immersive' ? (
-        /* 沉浸式全屏聆听界面 */
+      {stage === 'immersive' || (connecting && wantImmersiveRef.current) ? (
+        /* 沉浸式全屏聆听界面（含连接中状态） */
         <div className="vs-immersive">
           <div className="vs-immersive-bg" />
           <button className="vs-immersive-close" onClick={onClose} aria-label="关闭">
@@ -362,7 +457,7 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
           </button>
           <div className="vs-immersive-status">
             <span className="vs-live-dot" />
-            正在聆听
+            {connecting ? '正在连接语音服务…' : '正在聆听'}
           </div>
           <textarea
             className="vs-immersive-text"
@@ -383,14 +478,17 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
               <Icon name="close" size={18} />
               取消
             </button>
-            <button className="vs-immersive-btn done" onClick={onMic}>
+            <button
+              className="vs-immersive-btn done"
+              onClick={() => (connecting ? onClose() : stopListening())}
+            >
               <Icon name="check" size={18} />
               完成
             </button>
           </div>
         </div>
       ) : (
-      <div 
+      <div
         className="vs-card"
         style={{
           transform: touchY > 0 ? `translateY(${touchY}px)` : 'none',
@@ -410,9 +508,17 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
           </button>
         </div>
 
+        {/* 一级降级提示小条 */}
+        {fallbackNote && <div className="vs-fallback-note">{fallbackNote}</div>}
+
         {/* 内容区 */}
         <div className="vs-body">
-          {stage === 'parsing' ? (
+          {connecting ? (
+            <div className="vs-loading">
+              <span className="vm-spin" />
+              正在连接语音服务…
+            </div>
+          ) : stage === 'parsing' ? (
             <div className="vs-loading">
               <span className="vm-spin" />
               正在解析…
@@ -456,7 +562,7 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
             </>
           ) : (
             <div className="vs-empty">
-              <button className="vs-empty-icon" onClick={handleMicClick} aria-label="开始录音">
+              <button className="vs-empty-icon" onClick={() => startListening(true)} aria-label="开始录音">
                 <Icon name="mic" size={36} />
               </button>
               <div className="vs-empty-title">说出你的安排</div>
@@ -501,7 +607,14 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
           {text && (
             <button
               className="vs-clear"
-              onClick={() => setText('')}
+              onClick={() => {
+                // 手动清空时基准也要归零，否则下次录音会把结果接在已清掉的文字后面
+                baseTextRef.current = '';
+                setText('');
+                setTasks([]);
+                setChanges([]);
+                setStage('idle');
+              }}
               aria-label="清空"
             >
               <Icon name="close" size={16} />
@@ -510,7 +623,7 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
           {stage === 'ready' && (
             <button
               className="vs-mic-small"
-              onClick={handleMicClick}
+              onClick={() => startListening(false)}
               aria-label="语音修改"
               title="语音修改"
             >
@@ -541,39 +654,26 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
         </div>
       )}
 
-      {/* 环境提示弹窗：系统风格 */}
+      {/* 二级降级弹窗：云端和浏览器语音都不可用时，引导手动输入 */}
       {showEnvDialog && (
         <div className="vs-env-overlay" onClick={() => setShowEnvDialog(false)}>
           <div className="vs-env-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="vs-env-icon">
               <Icon name="mic" size={28} />
             </div>
-            <div className="vs-env-title">语音输入暂不可用</div>
-            <div className="vs-env-desc">当前为内测阶段，语音识别仅支持浏览器环境。您可以手动输入任务，或复制链接到浏览器使用语音。</div>
-            <button className="vs-env-btn" onClick={() => {
-              // 兼容HTTP环境的复制方法
-              const textArea = document.createElement('textarea');
-              textArea.value = window.location.href;
-              document.body.appendChild(textArea);
-              textArea.select();
-              try {
-                document.execCommand('copy');
-                const btn = document.querySelector('.vs-env-btn');
-                if (btn) {
-                  btn.textContent = '链接已复制，请打开浏览器粘贴';
-                  btn.style.background = '#2ecc71';
-                  btn.style.color = '#fff';
-                  btn.disabled = true;
-                  setTimeout(() => {
-                    setShowEnvDialog(false);
-                  }, 2000);
-                }
-              } catch (e) {
-                prompt('请手动复制链接：', window.location.href);
-              }
-              document.body.removeChild(textArea);
-            }}>
-              复制链接，去浏览器打开
+            <div className="vs-env-title">语音服务暂时不可用</div>
+            <div className="vs-env-desc">当前环境暂时无法使用语音识别，您可以直接手动输入任务，系统会自动识别时间和内容。</div>
+            <button
+              className="vs-env-btn"
+              onClick={() => {
+                setShowEnvDialog(false);
+                setTimeout(() => {
+                  const el = taRef.current;
+                  if (el) el.focus();
+                }, 200);
+              }}
+            >
+              手动输入
             </button>
           </div>
         </div>

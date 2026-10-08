@@ -1,6 +1,7 @@
 require('dotenv').config();
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
+const { cnNow, cnYmd } = require('../util/timecn');
 
 const cfg = {
   host: process.env.DB_HOST || '127.0.0.1',
@@ -139,13 +140,15 @@ async function run() {
     for (const [n, c] of defs) {
       await conn.query('INSERT IGNORE INTO categories(user_id,name,color) VALUES(?,?,?)', [uid, n, c]);
     }
-    const today = new Date();
-    const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
+    // 种子日期按北京时间，避免 UTC 容器在凌晨时段写成前一天
+    const today = cnNow();
+    const tmr = new Date(today.getTime()); tmr.setUTCDate(tmr.getUTCDate() + 1);
+    const dToday = cnYmd(today), dTmr = cnYmd(tmr);
     const samples = [
-      [uid, ymd(today), '写作业', '19:00:00', '21:00:00', '图书馆', '学习', 0, 0, '完成数学和英语作业', null],
-      [uid, ymd(today), '健身', '07:30:00', '08:30:00', '健身房', '运动', 0, 30, null, null],
-      [uid, ymd(today), '团队周会', '14:00:00', '15:00:00', '会议室A', '工作', 0, 15, null, '[1,3,5]'],
-      [uid, ymd(tmr), '去看电影', '20:00:00', '22:00:00', '万达影城', '生活', 0, -1, null, null]
+      [uid, dToday, '写作业', '19:00:00', '21:00:00', '图书馆', '学习', 0, 0, '完成数学和英语作业', null],
+      [uid, dToday, '健身', '07:30:00', '08:30:00', '健身房', '运动', 0, 30, null, null],
+      [uid, dToday, '团队周会', '14:00:00', '15:00:00', '会议室A', '工作', 0, 15, null, '[1,3,5]'],
+      [uid, dTmr, '去看电影', '20:00:00', '22:00:00', '万达影城', '生活', 0, -1, null, null]
     ];
     for (const s of samples) {
       await conn.query(

@@ -4,6 +4,7 @@ const { parseVoice, parseVoiceMulti } = require('../util/parse');
 const { parseTasksWithDeepSeek, parseVoiceAction, hasDeepSeek } = require('../util/deepseek');
 const { rateLimit } = require('../middleware/rateLimit');
 const { asyncRouter } = require('../middleware/asyncHandler');
+const { cnYmd } = require('../util/timecn');
 
 const router = asyncRouter();
 
@@ -51,7 +52,7 @@ router.post('/parse', parseLimiter, async (req, res) => {
   if (!text || !String(text).trim()) {
     return res.status(400).json({ error: '缺少文本' });
   }
-  const base = /^\d{4}-\d{2}-\d{2}$/.test(String(baseDate || '')) ? baseDate : ymd(new Date());
+  const base = /^\d{4}-\d{2}-\d{2}$/.test(String(baseDate || '')) ? baseDate : cnYmd();
 
   /* 取用户近期的任务当上下文：模型据此判断「是在改哪一条」 */
   let existing = [];

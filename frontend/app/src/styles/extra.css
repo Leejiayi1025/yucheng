@@ -4331,3 +4331,30 @@ button:active, .primary-btn:active, .vs-submit:active, .vs-immersive-btn.done:ac
     0 4px 10px -5px rgba(16, 26, 44, 0.3);
 }
 
+/* ============================================================
+   对齐修复：登录 / 注册 / 找回密码页顶部必须等高。
+   返回按钮改为绝对定位，不再占据文档流把 logo 往下挤；
+   .auth-brand.has-back 的 padding 恢复为与普通 auth-brand 一致。
+   ============================================================ */
+.auth-content { position: relative; }
+.auth-back {
+  position: absolute !important;
+  top: 12px !important;
+  left: 28px !important;
+  margin: 0 !important;
+}
+.auth-brand.has-back { padding: 44px 0 32px; }
+
+/* 一级降级提示小条：云端不可用、已切换浏览器识别 */
+.vs-fallback-note {
+  margin: 8px 16px 0;
+  padding: 7px 12px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #92641c;
+  background: #fbf1dd;
+  border: 1px solid #f0e0bd;
+  border-radius: 10px;
+  text-align: center;
+}
+

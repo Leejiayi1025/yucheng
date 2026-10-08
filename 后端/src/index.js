@@ -170,6 +170,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/categories', catRoutes);
 app.use('/api/voice', voiceRoutes);
+app.use('/api/voice/asr', require('./routes/asr'));
 
 // 前端页面托管：优先 Vite 构建产物 frontend/app/dist（真正的前端工程），
 // 其次才是旧的单文件 h5（仅作参考，已不推荐使用）

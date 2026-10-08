@@ -33,6 +33,14 @@ export default function Today({ page, onPage }) {
   const [editing, setEditing] = useState(null);
   const [manualType, setManualType] = useState('event');
   const [conflict, setConflict] = useState(null);
+  /* 两个分组的折叠状态，跨会话保留 */
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('yc_sections') || '{}') || {};
+    } catch {
+      return {};
+    }
+  });
   const stripRef = useRef(null);
 
   /* 原型行为：选中日自动滚到日期条中间 */
@@ -157,32 +165,60 @@ export default function Today({ page, onPage }) {
     });
   };
 
-  const secTitle = (name, count, mt, addType) => (
-    <div className="sec-title" style={mt ? { marginTop: 24 } : undefined}>
-      <span className="st-left">
-        {name} <span className="count">{count}</span>
-      </span>
-      {addType && (
+  /* 分组折叠：点标题整行切换。
+     状态记在 localStorage 里 —— 用户把它折起来多半是「这几天不想看」，
+     下次打开又自动展开会很烦。 */
+  const toggleSection = (key) =>
+    setCollapsed((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      try {
+        localStorage.setItem('yc_sections', JSON.stringify(next));
+      } catch {
+        /* 隐私模式下写不了，忽略 */
+      }
+      return next;
+    });
+
+  const secTitle = (name, count, mt, addType, sectionKey) => {
+    const isCollapsed = !!collapsed[sectionKey];
+    return (
+      <div className="sec-title" style={mt ? { marginTop: 24 } : undefined}>
         <span
-          className="st-add"
+          className="st-left st-toggle"
           role="button"
           tabIndex={0}
-          aria-label={'手动添加' + name}
-          onClick={() => openNew(addType)}
+          aria-expanded={!isCollapsed}
+          aria-label={(isCollapsed ? '展开' : '收起') + name}
+          onClick={() => toggleSection(sectionKey)}
         >
-          <Icon name="plus" size={18} stroke />
+          {/* 箭头跟着折叠状态转 90°，是「可点」的唯一视觉提示 */}
+          <span className={'st-caret' + (isCollapsed ? '' : ' open')} aria-hidden="true">
+            <Icon name="right" size={14} stroke />
+          </span>
+          {name} <span className="count">{count}</span>
         </span>
-      )}
-    </div>
-  );
+        {addType && (
+          <span
+            className="st-add"
+            role="button"
+            tabIndex={0}
+            aria-label={'手动添加' + name}
+            onClick={() => openNew(addType)}
+          >
+            <Icon name="plus" size={18} stroke />
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="screen">
       <div className="content">
         <div className="today-sticky">
-          <div className="topbar">
-            <div className="left"></div>
-          </div>
+          {/* 这里原本有一个空的 .topbar —— 它在日历/我的页里是放标题用的，
+              但今日页里只有个空 div，白白占掉 44px 高度（屏幕的 5%）。
+              顶部安全区由 .screen 的 env(safe-area-inset-top) 负责，不需要它。 */}
           <div className="date-header">
             <div>
               <h2>{isToday ? '今日' : '安排'}</h2>
@@ -224,43 +260,45 @@ export default function Today({ page, onPage }) {
         </div>
 
         <div id="todayBody">
-          {secTitle('今日安排', timed.length, false, 'event')}
-          {timed.length === 0 ? (
-            <div className="empty-hint">这一天还没有安排</div>
-          ) : (
-            timed.map((t) => (
-              <TaskCard
-                key={t.id}
-                t={t}
-                onToggle={toggleDone}
-                onEdit={openEdit}
-                onPostpone={(x) => {
-                  setEditing(x);
-                  setSheet('postpone');
-                }}
-                onDelete={removeWithUndo}
-              />
-            ))
-          )}
+          {secTitle('今日安排', timed.length, false, 'event', 'event')}
+          {!collapsed.event &&
+            (timed.length === 0 ? (
+              <div className="empty-hint">这一天还没有安排</div>
+            ) : (
+              timed.map((t) => (
+                <TaskCard
+                  key={t.id}
+                  t={t}
+                  onToggle={toggleDone}
+                  onEdit={openEdit}
+                  onPostpone={(x) => {
+                    setEditing(x);
+                    setSheet('postpone');
+                  }}
+                  onDelete={removeWithUndo}
+                />
+              ))
+            ))}
 
-          {secTitle('待办事项', todos.length, true, 'todo')}
-          {todos.length === 0 ? (
-            <div className="empty-hint">没有待办，享受轻松时刻</div>
-          ) : (
-            todos.map((t) => (
-              <TaskCard
-                key={t.id}
-                t={t}
-                onToggle={toggleDone}
-                onEdit={openEdit}
-                onPostpone={(x) => {
-                  setEditing(x);
-                  setSheet('postpone');
-                }}
-                onDelete={removeWithUndo}
-              />
-            ))
-          )}
+          {secTitle('待办事项', todos.length, true, 'todo', 'todo')}
+          {!collapsed.todo &&
+            (todos.length === 0 ? (
+              <div className="empty-hint">没有待办，享受轻松时刻</div>
+            ) : (
+              todos.map((t) => (
+                <TaskCard
+                  key={t.id}
+                  t={t}
+                  onToggle={toggleDone}
+                  onEdit={openEdit}
+                  onPostpone={(x) => {
+                    setEditing(x);
+                    setSheet('postpone');
+                  }}
+                  onDelete={removeWithUndo}
+                />
+              ))
+            ))}
         </div>
       </div>
 
