@@ -475,14 +475,12 @@ export default function VoiceSheet({ defaultDate, onClose, onAddAll, onUpdate, o
           </div>
           <div className="vs-immersive-actions">
             <button className="vs-immersive-btn cancel" onClick={onClose}>
-              <Icon name="close" size={18} />
               取消
             </button>
             <button
               className="vs-immersive-btn done"
               onClick={() => (connecting ? onClose() : stopListening())}
             >
-              <Icon name="check" size={18} />
               完成
             </button>
           </div>

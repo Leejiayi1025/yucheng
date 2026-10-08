@@ -36,7 +36,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hir
 .topbar .profile svg{width:18px;height:18px;color:#7D7065}
 
 /* today */
-.today-sticky{position:sticky;top:0;z-index:80;margin:0 -20px;padding:0 20px}
+.today-sticky{position:sticky;top:0;z-index:80;margin:0 -20px;padding:12px 20px 0}
 .today-sticky .topbar{padding:0;height:36px;align-items:flex-start;padding-top:4px}
 .today-sticky .date-header{display:flex;align-items:center;justify-content:space-between;margin-top:0;margin-bottom:10px}
 .today-sticky .date-header h2{font-size:24px;font-weight:700;letter-spacing:-.4px;line-height:1.1;margin:0}
@@ -340,12 +340,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hir
 .month-grid{display:flex;flex-direction:column;gap:6px}
 .mg-head,.mg-row{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .mg-head span{text-align:center;font-size:11px;color:var(--text2);padding:4px 0}
-.mg-cell{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:14px;border-radius:50%;position:relative;cursor:pointer;transition:background .12s}
-.mg-cell:active{background:var(--line)}
+.mg-cell{height:36px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer}
+.mg-n{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;transition:background .12s,box-shadow .12s}
+.mg-cell:active .mg-n{background:var(--line)}
 .mg-cell.empty{visibility:hidden;cursor:default}
-.mg-cell.has::after{content:'';position:absolute;bottom:4px;width:5px;height:5px;border-radius:50%;background:var(--primary)}
-.mg-cell.today{background:var(--primary);color:#fff;font-weight:700}
-.mg-cell.today.has::after{background:#fff}
+.mg-cell.has::after{content:'';position:absolute;bottom:2px;width:4px;height:4px;border-radius:50%;background:var(--primary)}
+.mg-cell.today .mg-n{background:var(--primary);color:var(--on-primary);font-weight:700}
 /* month navigation */
 .month-nav{display:flex;align-items:center;justify-content:space-between;margin:2px 0 12px}
 .mn-btn{width:32px;height:32px;flex-shrink:0;border:none;border-radius:50%;background:var(--card);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:transform .12s}
@@ -354,7 +354,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hir
 .mn-title{flex:1;text-align:center;font-size:15px;font-weight:600;color:var(--text2);letter-spacing:.2px}
 .month-back{text-align:center;margin:-4px 0 10px}
 /* 月视图：选中态（今日已是实心，其余用描边区分） */
-.mg-cell.sel:not(.today){box-shadow:inset 0 0 0 1.5px var(--primary);color:var(--primary);font-weight:600}
+.mg-cell.sel:not(.today) .mg-n{box-shadow:inset 0 0 0 1.5px var(--primary);color:var(--primary);font-weight:600}
 /* 月视图下方：当天清单 */
 .month-daylist{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
 .md-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}

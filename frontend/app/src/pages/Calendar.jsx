@@ -335,7 +335,9 @@ export default function Calendar({ page, onPage }) {
                       }
                       onClick={() => setSelected(ds)}
                     >
-                      {d.getDate()}
+                      {/* 圆形高亮挂在这个 span 上，格子本身就能压扁成扁矩形 ——
+                          否则格子必须保持正方形，6 行白白多占 50px */}
+                      <span className="mg-n">{d.getDate()}</span>
                     </div>
                   );
                 })}
